@@ -711,7 +711,7 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
       <button id="addMarkerBtn" type="button" style="flex:1;padding:10px;background:rgba(0,200,100,.3);border:1px solid rgba(0,255,100,.4);border-radius:8px;color:#fff;cursor:pointer;font-weight:700;">
         <span>+ Add Marker</span>
       </button>
-      <select id="markerTypeSelector" style="flex:1;display:none;">
+      <select id="markerTypeSelector" style="flex:1;display:none;" aria-label="Select marker type">
         <option value="">Select type...</option>
         <option value="helix">Helix (Starlings)</option>
         <option value="bird">Bird Halo</option>
@@ -4668,8 +4668,9 @@ const markerTypeDefaults = {
 };
 
 // Add new marker
+let markerIdCounter = 0;
 function addMarker(type) {
-  const id = `marker_${Date.now()}`;
+  const id = `marker_${Date.now()}_${markerIdCounter++}`;
   const config = {
     id,
     type,
@@ -4728,12 +4729,27 @@ function renderMarkersList() {
   
   // Wire up control changes
   container.querySelectorAll('[data-id][data-prop]').forEach(input => {
-    input.addEventListener('input', (e) => {
-      updateMarkerProperty(e.target.dataset.id, e.target.dataset.prop, e.target.value);
-    });
-    input.addEventListener('change', (e) => {
-      updateMarkerProperty(e.target.dataset.id, e.target.dataset.prop, e.target.value);
-    });
+    const inputType = input.type;
+    // For color and select inputs, only use change event
+    // For number inputs, use both but debounce input
+    if (inputType === 'color' || input.tagName === 'SELECT') {
+      input.addEventListener('change', (e) => {
+        updateMarkerProperty(e.target.dataset.id, e.target.dataset.prop, e.target.value);
+      });
+    } else {
+      // Debounce input events
+      let timeoutId;
+      input.addEventListener('input', (e) => {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+          updateMarkerProperty(e.target.dataset.id, e.target.dataset.prop, e.target.value);
+        }, 150);
+      });
+      input.addEventListener('change', (e) => {
+        clearTimeout(timeoutId);
+        updateMarkerProperty(e.target.dataset.id, e.target.dataset.prop, e.target.value);
+      });
+    }
   });
 }
 
@@ -4874,7 +4890,7 @@ function applyAllMarkers() {
 // Build FX based on marker config (adapts existing FX generation)
 function buildMarkerFXFromConfig(config, targetMarker) {
   // Store current markerFxCfg and markerFxMode to restore later
-  const oldCfg = {...markerFxCfg};
+  const oldCfg = JSON.parse(JSON.stringify(markerFxCfg));
   const oldMode = markerFxMode;
   
   // Set config from marker instance
