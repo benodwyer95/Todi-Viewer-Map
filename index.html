@@ -680,6 +680,36 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
     Helix uses a noisy flow field so it “flutters” like a murmuration rather than a perfect spiral.
     Use Top/Bottom/Radius to tighten the whole effect.
   </div>
+  
+  <!-- Marker FX Presets -->
+  <div style="margin-top:16px;padding-top:12px;border-top:1px solid rgba(255,255,255,.12)">
+    <div style="font-weight:700;margin-bottom:8px">Marker FX Presets</div>
+    
+    <div class="row">
+      <label>Preset Name</label>
+      <input id="markerFxPresetName" type="text" placeholder="e.g. Blue Helix" style="width:100%;padding:6px"/>
+    </div>
+    
+    <div class="row">
+      <button id="markerFxSavePresetBtn" type="button" style="width:48%">Save</button>
+      <button id="markerFxLoadPresetBtn" type="button" style="width:48%">Load</button>
+    </div>
+    
+    <div class="row">
+      <select id="markerFxPresetSel" style="width:100%"></select>
+    </div>
+    
+    <div class="row">
+      <button id="markerFxDeletePresetBtn" type="button" style="width:48%">Delete</button>
+      <button id="markerFxCopyBtn" type="button" style="width:48%">Copy JSON</button>
+    </div>
+    
+    <div class="row">
+      <button id="markerFxApplyBtn" type="button" style="width:100%">Apply JSON</button>
+    </div>
+    
+    <textarea id="markerFxSettingsBox" placeholder="Paste marker FX JSON here" style="width:100%;height:80px;font-size:11px;font-family:monospace;margin-top:4px"></textarea>
+  </div>
 </div>
 
 
@@ -4577,6 +4607,113 @@ function updateMarkerFx(dt){
   }
 }
 
+// ================= Marker FX Preset System =================
+const MARKER_FX_PRESET_KEY = "todi_markerFx_presets_v1";
+
+function getMarkerFxSettings() {
+  return {
+    mode: markerFxMode,
+    config: JSON.parse(JSON.stringify(markerFxCfg))
+  };
+}
+
+function applyMarkerFxSettings(settings) {
+  if (!settings) return;
+  
+  // Apply mode
+  if (settings.mode) {
+    markerFxMode = settings.mode;
+    const sel = document.getElementById("markerFxSel");
+    if (sel) sel.value = markerFxMode;
+  }
+  
+  // Apply config
+  if (settings.config) {
+    Object.assign(markerFxCfg, settings.config);
+    
+    // Update UI elements
+    const cH = document.getElementById("fxHelixColor");
+    const cR = document.getElementById("fxRingColor");
+    const cB = document.getElementById("fxBirdColor");
+    const sp = document.getElementById("fxSpeed");
+    const dr = document.getElementById("fxDir");
+    const topY = document.getElementById("fxTopY");
+    const botY = document.getElementById("fxBotY");
+    const rad = document.getElementById("fxRadius");
+    const trn = document.getElementById("fxTurns");
+    const jit = document.getElementById("fxJitter");
+    const flk = document.getElementById("fxFlock");
+    
+    if (cH) cH.value = markerFxCfg.helixColor || "#7efcff";
+    if (cR) cR.value = markerFxCfg.ringColor || "#b6ff6a";
+    if (cB) cB.value = markerFxCfg.birdColor || "#ffffff";
+    if (sp) sp.value = String(markerFxCfg.speed ?? 1.0);
+    if (dr) dr.value = markerFxCfg.dir || "cw";
+    if (topY) topY.value = String(markerFxCfg.topY ?? 55);
+    if (botY) botY.value = String(markerFxCfg.botY ?? -55);
+    if (rad) rad.value = String(markerFxCfg.radius ?? 18);
+    if (trn) trn.value = String(markerFxCfg.turns ?? 5.0);
+    if (jit) jit.value = String(markerFxCfg.jitter ?? 2.2);
+    if (flk) flk.value = String(markerFxCfg.flock ?? 0.35);
+    
+    // Reapply to markers
+    for(const m of _getVerifierMarkers()) applyMarkerFxToMarker(m);
+  }
+  
+  syncMarkerFxSettingsBox();
+}
+
+function syncMarkerFxSettingsBox() {
+  const box = document.getElementById('markerFxSettingsBox');
+  if (box) box.value = JSON.stringify(getMarkerFxSettings(), null, 2);
+}
+
+function loadMarkerFxPresetStore() {
+  try {
+    const raw = localStorage.getItem(MARKER_FX_PRESET_KEY);
+    const list = raw ? JSON.parse(raw) : [];
+    return Array.isArray(list) ? list : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveMarkerFxPresetStore(list) {
+  localStorage.setItem(MARKER_FX_PRESET_KEY, JSON.stringify(list));
+}
+
+function refreshMarkerFxPresetList() {
+  const presetSel = document.getElementById('markerFxPresetSel');
+  if (!presetSel) return;
+  const all = loadMarkerFxPresetStore();
+  presetSel.innerHTML = "";
+  if (all.length === 0) {
+    const opt = document.createElement("option");
+    opt.value = "-1";
+    opt.textContent = "(no presets saved)";
+    presetSel.appendChild(opt);
+  } else {
+    all.forEach((p, i) => {
+      const opt = document.createElement("option");
+      opt.value = String(i);
+      opt.textContent = p.name;
+      presetSel.appendChild(opt);
+    });
+  }
+}
+
+async function copyMarkerFxSettings() {
+  const txt = JSON.stringify(getMarkerFxSettings(), null, 2);
+  const box = document.getElementById('markerFxSettingsBox');
+  if (box) box.value = txt;
+  try {
+    await navigator.clipboard.writeText(txt);
+    alert("Marker FX settings copied ✔");
+  } catch {
+    alert("Copied to box (clipboard blocked) ✔");
+  }
+}
+
 function hookMarkerFxUI(){
   const sel = document.getElementById("markerFxSel");
   const cH = document.getElementById("fxHelixColor");
@@ -4600,21 +4737,76 @@ function hookMarkerFxUI(){
     sel.onchange = ()=>{
       markerFxMode = sel.value;
       reapply();
+      syncMarkerFxSettingsBox();
     };
   }
-  if(cH) cH.oninput = ()=> markerFxCfg.helixColor = cH.value;
-  if(cR) cR.oninput = ()=> markerFxCfg.ringColor  = cR.value;
-  if(cB) cB.oninput = ()=> markerFxCfg.birdColor  = cB.value;
+  if(cH) cH.oninput = ()=> { markerFxCfg.helixColor = cH.value; syncMarkerFxSettingsBox(); };
+  if(cR) cR.oninput = ()=> { markerFxCfg.ringColor  = cR.value; syncMarkerFxSettingsBox(); };
+  if(cB) cB.oninput = ()=> { markerFxCfg.birdColor  = cB.value; syncMarkerFxSettingsBox(); };
 
-  if(sp) sp.oninput = ()=> markerFxCfg.speed = parseFloat(sp.value || "1");
-  if(dr) dr.onchange = ()=> markerFxCfg.dir = dr.value;
+  if(sp) sp.oninput = ()=> { markerFxCfg.speed = parseFloat(sp.value || "1"); syncMarkerFxSettingsBox(); };
+  if(dr) dr.onchange = ()=> { markerFxCfg.dir = dr.value; syncMarkerFxSettingsBox(); };
 
-  if(topY) topY.oninput = ()=>{ markerFxCfg.topY = parseFloat(topY.value||"55"); reapply(); };
-  if(botY) botY.oninput = ()=>{ markerFxCfg.botY = parseFloat(botY.value||"-55"); reapply(); };
-  if(rad)  rad.oninput  = ()=>{ markerFxCfg.radius = parseFloat(rad.value||"18"); reapply(); };
-  if(trn)  trn.oninput  = ()=>{ markerFxCfg.turns  = parseFloat(trn.value||"5"); reapply(); };
-  if(jit)  jit.oninput  = ()=> markerFxCfg.jitter = parseFloat(jit.value||"2.2");
-  if(flk)  flk.oninput  = ()=> markerFxCfg.flock  = parseFloat(flk.value||"0.35");
+  if(topY) topY.oninput = ()=>{ markerFxCfg.topY = parseFloat(topY.value||"55"); reapply(); syncMarkerFxSettingsBox(); };
+  if(botY) botY.oninput = ()=>{ markerFxCfg.botY = parseFloat(botY.value||"-55"); reapply(); syncMarkerFxSettingsBox(); };
+  if(rad)  rad.oninput  = ()=>{ markerFxCfg.radius = parseFloat(rad.value||"18"); reapply(); syncMarkerFxSettingsBox(); };
+  if(trn)  trn.oninput  = ()=>{ markerFxCfg.turns  = parseFloat(trn.value||"5"); reapply(); syncMarkerFxSettingsBox(); };
+  if(jit)  jit.oninput  = ()=> { markerFxCfg.jitter = parseFloat(jit.value||"2.2"); syncMarkerFxSettingsBox(); };
+  if(flk)  flk.oninput  = ()=> { markerFxCfg.flock  = parseFloat(flk.value||"0.35"); syncMarkerFxSettingsBox(); };
+  
+  // Preset buttons
+  const saveBtn = document.getElementById('markerFxSavePresetBtn');
+  const loadBtn = document.getElementById('markerFxLoadPresetBtn');
+  const deleteBtn = document.getElementById('markerFxDeletePresetBtn');
+  const copyBtn = document.getElementById('markerFxCopyBtn');
+  const applyBtn = document.getElementById('markerFxApplyBtn');
+  const presetName = document.getElementById('markerFxPresetName');
+  const presetSel = document.getElementById('markerFxPresetSel');
+  
+  if (saveBtn) saveBtn.onclick = () => {
+    const name = (presetName?.value || "").trim();
+    if (!name) { alert("Preset needs a name."); return; }
+    const list = loadMarkerFxPresetStore();
+    list.push({ name, settings: getMarkerFxSettings() });
+    saveMarkerFxPresetStore(list);
+    refreshMarkerFxPresetList();
+    alert("Marker FX preset saved ✔");
+  };
+  
+  if (loadBtn) loadBtn.onclick = () => {
+    const i = parseInt(presetSel?.value ?? "-1", 10);
+    const list = loadMarkerFxPresetStore();
+    if (!list[i]) { alert("No preset selected."); return; }
+    applyMarkerFxSettings(list[i].settings);
+    alert("Marker FX preset loaded ✔");
+  };
+  
+  if (deleteBtn) deleteBtn.onclick = () => {
+    const i = parseInt(presetSel?.value ?? "-1", 10);
+    const list = loadMarkerFxPresetStore();
+    if (!list[i]) { alert("No preset selected."); return; }
+    list.splice(i, 1);
+    saveMarkerFxPresetStore(list);
+    refreshMarkerFxPresetList();
+    alert("Marker FX preset deleted ✔");
+  };
+  
+  if (copyBtn) copyBtn.onclick = copyMarkerFxSettings;
+  
+  if (applyBtn) applyBtn.onclick = () => {
+    const box = document.getElementById('markerFxSettingsBox');
+    try {
+      const obj = JSON.parse(box.value);
+      applyMarkerFxSettings(obj);
+      alert("Marker FX settings applied ✔");
+    } catch (err) {
+      alert("Invalid JSON:\n" + (err?.message || err));
+    }
+  };
+  
+  // Initialize
+  refreshMarkerFxPresetList();
+  syncMarkerFxSettingsBox();
 }
 async function init(){
   setStatus(`Fetching ${JSON_PATH}…`);
