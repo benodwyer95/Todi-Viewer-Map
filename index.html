@@ -475,49 +475,8 @@ hr.ovSep{border:none;border-top:1px solid rgba(255,255,255,.12);margin:10px 0}
   position:fixed;
   top:50%;
   transform:translateY(-50%);
-  width:30px;height:54px;
-  display:flex;
-  align-items:center;justify-content:center;
-  background:rgba(0,0,0,.60);
-  border:1px solid rgba(255,255,255,.22);
-  border-radius:12px;
-  color:#fff;
-  cursor:pointer;
-  user-select:none;
-  z-index:100000;
-  backdrop-filter: blur(8px);
-  font-weight:900;
-  opacity:0;
-  pointer-events:none;
-  transition: opacity .12s ease;
-}
-body.verifier-collapsed #edgeReopenLeft{ opacity:1; pointer-events:auto; }
-body.overlay-collapsed  #edgeReopenRight{ opacity:1; pointer-events:auto; }
-#edgeReopenLeft{ left:8px; }
-#edgeReopenRight{ right:8px; }
-
-
-/* --- Edge reopen buttons (appear only when docks collapsed) --- */
-
-/* --- EDGE REOPEN (hard) --- */
-
-#edgeReopenLeft{ left:10px !important; }
-#edgeReopenRight{ right:10px !important; }
-
-.edgeReopenBtn:hover{ transform: scale(1.04); }
-#edgeReopenLeft{ left:10px; }
-#edgeReopenRight{ right:10px; }
-body.verifier-collapsed #edgeReopenLeft{ opacity:1; pointer-events:auto; }
-body.overlay-collapsed  #edgeReopenRight{ opacity:1; pointer-events:auto; }
-
-
-/* === CLEAN EDGE REOPEN === */
-.edgeReopen{
-  position:fixed;
-  top:50%;
-  transform:translateY(-50%);
-  width:34px;
-  height:64px;
+  width:40px;
+  height:70px;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -526,16 +485,28 @@ body.overlay-collapsed  #edgeReopenRight{ opacity:1; pointer-events:auto; }
   border-radius:12px;
   color:#fff;
   cursor:pointer;
+  user-select:none;
   z-index:999999;
   backdrop-filter: blur(8px);
   font-weight:900;
+  font-size:16px;
   opacity:0;
   pointer-events:none;
+  transition: opacity .12s ease, transform .2s ease;
 }
-body.verifier-collapsed #edgeReopenLeft{opacity:1;pointer-events:auto;}
-body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
-#edgeReopenLeft{left:8px;}
-#edgeReopenRight{right:8px;}
+.edgeReopen:hover{
+  transform:translateY(-50%) scale(1.04);
+}
+body.verifier-collapsed #edgeReopenLeft{
+  opacity:1;
+  pointer-events:auto;
+}
+body.overlay-collapsed #edgeReopenRight{
+  opacity:1;
+  pointer-events:auto;
+}
+#edgeReopenLeft{left:10px;}
+#edgeReopenRight{right:10px;}
 
 </style>
 </head>
@@ -5127,68 +5098,13 @@ init().then(()=>animate()).catch(err=>{
 }
 #uiOverlay select, #uiOverlay input[type="range"]{ accent-color:#fff; }
 
-/* Edge reopen buttons (visible only when dock collapsed) */
-.edgeReopen{
-  position:fixed;
-  top:50%;
-  transform:translateY(-50%);
-  width:30px;height:54px;
-  display:flex;
-  align-items:center;justify-content:center;
-  background:rgba(0,0,0,.60);
-  border:1px solid rgba(255,255,255,.22);
-  border-radius:12px;
-  color:#fff;
-  cursor:pointer;
-  user-select:none;
-  z-index:100000;
-  backdrop-filter: blur(8px);
-  font-weight:900;
-  opacity:0;
-  pointer-events:none;
-  transition: opacity .12s ease;
-}
-body.verifier-collapsed #edgeReopenLeft{ opacity:1; pointer-events:auto; }
-body.overlay-collapsed  #edgeReopenRight{ opacity:1; pointer-events:auto; }
-#edgeReopenLeft{ left:8px; }
-#edgeReopenRight{ right:8px; }
 
-
-/* === CLEAN EDGE REOPEN === */
-.edgeReopen{
-  position:fixed;
-  top:50%;
-  transform:translateY(-50%);
-  width:34px;
-  height:64px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:rgba(0,0,0,.65);
-  border:1px solid rgba(255,255,255,.25);
-  border-radius:12px;
-  color:#fff;
-  cursor:pointer;
-  z-index:999999;
-  backdrop-filter: blur(8px);
-  font-weight:900;
-  opacity:0;
-  pointer-events:none;
-}
-body.verifier-collapsed #edgeReopenLeft{opacity:1;pointer-events:auto;}
-body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
-#edgeReopenLeft{left:8px;}
-#edgeReopenRight{right:8px;}
 
 </style>
 
 
-
-<div id="edgeReopenLeft" class="edgeReopen" title="Open verifier">▶</div>
-<div id="edgeReopenRight" class="edgeReopen" title="Open overlays">◀</div>
-
-<button id="edgeReopenLeft" class="edgeReopen">▶</button>
-<button id="edgeReopenRight" class="edgeReopen">◀</button>
+<button id="edgeReopenLeft" class="edgeReopen" title="Open verifier">▶</button>
+<button id="edgeReopenRight" class="edgeReopen" title="Open overlays">◀</button>
 
 </body>
 </html>
