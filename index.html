@@ -4693,7 +4693,7 @@ const markerTypeDefaults = {
 
 // Add new marker
 let markerIdCounter = 0;
-function addMarker(type) {
+function addMarkerFX(type) {
   const id = `marker_${markerIdCounter++}`;
   const config = {
     id,
@@ -4701,19 +4701,19 @@ function addMarker(type) {
     ...JSON.parse(JSON.stringify(markerTypeDefaults[type]))
   };
   activeMarkers.push(config);
-  renderMarkersList();
-  applyAllMarkers();
+  renderMarkerFXList();
+  applyAllMarkerFX();
 }
 
 // Remove marker
-function removeMarker(id) {
+function removeMarkerFX(id) {
   activeMarkers = activeMarkers.filter(m => m.id !== id);
-  renderMarkersList();
-  applyAllMarkers();
+  renderMarkerFXList();
+  applyAllMarkerFX();
 }
 
 // Render markers list UI
-function renderMarkersList() {
+function renderMarkerFXList() {
   const container = document.getElementById('activeMarkersList');
   if (!container) return;
   
@@ -4729,7 +4729,7 @@ function renderMarkersList() {
         <button class="markerDelete" data-id="${marker.id}" title="Delete">×</button>
       </div>
       <div class="markerBody" id="marker_${marker.id}">
-        ${renderMarkerControls(marker)}
+        ${renderMarkerFXControls(marker)}
       </div>
     `;
     container.appendChild(markerDiv);
@@ -4747,7 +4747,7 @@ function renderMarkersList() {
   
   container.querySelectorAll('.markerDelete').forEach(btn => {
     btn.addEventListener('click', (e) => {
-      removeMarker(e.target.dataset.id);
+      removeMarkerFX(e.target.dataset.id);
     });
   });
   
@@ -4759,7 +4759,7 @@ function renderMarkersList() {
     // For number inputs, use both but debounce input
     if (inputType === 'color' || input.tagName === 'SELECT') {
       input.addEventListener('change', (e) => {
-        updateMarkerProperty(e.target.dataset.id, e.target.dataset.prop, e.target.value);
+        updateMarkerFXProperty(e.target.dataset.id, e.target.dataset.prop, e.target.value);
       });
     } else {
       // Debounce input events with per-element timeout tracking
@@ -4767,21 +4767,21 @@ function renderMarkersList() {
         const existingTimeout = inputTimeouts.get(input);
         if (existingTimeout) clearTimeout(existingTimeout);
         const timeoutId = setTimeout(() => {
-          updateMarkerProperty(e.target.dataset.id, e.target.dataset.prop, e.target.value);
+          updateMarkerFXProperty(e.target.dataset.id, e.target.dataset.prop, e.target.value);
         }, 150);
         inputTimeouts.set(input, timeoutId);
       });
       input.addEventListener('change', (e) => {
         const existingTimeout = inputTimeouts.get(input);
         if (existingTimeout) clearTimeout(existingTimeout);
-        updateMarkerProperty(e.target.dataset.id, e.target.dataset.prop, e.target.value);
+        updateMarkerFXProperty(e.target.dataset.id, e.target.dataset.prop, e.target.value);
       });
     }
   });
 }
 
 // Update marker property
-function updateMarkerProperty(id, prop, value) {
+function updateMarkerFXProperty(id, prop, value) {
   const marker = activeMarkers.find(m => m.id === id);
   if (!marker) return;
   
@@ -4805,14 +4805,14 @@ function updateMarkerProperty(id, prop, value) {
   
   // Handle color mode changes
   if (prop === 'colorMode') {
-    renderMarkersList();
+    renderMarkerFXList();
   }
   
-  applyAllMarkers();
+  applyAllMarkerFX();
 }
 
 // Render individual marker controls
-function renderMarkerControls(marker) {
+function renderMarkerFXControls(marker) {
   const hasParticles = ['helix', 'bird', 'birdshape'].includes(marker.type);
   const hasHelixProps = marker.type === 'helix';
   
@@ -4896,7 +4896,7 @@ function renderMarkerControls(marker) {
 }
 
 // Apply all active markers to scene
-function applyAllMarkers() {
+function applyAllMarkerFX() {
   const markers = _getVerifierMarkers();
   markers.forEach(m => {
     // Remove all existing FX
@@ -4979,7 +4979,7 @@ function initModularMarkerSystem() {
     typeSelector.addEventListener('change', (e) => {
       const type = e.target.value;
       if (type && markerTypeDefaults[type]) {
-        addMarker(type);
+        addMarkerFX(type);
         // Reset dropdown
         e.target.value = '';
         typeSelector.style.display = 'none';
@@ -5043,7 +5043,7 @@ const labelTypeDefaults = {
 };
 
 // Add new label
-function addLabel(type) {
+function addLabelFX(type) {
   const id = `label_${Date.now()}`;
   const config = {
     id,
@@ -5051,19 +5051,19 @@ function addLabel(type) {
     ...JSON.parse(JSON.stringify(labelTypeDefaults[type]))
   };
   activeLabels.push(config);
-  renderLabelsList();
-  applyAllLabels();
+  renderLabelFXList();
+  applyAllLabelFX();
 }
 
 // Remove label
-function removeLabel(id) {
+function removeLabelFX(id) {
   activeLabels = activeLabels.filter(l => l.id !== id);
-  renderLabelsList();
-  applyAllLabels();
+  renderLabelFXList();
+  applyAllLabelFX();
 }
 
 // Render labels list UI
-function renderLabelsList() {
+function renderLabelFXList() {
   const container = document.getElementById('activeLabelsList');
   if (!container) return;
   
@@ -5079,7 +5079,7 @@ function renderLabelsList() {
         <button class="markerDelete" data-id="${label.id}" title="Delete">×</button>
       </div>
       <div class="markerBody" id="label_${label.id}">
-        ${renderLabelControls(label)}
+        ${renderLabelFXControls(label)}
       </div>
     `;
     container.appendChild(labelDiv);
@@ -5097,23 +5097,23 @@ function renderLabelsList() {
   
   container.querySelectorAll('.markerDelete').forEach(btn => {
     btn.addEventListener('click', (e) => {
-      removeLabel(e.target.dataset.id);
+      removeLabelFX(e.target.dataset.id);
     });
   });
   
   // Wire up control changes
   container.querySelectorAll('[data-id][data-prop]').forEach(input => {
     input.addEventListener('input', (e) => {
-      updateLabelProperty(e.target.dataset.id, e.target.dataset.prop, e.target.value);
+      updateLabelFXProperty(e.target.dataset.id, e.target.dataset.prop, e.target.value);
     });
     input.addEventListener('change', (e) => {
-      updateLabelProperty(e.target.dataset.id, e.target.dataset.prop, e.target.value);
+      updateLabelFXProperty(e.target.dataset.id, e.target.dataset.prop, e.target.value);
     });
   });
 }
 
 // Update label property
-function updateLabelProperty(id, prop, value) {
+function updateLabelFXProperty(id, prop, value) {
   const label = activeLabels.find(l => l.id === id);
   if (!label) return;
   
@@ -5128,14 +5128,14 @@ function updateLabelProperty(id, prop, value) {
   
   // Re-render if certain properties change
   if (prop === 'format' || prop === 'content' || prop === 'type') {
-    renderLabelsList();
+    renderLabelFXList();
   }
   
-  applyAllLabels();
+  applyAllLabelFX();
 }
 
 // Render individual label controls
-function renderLabelControls(label) {
+function renderLabelFXControls(label) {
   const hasLine = label.type === 'clickLine';
   const hasFade = label.type === 'hover' || (label.type === 'fixed' && label.fadeWithDistance);
   
@@ -5252,7 +5252,7 @@ function renderLabelControls(label) {
 }
 
 // Apply all active labels to scene (placeholder - actual implementation depends on rendering system)
-function applyAllLabels() {
+function applyAllLabelFX() {
   // This would integrate with the existing label/tip system in the codebase
   console.log('Applying label configurations:', activeLabels);
   
@@ -5282,7 +5282,7 @@ function initModularLabelSystem() {
     typeSelector.addEventListener('change', (e) => {
       const type = e.target.value;
       if (type && labelTypeDefaults[type]) {
-        addLabel(type);
+        addLabelFX(type);
         // Reset dropdown
         e.target.value = '';
         typeSelector.style.display = 'none';
