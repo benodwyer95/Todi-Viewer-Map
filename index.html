@@ -4712,6 +4712,9 @@ function removeMarkerFX(id) {
   applyAllMarkerFX();
 }
 
+// Debounce timers for marker controls
+const markerInputTimeouts = new WeakMap();
+
 // Render markers list UI
 function renderMarkerFXList() {
   const container = document.getElementById('activeMarkersList');
@@ -4728,7 +4731,7 @@ function renderMarkerFXList() {
         <span class="markerName">${marker.name}</span>
         <button class="markerDelete" data-id="${marker.id}" title="Delete">×</button>
       </div>
-      <div class="markerBody" id="marker_${marker.id}">
+      <div class="markerBody" id="${marker.id}_body">
         ${renderMarkerFXControls(marker)}
       </div>
     `;
@@ -4739,7 +4742,7 @@ function renderMarkerFXList() {
   container.querySelectorAll('.markerToggle').forEach(btn => {
     btn.addEventListener('click', (e) => {
       const id = e.target.dataset.id;
-      const body = document.getElementById(`marker_${id}`);
+      const body = document.getElementById(`${id}_body`);
       body.classList.toggle('collapsed');
       e.target.textContent = body.classList.contains('collapsed') ? '▶' : '▼';
     });
@@ -4752,7 +4755,6 @@ function renderMarkerFXList() {
   });
   
   // Wire up control changes
-  const inputTimeouts = new WeakMap();
   container.querySelectorAll('[data-id][data-prop]').forEach(input => {
     const inputType = input.type;
     // For color and select inputs, only use change event
@@ -4764,15 +4766,15 @@ function renderMarkerFXList() {
     } else {
       // Debounce input events with per-element timeout tracking
       input.addEventListener('input', (e) => {
-        const existingTimeout = inputTimeouts.get(input);
+        const existingTimeout = markerInputTimeouts.get(input);
         if (existingTimeout) clearTimeout(existingTimeout);
         const timeoutId = setTimeout(() => {
           updateMarkerFXProperty(e.target.dataset.id, e.target.dataset.prop, e.target.value);
         }, 150);
-        inputTimeouts.set(input, timeoutId);
+        markerInputTimeouts.set(input, timeoutId);
       });
       input.addEventListener('change', (e) => {
-        const existingTimeout = inputTimeouts.get(input);
+        const existingTimeout = markerInputTimeouts.get(input);
         if (existingTimeout) clearTimeout(existingTimeout);
         updateMarkerFXProperty(e.target.dataset.id, e.target.dataset.prop, e.target.value);
       });
@@ -4993,6 +4995,7 @@ function initModularMarkerSystem() {
 
 // Active label configurations
 let activeLabels = [];
+let labelIdCounter = 0;
 
 // Label type definitions with default properties
 const labelTypeDefaults = {
@@ -5044,7 +5047,7 @@ const labelTypeDefaults = {
 
 // Add new label
 function addLabelFX(type) {
-  const id = `label_${Date.now()}`;
+  const id = `label_${labelIdCounter++}`;
   const config = {
     id,
     type,
@@ -5062,6 +5065,9 @@ function removeLabelFX(id) {
   applyAllLabelFX();
 }
 
+// Debounce timers for label controls
+const labelInputTimeouts = new WeakMap();
+
 // Render labels list UI
 function renderLabelFXList() {
   const container = document.getElementById('activeLabelsList');
@@ -5078,7 +5084,7 @@ function renderLabelFXList() {
         <span class="markerName">${label.name}</span>
         <button class="markerDelete" data-id="${label.id}" title="Delete">×</button>
       </div>
-      <div class="markerBody" id="label_${label.id}">
+      <div class="markerBody" id="${label.id}_body">
         ${renderLabelFXControls(label)}
       </div>
     `;
@@ -5089,7 +5095,7 @@ function renderLabelFXList() {
   container.querySelectorAll('.markerToggle').forEach(btn => {
     btn.addEventListener('click', (e) => {
       const id = e.target.dataset.id;
-      const body = document.getElementById(`label_${id}`);
+      const body = document.getElementById(`${id}_body`);
       body.classList.toggle('collapsed');
       e.target.textContent = body.classList.contains('collapsed') ? '▶' : '▼';
     });
@@ -5103,12 +5109,29 @@ function renderLabelFXList() {
   
   // Wire up control changes
   container.querySelectorAll('[data-id][data-prop]').forEach(input => {
-    input.addEventListener('input', (e) => {
-      updateLabelFXProperty(e.target.dataset.id, e.target.dataset.prop, e.target.value);
-    });
-    input.addEventListener('change', (e) => {
-      updateLabelFXProperty(e.target.dataset.id, e.target.dataset.prop, e.target.value);
-    });
+    const inputType = input.type;
+    // For color and select inputs, only use change event
+    // For text and number inputs, debounce input
+    if (inputType === 'color' || input.tagName === 'SELECT') {
+      input.addEventListener('change', (e) => {
+        updateLabelFXProperty(e.target.dataset.id, e.target.dataset.prop, e.target.value);
+      });
+    } else {
+      // Debounce input events with per-element timeout tracking
+      input.addEventListener('input', (e) => {
+        const existingTimeout = labelInputTimeouts.get(input);
+        if (existingTimeout) clearTimeout(existingTimeout);
+        const timeoutId = setTimeout(() => {
+          updateLabelFXProperty(e.target.dataset.id, e.target.dataset.prop, e.target.value);
+        }, 150);
+        labelInputTimeouts.set(input, timeoutId);
+      });
+      input.addEventListener('change', (e) => {
+        const existingTimeout = labelInputTimeouts.get(input);
+        if (existingTimeout) clearTimeout(existingTimeout);
+        updateLabelFXProperty(e.target.dataset.id, e.target.dataset.prop, e.target.value);
+      });
+    }
   });
 }
 
