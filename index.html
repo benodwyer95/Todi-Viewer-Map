@@ -1080,17 +1080,47 @@ npx http-server . -a 127.0.0.1 -p 8000 -c-1</code>
     }
   }catch(e){}
 
-  // Handle collapsible sections (Marker FX, Label FX)
-  document.querySelectorAll('.sectionHeader').forEach(header => {
-    header.addEventListener('click', () => {
+  // Handle collapsible sections (Marker FX, Label FX) with localStorage persistence
+  const initCollapsibleSections = () => {
+    document.querySelectorAll('.sectionHeader').forEach(header => {
+      const sectionName = header.dataset.section;
       const body = header.nextElementSibling;
       const toggle = header.querySelector('.sectionToggle');
-      if (body && toggle) {
-        body.classList.toggle('collapsed');
-        toggle.textContent = body.classList.contains('collapsed') ? '►' : '▼';
+      
+      if (!body || !toggle || !sectionName) return;
+      
+      // Load saved state from localStorage (defaults to collapsed)
+      const storageKey = `${sectionName}Expanded`;
+      const isExpanded = localStorage.getItem(storageKey) === 'true';
+      
+      if (isExpanded) {
+        body.classList.remove('collapsed');
+        toggle.textContent = '▼';
+      } else {
+        body.classList.add('collapsed');
+        toggle.textContent = '►';
       }
+      
+      // Add click handler
+      header.addEventListener('click', () => {
+        body.classList.toggle('collapsed');
+        const expanded = !body.classList.contains('collapsed');
+        toggle.textContent = expanded ? '▼' : '►';
+        localStorage.setItem(storageKey, String(expanded));
+      });
     });
-  });
+  };
+  
+  // Initialize after mount
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => {
+      mount();
+      initCollapsibleSections();
+    });
+  } else {
+    mount();
+    initCollapsibleSections();
+  }
 })();
 
 import * as THREE from 'three';
