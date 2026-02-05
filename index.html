@@ -537,6 +537,55 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
 #edgeReopenLeft{left:8px;}
 #edgeReopenRight{right:8px;}
 
+/* Collapsible FX Sections */
+.fxSection {
+  border-top: 1px solid rgba(255,255,255,.12);
+  background: rgba(0,0,0,.25);
+}
+
+.fxSectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  cursor: pointer;
+  user-select: none;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.fxSectionHeader:hover {
+  background: rgba(255,255,255,.05);
+}
+
+.fxToggle {
+  border: none;
+  background: transparent;
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px;
+  transition: transform .2s;
+}
+
+.fxSection.collapsed .fxToggle {
+  transform: rotate(-90deg);
+}
+
+.fxSectionBody {
+  padding: 12px;
+  max-height: 600px;
+  overflow-y: auto;
+  transition: max-height .3s ease, opacity .3s ease;
+}
+
+.fxSection.collapsed .fxSectionBody {
+  max-height: 0;
+  opacity: 0;
+  padding: 0 12px;
+  overflow: hidden;
+}
+
 </style>
 </head>
 <body>
@@ -600,87 +649,6 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
   </div>
 
   <div id="uiBody">
-  <div style="margin:10px 0 12px 0; padding:10px; border:1px solid rgba(255,255,255,.12); border-radius:12px; background:rgba(255,255,255,.04)">
-    
-<div class="sec">
-  <div class="secTitle">Marker FX</div>
-
-  <div class="row">
-    <label>Style</label>
-    <select id="markerFxSel">
-      <option value="hover">Hover only</option>
-      <option value="loading">Loading rings</option>
-      <option value="helix">Helix (starlings)</option>
-      <option value="ring">Ground ring</option>
-      <option value="halo">Bird halo</option>
-      <option value="birdshape">Bird shape</option>
-      <option value="combo">Combo (helix+ring+halo)</option>
-    </select>
-  </div>
-
-  <div class="row">
-    <label>Top Y</label>
-    <input id="fxTopY" type="number" step="1" value="55"/>
-  </div>
-
-  <div class="row">
-    <label>Bottom Y</label>
-    <input id="fxBotY" type="number" step="1" value="-55"/>
-  </div>
-
-  <div class="row">
-    <label>Radius</label>
-    <input id="fxRadius" type="number" step="1" value="18"/>
-  </div>
-
-  <div class="row">
-    <label>Turns</label>
-    <input id="fxTurns" type="number" step="0.5" value="5"/>
-  </div>
-
-  <div class="row">
-    <label>Jitter</label>
-    <input id="fxJitter" type="number" step="0.1" value="2.2"/>
-  </div>
-
-  <div class="row">
-    <label>Flockiness</label>
-    <input id="fxFlock" type="number" step="0.05" value="0.35"/>
-  </div>
-
-  <div class="row">
-    <label>Speed</label>
-    <input id="fxSpeed" type="number" step="0.05" value="1.00"/>
-  </div>
-
-  <div class="row">
-    <label>Direction</label>
-    <select id="fxDir">
-      <option value="cw">Clockwise</option>
-      <option value="ccw">Counter-clockwise</option>
-    </select>
-  </div>
-
-  <div class="row">
-    <label>Helix</label>
-    <input id="fxHelixColor" type="color" value="#7efcff"/>
-  </div>
-
-  <div class="row">
-    <label>Ring</label>
-    <input id="fxRingColor" type="color" value="#b6ff6a"/>
-  </div>
-
-  <div class="row">
-    <label>Bird</label>
-    <input id="fxBirdColor" type="color" value="#ffffff"/>
-  </div>
-
-  <div class="hint" style="opacity:.8;margin-top:8px;line-height:1.35">
-    Helix uses a noisy flow field so it “flutters” like a murmuration rather than a perfect spiral.
-    Use Top/Bottom/Radius to tighten the whole effect.
-  </div>
-</div>
 
 
     <div id="row2">
@@ -909,6 +877,160 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
 
     <div id="list"></div>
   </div>
+
+  <!-- Collapsible sections -->
+  <div class="fxSection">
+    <div class="fxSectionHeader" data-target="markerFxPanel">
+      <span>Marker FX</span>
+      <button class="fxToggle">▼</button>
+    </div>
+    <div id="markerFxPanel" class="fxSectionBody">
+<div class="sec">
+
+  <div class="row">
+    <label>Style</label>
+    <select id="markerFxSel">
+      <option value="hover">Hover only</option>
+      <option value="loading">Loading rings</option>
+      <option value="helix">Helix (starlings)</option>
+      <option value="ring">Ground ring</option>
+      <option value="halo">Bird halo</option>
+      <option value="birdshape">Bird shape</option>
+      <option value="combo">Combo (helix+ring+halo)</option>
+    </select>
+  </div>
+
+  <div class="row">
+    <label>Top Y</label>
+    <input id="fxTopY" type="number" step="1" value="55"/>
+  </div>
+
+  <div class="row">
+    <label>Bottom Y</label>
+    <input id="fxBotY" type="number" step="1" value="-55"/>
+  </div>
+
+  <div class="row">
+    <label>Radius</label>
+    <input id="fxRadius" type="number" step="1" value="18"/>
+  </div>
+
+  <div class="row">
+    <label>Turns</label>
+    <input id="fxTurns" type="number" step="0.5" value="5"/>
+  </div>
+
+  <div class="row">
+    <label>Jitter</label>
+    <input id="fxJitter" type="number" step="0.1" value="2.2"/>
+  </div>
+
+  <div class="row">
+    <label>Flockiness</label>
+    <input id="fxFlock" type="number" step="0.05" value="0.35"/>
+  </div>
+
+  <div class="row">
+    <label>Speed</label>
+    <input id="fxSpeed" type="number" step="0.05" value="1.00"/>
+  </div>
+
+  <div class="row">
+    <label>Direction</label>
+    <select id="fxDir">
+      <option value="cw">Clockwise</option>
+      <option value="ccw">Counter-clockwise</option>
+    </select>
+  </div>
+
+  <div class="row">
+    <label>Helix</label>
+    <input id="fxHelixColor" type="color" value="#7efcff"/>
+  </div>
+
+  <div class="row">
+    <label>Ring</label>
+    <input id="fxRingColor" type="color" value="#b6ff6a"/>
+  </div>
+
+  <div class="row">
+    <label>Bird</label>
+    <input id="fxBirdColor" type="color" value="#ffffff"/>
+  </div>
+
+  <!-- Phase 2: Marker Color Mode -->
+  <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,.12);"></div>
+  
+  <div class="row">
+    <label>Color mode</label>
+    <select id="markerColorMode">
+      <option value="default">Default (FX colors)</option>
+      <option value="category">By Category</option>
+      <option value="visibility">By Visibility</option>
+    </select>
+  </div>
+  
+  <!-- Category colors (shown when mode = "category") -->
+  <div id="categoryColors" style="display:none; margin-top: 8px;">
+    <div class="row">
+      <label>Landmark</label>
+      <input type="color" id="colorLandmark" value="#ff6b6b"/>
+    </div>
+    <div class="row">
+      <label>Peak</label>
+      <input type="color" id="colorPeak" value="#4ecdc4"/>
+    </div>
+    <div class="row">
+      <label>Building</label>
+      <input type="color" id="colorBuilding" value="#95e1d3"/>
+    </div>
+    <div class="row">
+      <label>Tower</label>
+      <input type="color" id="colorTower" value="#f38181"/>
+    </div>
+    <div class="row">
+      <label>Church</label>
+      <input type="color" id="colorChurch" value="#aa96da"/>
+    </div>
+    <div class="row">
+      <label>Default</label>
+      <input type="color" id="colorDefault" value="#ffffff"/>
+    </div>
+  </div>
+  
+  <!-- Visibility colors (shown when mode = "visibility") -->
+  <div id="visibilityColors" style="display:none; margin-top: 8px;">
+    <div class="row">
+      <label>High (80-100%)</label>
+      <input type="color" id="colorVisHigh" value="#00ff00"/>
+    </div>
+    <div class="row">
+      <label>Medium (40-80%)</label>
+      <input type="color" id="colorVisMed" value="#ffff00"/>
+    </div>
+    <div class="row">
+      <label>Low (0-40%)</label>
+      <input type="color" id="colorVisLow" value="#ff0000"/>
+    </div>
+  </div>
+
+  <div class="hint" style="opacity:.8;margin-top:8px;line-height:1.35">
+    Helix uses a noisy flow field so it “flutters” like a murmuration rather than a perfect spiral.
+    Use Top/Bottom/Radius to tighten the whole effect.
+  </div>
+    </div>
+  </div>
+
+  <div class="fxSection">
+    <div class="fxSectionHeader" data-target="labelFxPanel">
+      <span>Label FX</span>
+      <button class="fxToggle">▼</button>
+    </div>
+    <div id="labelFxPanel" class="fxSectionBody">
+      <!-- Placeholder for Label FX controls - leave empty for now -->
+      <div style="padding: 12px; opacity: 0.7;">Label FX controls will be added here.</div>
+    </div>
+  </div>
 </div>
 
 <div id="tip">
@@ -969,7 +1091,7 @@ npx http-server . -a 127.0.0.1 -p 8000 -c-1</code>
       const mk = (id, side)=>{
         const b = document.createElement("button");
         b.id = id;
-        b.className = "edgeReopenBtn";
+        b.className = "edgeReopen";
         b.type = "button";
         b.title = side === "left" ? "Reopen Verifier" : "Reopen Overlay";
         b.textContent = side === "left" ? "›" : "‹";
@@ -1001,6 +1123,14 @@ npx http-server . -a 127.0.0.1 -p 8000 -c-1</code>
 
     ensureEdgeButtons();
     applyBodyFlags();
+
+    // Collapsible FX sections toggle functionality
+    document.querySelectorAll('.fxSectionHeader').forEach(header => {
+      header.addEventListener('click', () => {
+        const section = header.closest('.fxSection');
+        section.classList.toggle('collapsed');
+      });
+    });
 
     if (lbtn && leftDock){
       lbtn.addEventListener("click", ()=>{
@@ -1254,6 +1384,63 @@ function colorKeyForCandidate(c){
 function colorHexForCandidate(c){
   const k = colorKeyForCandidate(c);
   return TYPE_COLORS[k] ?? TYPE_COLORS.other;
+}
+
+// --------------------
+// Marker Color System (Phase 2)
+// --------------------
+let markerColorConfig = {
+  mode: "default", // "default" | "category" | "visibility" | "custom"
+  category: {
+    landmark: "#ff6b6b",
+    peak: "#4ecdc4",
+    building: "#95e1d3",
+    tower: "#f38181",
+    church: "#aa96da",
+    default: "#ffffff"
+  },
+  visibility: {
+    high: "#00ff00",    // 80-100%
+    medium: "#ffff00",  // 40-80%
+    low: "#ff0000"      // 0-40%
+  }
+};
+
+function getMarkerColor(candidate) {
+  if (markerColorConfig.mode === "category") {
+    const cat = (candidate.dst_type || categoryOf(candidate) || "default").toLowerCase();
+    return markerColorConfig.category[cat] || markerColorConfig.category.default;
+  }
+  
+  if (markerColorConfig.mode === "visibility") {
+    const vis = getCandidateVisPct(candidate);
+    if (vis >= 80) return markerColorConfig.visibility.high;
+    if (vis >= 40) return markerColorConfig.visibility.medium;
+    return markerColorConfig.visibility.low;
+  }
+  
+  // default: use existing FX colors
+  return null;
+}
+
+function applyMarkerColor(marker, color) {
+  if (!color) return;
+  
+  // Apply to the marker sphere/point
+  if (marker.userData.markerVisual) {
+    if (marker.userData.markerVisual.material) {
+      marker.userData.markerVisual.material.color.set(color);
+    }
+  }
+  
+  // Apply to FX elements if they exist
+  if (marker.userData.fxGroup) {
+    marker.userData.fxGroup.traverse(obj => {
+      if (obj.material) {
+        obj.material.color.set(color);
+      }
+    });
+  }
 }
 
 // --------------------
@@ -2421,6 +2608,12 @@ function addMarker(source, cand, idx){
   ring.userData.markerVisual = true;
   root.userData.markerVisual = ring;
   root.add(ring);
+
+  // Apply Phase 2 marker color based on mode
+  const modeColor = getMarkerColor(cand);
+  if (modeColor) {
+    applyMarkerColor(root, modeColor);
+  }
 
   makeCalloutAnimated(root, root.userData.name, isVisibleCandidate(cand), colorHex);
 markerGroup.add(root);
@@ -4588,6 +4781,66 @@ function hookMarkerFxUI(){
   if(trn)  trn.oninput  = ()=>{ markerFxCfg.turns  = parseFloat(trn.value||"5"); reapply(); };
   if(jit)  jit.oninput  = ()=> markerFxCfg.jitter = parseFloat(jit.value||"2.2");
   if(flk)  flk.oninput  = ()=> markerFxCfg.flock  = parseFloat(flk.value||"0.35");
+
+  // Phase 2: Marker Color Mode event listeners
+  const colorMode = document.getElementById('markerColorMode');
+  const categoryColors = document.getElementById('categoryColors');
+  const visibilityColors = document.getElementById('visibilityColors');
+  
+  if (colorMode) {
+    colorMode.value = markerColorConfig.mode;
+    colorMode.addEventListener('change', (e) => {
+      markerColorConfig.mode = e.target.value;
+      
+      // Show/hide relevant color pickers
+      if (categoryColors) {
+        categoryColors.style.display = (e.target.value === 'category') ? 'block' : 'none';
+      }
+      if (visibilityColors) {
+        visibilityColors.style.display = (e.target.value === 'visibility') ? 'block' : 'none';
+      }
+      
+      // Reapply colors to all markers
+      rebuildMarkersAndList();
+    });
+  }
+  
+  // Category color pickers
+  const categoryIds = {
+    landmark: 'colorLandmark',
+    peak: 'colorPeak',
+    building: 'colorBuilding',
+    tower: 'colorTower',
+    church: 'colorChurch',
+    default: 'colorDefault'
+  };
+  
+  Object.entries(categoryIds).forEach(([cat, elId]) => {
+    const el = document.getElementById(elId);
+    if (el) {
+      el.value = markerColorConfig.category[cat];
+      el.addEventListener('input', (e) => {
+        markerColorConfig.category[cat] = e.target.value;
+        rebuildMarkersAndList();
+      });
+    }
+  });
+  
+  // Visibility color pickers
+  [
+    { id: 'High', key: 'high' },
+    { id: 'Med', key: 'medium' },
+    { id: 'Low', key: 'low' }
+  ].forEach(({ id, key }) => {
+    const el = document.getElementById(`colorVis${id}`);
+    if (el) {
+      el.value = markerColorConfig.visibility[key];
+      el.addEventListener('input', (e) => {
+        markerColorConfig.visibility[key] = e.target.value;
+        rebuildMarkersAndList();
+      });
+    }
+  });
 }
 async function init(){
   setStatus(`Fetching ${JSON_PATH}…`);
