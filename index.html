@@ -726,6 +726,30 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
   </div>
 </div>
 
+<div class="fxSection">
+  <div class="fxSectionHeader" onclick="this.nextElementSibling.classList.toggle('collapsed'); this.querySelector('.fxToggle').textContent = this.nextElementSibling.classList.contains('collapsed') ? '▶' : '▼';">
+    <span style="font-weight:700;font-size:13px;">Label FX</span>
+    <button class="fxToggle" type="button" style="border:none;background:transparent;color:#fff;font-size:14px;cursor:pointer;padding:2px 6px;">▼</button>
+  </div>
+  <div class="fxSectionBody">
+    <!-- Add Label Button -->
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
+      <button id="addLabelBtn" type="button" style="flex:1;padding:10px;background:rgba(0,150,255,.3);border:1px solid rgba(0,200,255,.4);border-radius:8px;color:#fff;cursor:pointer;font-weight:700;">
+        <span>+ Add Label Type</span>
+      </button>
+      <select id="labelTypeSelector" style="flex:1;display:none;">
+        <option value="">Select type...</option>
+        <option value="hover">Hover Tip</option>
+        <option value="clickLine">Click → Animated Line</option>
+        <option value="fixed">Fixed Display</option>
+      </select>
+    </div>
+    
+    <!-- Active Labels List (dynamically populated) -->
+    <div id="activeLabelsList"></div>
+  </div>
+</div>
+
 
     <div id="row2">
       <span class="pill"><b>Type</b> <span id="srcType">—</span></span>
@@ -4965,6 +4989,309 @@ function initModularMarkerSystem() {
   }
 }
 
+// ================= MODULAR LABEL SYSTEM =================
+
+// Active label configurations
+let activeLabels = [];
+
+// Label type definitions with default properties
+const labelTypeDefaults = {
+  hover: {
+    name: "Hover Tip",
+    format: "pill",
+    position: "above",
+    content: "name",
+    opacity: 0.95,
+    fontSize: 12,
+    backgroundColor: "rgba(0,0,0,0.8)",
+    textColor: "#ffffff",
+    borderColor: "rgba(255,255,255,0.25)",
+    showOnHover: true,
+    fadeDistance: 100,
+    maxDistance: 500
+  },
+  clickLine: {
+    name: "Click → Animated Line",
+    format: "badge",
+    position: "rightOfLine",
+    content: "nameAndType",
+    lineColor: "#00ff00",
+    lineOpacity: 0.8,
+    lineWidth: 2,
+    animationSpeed: 1.5,
+    labelOffset: 20,
+    opacity: 0.9,
+    fontSize: 13,
+    backgroundColor: "rgba(0,100,0,0.7)",
+    textColor: "#ffffff",
+    borderColor: "rgba(0,255,0,0.5)"
+  },
+  fixed: {
+    name: "Fixed Display",
+    format: "text",
+    position: "center",
+    content: "name",
+    opacity: 1.0,
+    fontSize: 14,
+    textColor: "#ffffff",
+    showShadow: true,
+    shadowColor: "rgba(0,0,0,0.8)",
+    fadeWithDistance: true,
+    fadeStart: 200,
+    fadeEnd: 800
+  }
+};
+
+// Add new label
+function addLabel(type) {
+  const id = `label_${Date.now()}`;
+  const config = {
+    id,
+    type,
+    ...JSON.parse(JSON.stringify(labelTypeDefaults[type]))
+  };
+  activeLabels.push(config);
+  renderLabelsList();
+  applyAllLabels();
+}
+
+// Remove label
+function removeLabel(id) {
+  activeLabels = activeLabels.filter(l => l.id !== id);
+  renderLabelsList();
+  applyAllLabels();
+}
+
+// Render labels list UI
+function renderLabelsList() {
+  const container = document.getElementById('activeLabelsList');
+  if (!container) return;
+  
+  container.innerHTML = '';
+  
+  activeLabels.forEach(label => {
+    const labelDiv = document.createElement('div');
+    labelDiv.className = 'markerInstance'; // Reuse marker styles
+    labelDiv.innerHTML = `
+      <div class="markerHeader">
+        <button class="markerToggle" data-id="${label.id}">▼</button>
+        <span class="markerName">${label.name}</span>
+        <button class="markerDelete" data-id="${label.id}" title="Delete">×</button>
+      </div>
+      <div class="markerBody" id="label_${label.id}">
+        ${renderLabelControls(label)}
+      </div>
+    `;
+    container.appendChild(labelDiv);
+  });
+  
+  // Wire up events
+  container.querySelectorAll('.markerToggle').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const id = e.target.dataset.id;
+      const body = document.getElementById(`label_${id}`);
+      body.classList.toggle('collapsed');
+      e.target.textContent = body.classList.contains('collapsed') ? '▶' : '▼';
+    });
+  });
+  
+  container.querySelectorAll('.markerDelete').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      removeLabel(e.target.dataset.id);
+    });
+  });
+  
+  // Wire up control changes
+  container.querySelectorAll('[data-id][data-prop]').forEach(input => {
+    input.addEventListener('input', (e) => {
+      updateLabelProperty(e.target.dataset.id, e.target.dataset.prop, e.target.value);
+    });
+    input.addEventListener('change', (e) => {
+      updateLabelProperty(e.target.dataset.id, e.target.dataset.prop, e.target.value);
+    });
+  });
+}
+
+// Update label property
+function updateLabelProperty(id, prop, value) {
+  const label = activeLabels.find(l => l.id === id);
+  if (!label) return;
+  
+  // Handle boolean values
+  if (value === 'true' || value === 'false') {
+    label[prop] = value === 'true';
+  } else if (!isNaN(value) && value !== '') {
+    label[prop] = parseFloat(value);
+  } else {
+    label[prop] = value;
+  }
+  
+  // Re-render if certain properties change
+  if (prop === 'format' || prop === 'content' || prop === 'type') {
+    renderLabelsList();
+  }
+  
+  applyAllLabels();
+}
+
+// Render individual label controls
+function renderLabelControls(label) {
+  const hasLine = label.type === 'clickLine';
+  const hasFade = label.type === 'hover' || (label.type === 'fixed' && label.fadeWithDistance);
+  
+  return `
+    <!-- Format -->
+    <div class="ctrlRow">
+      <label>Format</label>
+      <select data-id="${label.id}" data-prop="format">
+        <option value="pill" ${label.format === 'pill' ? 'selected' : ''}>Pill</option>
+        <option value="badge" ${label.format === 'badge' ? 'selected' : ''}>Badge</option>
+        <option value="text" ${label.format === 'text' ? 'selected' : ''}>Plain Text</option>
+      </select>
+    </div>
+    
+    <!-- Position -->
+    <div class="ctrlRow">
+      <label>Position</label>
+      <select data-id="${label.id}" data-prop="position">
+        <option value="center" ${label.position === 'center' ? 'selected' : ''}>Center</option>
+        <option value="above" ${label.position === 'above' ? 'selected' : ''}>Above</option>
+        <option value="below" ${label.position === 'below' ? 'selected' : ''}>Below</option>
+        <option value="left" ${label.position === 'left' ? 'selected' : ''}>Left</option>
+        <option value="right" ${label.position === 'right' ? 'selected' : ''}>Right</option>
+        ${hasLine ? `<option value="rightOfLine" ${label.position === 'rightOfLine' ? 'selected' : ''}>Right of Line</option>` : ''}
+        ${hasLine ? `<option value="aboveLine" ${label.position === 'aboveLine' ? 'selected' : ''}>Above Line</option>` : ''}
+      </select>
+    </div>
+    
+    <!-- Content -->
+    <div class="ctrlRow">
+      <label>Content</label>
+      <select data-id="${label.id}" data-prop="content">
+        <option value="name" ${label.content === 'name' ? 'selected' : ''}>Name Only</option>
+        <option value="type" ${label.content === 'type' ? 'selected' : ''}>Type Only</option>
+        <option value="nameAndType" ${label.content === 'nameAndType' ? 'selected' : ''}>Name + Type</option>
+        <option value="visibility" ${label.content === 'visibility' ? 'selected' : ''}>Visibility %</option>
+        <option value="distance" ${label.content === 'distance' ? 'selected' : ''}>Distance</option>
+        <option value="full" ${label.content === 'full' ? 'selected' : ''}>Full Info</option>
+      </select>
+    </div>
+    
+    <!-- Font Size -->
+    <div class="ctrlRow">
+      <label>Font Size</label>
+      <input type="number" data-id="${label.id}" data-prop="fontSize" value="${label.fontSize}" step="1" min="8" max="24">
+    </div>
+    
+    <!-- Opacity -->
+    <div class="ctrlRow">
+      <label>Opacity</label>
+      <input type="number" data-id="${label.id}" data-prop="opacity" value="${label.opacity}" step="0.05" min="0" max="1">
+    </div>
+    
+    <!-- Text Color -->
+    <div class="ctrlRow">
+      <label>Text Color</label>
+      <input type="color" data-id="${label.id}" data-prop="textColor" value="${label.textColor}">
+    </div>
+    
+    ${label.format !== 'text' ? `
+    <!-- Background Color -->
+    <div class="ctrlRow">
+      <label>Background</label>
+      <input type="text" data-id="${label.id}" data-prop="backgroundColor" value="${label.backgroundColor}" placeholder="rgba(0,0,0,0.8)" style="font-size:11px;">
+    </div>
+    
+    <!-- Border Color -->
+    <div class="ctrlRow">
+      <label>Border</label>
+      <input type="text" data-id="${label.id}" data-prop="borderColor" value="${label.borderColor}" placeholder="rgba(255,255,255,0.25)" style="font-size:11px;">
+    </div>
+    ` : ''}
+    
+    ${label.type === 'fixed' && label.showShadow ? `
+    <!-- Shadow Color -->
+    <div class="ctrlRow">
+      <label>Shadow</label>
+      <input type="text" data-id="${label.id}" data-prop="shadowColor" value="${label.shadowColor}" placeholder="rgba(0,0,0,0.8)" style="font-size:11px;">
+    </div>
+    ` : ''}
+    
+    ${hasLine ? `
+    <!-- Line Properties -->
+    <div class="ctrlRow">
+      <label>Line Color</label>
+      <input type="color" data-id="${label.id}" data-prop="lineColor" value="${label.lineColor}">
+    </div>
+    <div class="ctrlRow">
+      <label>Line Width</label>
+      <input type="number" data-id="${label.id}" data-prop="lineWidth" value="${label.lineWidth}" step="0.5" min="0.5" max="10">
+    </div>
+    <div class="ctrlRow">
+      <label>Line Opacity</label>
+      <input type="number" data-id="${label.id}" data-prop="lineOpacity" value="${label.lineOpacity}" step="0.05" min="0" max="1">
+    </div>
+    <div class="ctrlRow">
+      <label>Animation Speed</label>
+      <input type="number" data-id="${label.id}" data-prop="animationSpeed" value="${label.animationSpeed}" step="0.1" min="0.1" max="5">
+    </div>
+    ` : ''}
+    
+    ${hasFade ? `
+    <!-- Fade Properties -->
+    <div class="ctrlRow">
+      <label>Fade Start (m)</label>
+      <input type="number" data-id="${label.id}" data-prop="fadeStart" value="${label.fadeStart || label.fadeDistance || 100}" step="10" min="0">
+    </div>
+    <div class="ctrlRow">
+      <label>Fade End (m)</label>
+      <input type="number" data-id="${label.id}" data-prop="fadeEnd" value="${label.fadeEnd || label.maxDistance || 500}" step="10" min="0">
+    </div>
+    ` : ''}
+  `;
+}
+
+// Apply all active labels to scene (placeholder - actual implementation depends on rendering system)
+function applyAllLabels() {
+  // This would integrate with the existing label/tip system in the codebase
+  console.log('Applying label configurations:', activeLabels);
+  
+  // The actual implementation would:
+  // 1. Get all markers/points in the scene
+  // 2. For each active label config:
+  //    - Create or update HTML/CSS2D labels
+  //    - Apply styling from config
+  //    - Set up event listeners (hover, click)
+  //    - Handle animations and fading
+}
+
+// Initialize modular label system
+function initModularLabelSystem() {
+  const addBtn = document.getElementById('addLabelBtn');
+  const typeSelector = document.getElementById('labelTypeSelector');
+  
+  if (addBtn && typeSelector) {
+    addBtn.addEventListener('click', () => {
+      // Toggle dropdown visibility
+      if (typeSelector.style.display === 'none') {
+        typeSelector.style.display = 'block';
+        addBtn.style.display = 'none';
+      }
+    });
+    
+    typeSelector.addEventListener('change', (e) => {
+      const type = e.target.value;
+      if (type && labelTypeDefaults[type]) {
+        addLabel(type);
+        // Reset dropdown
+        e.target.value = '';
+        typeSelector.style.display = 'none';
+        addBtn.style.display = 'block';
+      }
+    });
+  }
+}
+
 function hookMarkerFxUI(){
   const sel = document.getElementById("markerFxSel");
   const cH = document.getElementById("fxHelixColor");
@@ -5014,6 +5341,7 @@ async function init(){
   hookOverlayUI();
   hookMarkerFxUI();
   initModularMarkerSystem();
+  initModularLabelSystem();
 
 
     hookSkyGroundUI();
