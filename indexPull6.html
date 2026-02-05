@@ -74,6 +74,7 @@
 }
 
 /* mini collapsed launcher */
+.mini-collapsed-launcher {
   position:fixed;
   top:14px;
   right:14px;
@@ -86,6 +87,7 @@
   padding:6px;
   backdrop-filter: blur(8px);
 }
+.mini-collapsed-launcher button {
   cursor:pointer;
   border:none;
   background:rgba(255,255,255,.10);
@@ -471,7 +473,7 @@ hr.ovSep{border:none;border-top:1px solid rgba(255,255,255,.12);margin:10px 0}
 .ovRow input[type="color"]::-webkit-color-swatch{border:none;border-radius:6px;}
 
 /* Edge reopen buttons (visible only when dock collapsed) */
-.edgeReopen{
+.edgeReopenBtn{
   position:fixed;
   top:50%;
   transform:translateY(-50%);
@@ -496,7 +498,7 @@ hr.ovSep{border:none;border-top:1px solid rgba(255,255,255,.12);margin:10px 0}
   background:rgba(0,0,0,.65);
   border:1px solid rgba(255,255,255,.25);
 }
-.edgeReopen:hover{ 
+.edgeReopenBtn:hover{ 
   transform: translateY(-50%) scale(1.04); 
 }
 body.verifier-collapsed #edgeReopenLeft{opacity:1;pointer-events:auto;}
@@ -952,11 +954,11 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
         (Preview matches your end animation: square → line → square → HELVETICA CAPS 11.)
 
       <span class="pill"><b>Anim</b><span class="muted">sec</span>
-        <input id="animSeconds" type="number" value="1.8" min="0.4" max="10" step="0.1" style="width:80px;padding:6px 8px">
+        <input id="animSeconds2" type="number" value="1.8" min="0.4" max="10" step="0.1" style="width:80px;padding:6px 8px">
       </span>
       <span class="pill">
         <label style="border:none;background:transparent;padding:0">
-          <input id="loopCallout" type="checkbox" style="accent-color:#fff">
+          <input id="loopCallout2" type="checkbox" style="accent-color:#fff">
           Loop callout
         </label>
       </span>
