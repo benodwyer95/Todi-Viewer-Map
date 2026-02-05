@@ -537,6 +537,55 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
 #edgeReopenLeft{left:8px;}
 #edgeReopenRight{right:8px;}
 
+/* Collapsible FX Sections */
+.fxSection {
+  border-top: 1px solid rgba(255,255,255,.12);
+  background: rgba(0,0,0,.25);
+}
+
+.fxSectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  cursor: pointer;
+  user-select: none;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.fxSectionHeader:hover {
+  background: rgba(255,255,255,.05);
+}
+
+.fxToggle {
+  border: none;
+  background: transparent;
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px;
+  transition: transform .2s;
+}
+
+.fxSection.collapsed .fxToggle {
+  transform: rotate(-90deg);
+}
+
+.fxSectionBody {
+  padding: 12px;
+  max-height: 600px;
+  overflow-y: auto;
+  transition: max-height .3s ease, opacity .3s ease;
+}
+
+.fxSection.collapsed .fxSectionBody {
+  max-height: 0;
+  opacity: 0;
+  padding: 0 12px;
+  overflow: hidden;
+}
+
 </style>
 </head>
 <body>
@@ -600,87 +649,6 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
   </div>
 
   <div id="uiBody">
-  <div style="margin:10px 0 12px 0; padding:10px; border:1px solid rgba(255,255,255,.12); border-radius:12px; background:rgba(255,255,255,.04)">
-    
-<div class="sec">
-  <div class="secTitle">Marker FX</div>
-
-  <div class="row">
-    <label>Style</label>
-    <select id="markerFxSel">
-      <option value="hover">Hover only</option>
-      <option value="loading">Loading rings</option>
-      <option value="helix">Helix (starlings)</option>
-      <option value="ring">Ground ring</option>
-      <option value="halo">Bird halo</option>
-      <option value="birdshape">Bird shape</option>
-      <option value="combo">Combo (helix+ring+halo)</option>
-    </select>
-  </div>
-
-  <div class="row">
-    <label>Top Y</label>
-    <input id="fxTopY" type="number" step="1" value="55"/>
-  </div>
-
-  <div class="row">
-    <label>Bottom Y</label>
-    <input id="fxBotY" type="number" step="1" value="-55"/>
-  </div>
-
-  <div class="row">
-    <label>Radius</label>
-    <input id="fxRadius" type="number" step="1" value="18"/>
-  </div>
-
-  <div class="row">
-    <label>Turns</label>
-    <input id="fxTurns" type="number" step="0.5" value="5"/>
-  </div>
-
-  <div class="row">
-    <label>Jitter</label>
-    <input id="fxJitter" type="number" step="0.1" value="2.2"/>
-  </div>
-
-  <div class="row">
-    <label>Flockiness</label>
-    <input id="fxFlock" type="number" step="0.05" value="0.35"/>
-  </div>
-
-  <div class="row">
-    <label>Speed</label>
-    <input id="fxSpeed" type="number" step="0.05" value="1.00"/>
-  </div>
-
-  <div class="row">
-    <label>Direction</label>
-    <select id="fxDir">
-      <option value="cw">Clockwise</option>
-      <option value="ccw">Counter-clockwise</option>
-    </select>
-  </div>
-
-  <div class="row">
-    <label>Helix</label>
-    <input id="fxHelixColor" type="color" value="#7efcff"/>
-  </div>
-
-  <div class="row">
-    <label>Ring</label>
-    <input id="fxRingColor" type="color" value="#b6ff6a"/>
-  </div>
-
-  <div class="row">
-    <label>Bird</label>
-    <input id="fxBirdColor" type="color" value="#ffffff"/>
-  </div>
-
-  <div class="hint" style="opacity:.8;margin-top:8px;line-height:1.35">
-    Helix uses a noisy flow field so it “flutters” like a murmuration rather than a perfect spiral.
-    Use Top/Bottom/Radius to tighten the whole effect.
-  </div>
-</div>
 
 
     <div id="row2">
@@ -909,6 +877,105 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
 
     <div id="list"></div>
   </div>
+
+  <!-- Collapsible sections -->
+  <div class="fxSection">
+    <div class="fxSectionHeader" data-target="markerFxPanel">
+      <span>Marker FX</span>
+      <button class="fxToggle">▼</button>
+    </div>
+    <div id="markerFxPanel" class="fxSectionBody">
+<div class="sec">
+  <div class="secTitle">Marker FX</div>
+
+  <div class="row">
+    <label>Style</label>
+    <select id="markerFxSel">
+      <option value="hover">Hover only</option>
+      <option value="loading">Loading rings</option>
+      <option value="helix">Helix (starlings)</option>
+      <option value="ring">Ground ring</option>
+      <option value="halo">Bird halo</option>
+      <option value="birdshape">Bird shape</option>
+      <option value="combo">Combo (helix+ring+halo)</option>
+    </select>
+  </div>
+
+  <div class="row">
+    <label>Top Y</label>
+    <input id="fxTopY" type="number" step="1" value="55"/>
+  </div>
+
+  <div class="row">
+    <label>Bottom Y</label>
+    <input id="fxBotY" type="number" step="1" value="-55"/>
+  </div>
+
+  <div class="row">
+    <label>Radius</label>
+    <input id="fxRadius" type="number" step="1" value="18"/>
+  </div>
+
+  <div class="row">
+    <label>Turns</label>
+    <input id="fxTurns" type="number" step="0.5" value="5"/>
+  </div>
+
+  <div class="row">
+    <label>Jitter</label>
+    <input id="fxJitter" type="number" step="0.1" value="2.2"/>
+  </div>
+
+  <div class="row">
+    <label>Flockiness</label>
+    <input id="fxFlock" type="number" step="0.05" value="0.35"/>
+  </div>
+
+  <div class="row">
+    <label>Speed</label>
+    <input id="fxSpeed" type="number" step="0.05" value="1.00"/>
+  </div>
+
+  <div class="row">
+    <label>Direction</label>
+    <select id="fxDir">
+      <option value="cw">Clockwise</option>
+      <option value="ccw">Counter-clockwise</option>
+    </select>
+  </div>
+
+  <div class="row">
+    <label>Helix</label>
+    <input id="fxHelixColor" type="color" value="#7efcff"/>
+  </div>
+
+  <div class="row">
+    <label>Ring</label>
+    <input id="fxRingColor" type="color" value="#b6ff6a"/>
+  </div>
+
+  <div class="row">
+    <label>Bird</label>
+    <input id="fxBirdColor" type="color" value="#ffffff"/>
+  </div>
+
+  <div class="hint" style="opacity:.8;margin-top:8px;line-height:1.35">
+    Helix uses a noisy flow field so it “flutters” like a murmuration rather than a perfect spiral.
+    Use Top/Bottom/Radius to tighten the whole effect.
+  </div>
+    </div>
+  </div>
+
+  <div class="fxSection">
+    <div class="fxSectionHeader" data-target="labelFxPanel">
+      <span>Label FX</span>
+      <button class="fxToggle">▼</button>
+    </div>
+    <div id="labelFxPanel" class="fxSectionBody">
+      <!-- Placeholder for Label FX controls - leave empty for now -->
+      <div style="padding: 12px; opacity: 0.7;">Label FX controls will be added here.</div>
+    </div>
+  </div>
 </div>
 
 <div id="tip">
@@ -969,7 +1036,7 @@ npx http-server . -a 127.0.0.1 -p 8000 -c-1</code>
       const mk = (id, side)=>{
         const b = document.createElement("button");
         b.id = id;
-        b.className = "edgeReopenBtn";
+        b.className = "edgeReopen";
         b.type = "button";
         b.title = side === "left" ? "Reopen Verifier" : "Reopen Overlay";
         b.textContent = side === "left" ? "›" : "‹";
