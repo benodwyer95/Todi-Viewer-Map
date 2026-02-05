@@ -297,7 +297,7 @@ hr.ovSep{border:none;border-top:1px solid rgba(255,255,255,.12);margin:10px 0}
   #status{font-size:11px;opacity:.85;margin-top:8px;line-height:1.25}
 
   #tip{
-    position:fixed;z-index:20;pointer-events:none;transform:translate(10px,10px);
+    position:fixed;z-index:100;pointer-events:none;transform:translate(10px,10px);
     padding:8px 10px;background:rgba(0,0,0,.75);
     border:1px solid rgba(255,255,255,.18);border-radius:10px;
     color:#fff;font-size:12px;max-width:340px;display:none;backdrop-filter: blur(6px);
@@ -609,7 +609,6 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
     <label>Style</label>
     <select id="markerFxSel">
       <option value="hover">Hover only</option>
-      <option value="loading">Loading rings</option>
       <option value="helix">Helix (starlings)</option>
       <option value="ring">Ground ring</option>
       <option value="halo">Bird halo</option>
@@ -679,6 +678,36 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
   <div class="hint" style="opacity:.8;margin-top:8px;line-height:1.35">
     Helix uses a noisy flow field so it “flutters” like a murmuration rather than a perfect spiral.
     Use Top/Bottom/Radius to tighten the whole effect.
+  </div>
+  
+  <!-- Marker FX Presets -->
+  <div style="margin-top:16px;padding-top:12px;border-top:1px solid rgba(255,255,255,.12)">
+    <div style="font-weight:700;margin-bottom:8px">Marker FX Presets</div>
+    
+    <div class="row">
+      <label>Preset Name</label>
+      <input id="markerFxPresetName" type="text" placeholder="e.g. Blue Helix" style="width:100%;padding:6px"/>
+    </div>
+    
+    <div class="row">
+      <button id="markerFxSavePresetBtn" type="button" style="width:48%">Save</button>
+      <button id="markerFxLoadPresetBtn" type="button" style="width:48%">Load</button>
+    </div>
+    
+    <div class="row">
+      <select id="markerFxPresetSel" style="width:100%"></select>
+    </div>
+    
+    <div class="row">
+      <button id="markerFxDeletePresetBtn" type="button" style="width:48%">Delete</button>
+      <button id="markerFxCopyBtn" type="button" style="width:48%">Copy JSON</button>
+    </div>
+    
+    <div class="row">
+      <button id="markerFxApplyBtn" type="button" style="width:100%">Apply JSON</button>
+    </div>
+    
+    <textarea id="markerFxSettingsBox" placeholder="Paste marker FX JSON here" style="width:100%;height:80px;font-size:11px;font-family:monospace;margin-top:4px"></textarea>
   </div>
 </div>
 
@@ -905,6 +934,32 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
       <span class="muted" style="font-size:11px">
         Exports/imports: global yaw+Z per pano + per-point yaw/pitch/Z per pano.
       </span>
+    </div>
+
+    <!-- Label FX Presets Section -->
+    <div id="row2" style="margin-top:12px;padding-top:12px;border-top:2px solid rgba(255,255,255,.15)">
+      <div style="font-weight:700;margin-bottom:8px;font-size:13px">Label FX Presets</div>
+      
+      <div style="display:flex;gap:8px;margin-bottom:6px">
+        <input id="labelFxPresetName" type="text" placeholder="e.g. Large Helvetica" style="flex:1;padding:6px"/>
+        <button id="labelFxSavePresetBtn" class="btnSmall" style="padding:6px 12px">Save</button>
+      </div>
+      
+      <div style="margin-bottom:6px">
+        <select id="labelFxPresetSel" style="width:100%;padding:6px"></select>
+      </div>
+      
+      <div style="display:flex;gap:8px;margin-bottom:6px">
+        <button id="labelFxLoadPresetBtn" class="btnSmall" style="padding:6px 12px;flex:1">Load</button>
+        <button id="labelFxDeletePresetBtn" class="btnSmall" style="padding:6px 12px;flex:1">Delete</button>
+      </div>
+      
+      <div style="display:flex;gap:8px;margin-bottom:6px">
+        <button id="labelFxCopyBtn" class="btnSmall" style="padding:6px 12px;flex:1">Copy JSON</button>
+        <button id="labelFxApplyBtn" class="btnSmall" style="padding:6px 12px;flex:1">Apply JSON</button>
+      </div>
+      
+      <textarea id="labelFxSettingsBox" placeholder="Paste label FX JSON here" style="width:100%;height:80px;font-size:11px;font-family:monospace;padding:6px"></textarea>
     </div>
 
     <div id="list"></div>
@@ -2667,11 +2722,20 @@ let overlayState = {
   maskThresh: 0.12,
   panoFade: 1.0,
   bgColor: "#0b0b0b",
-  bgOpacity: 1.0,
   singleColor: "#00ffd0",
   minSat: 0.16,
   minVal: 0.10,
-  rules: []
+  rules: [],
+  // Sky/Ground gradient settings
+  sgEnable: true,
+  sgSkyOn: true,
+  sgGroundOn: true,
+  sgSkyColor: "#9bd7ff",
+  sgGroundColor: "#f2e8d5",
+  sgSkyAlpha: 0.35,
+  sgGroundAlpha: 0.18,
+  sgInvert: false,
+  sgFeather: 0.03
 };
 
 const PRESET_KEY = "todi_overlay_presets_v1";
@@ -2808,13 +2872,20 @@ function applyOverlaySettings(obj){
   const panoFade = document.getElementById('panoFade');
   const panoFadeNum = document.getElementById('panoFadeNum');
   const bgColor = document.getElementById('bgColor');
-  const bgOpacity = document.getElementById('bgOpacity');
-  const bgOpacityNum = document.getElementById('bgOpacityNum');
   const singleColor = document.getElementById('singleColor');
   const minSat = document.getElementById('minSat');
   const minSatNum = document.getElementById('minSatNum');
   const minVal = document.getElementById('minVal');
   const minValNum = document.getElementById('minValNum');
+  const sgEnable = document.getElementById('sgEnable');
+  const sgSkyOn = document.getElementById('sgSkyOn');
+  const sgGroundOn = document.getElementById('sgGroundOn');
+  const sgSkyColor = document.getElementById('sgSkyColor');
+  const sgGroundColor = document.getElementById('sgGroundColor');
+  const sgSkyAlpha = document.getElementById('sgSkyAlpha');
+  const sgGroundAlpha = document.getElementById('sgGroundAlpha');
+  const sgInvert = document.getElementById('sgInvert');
+  const sgFeather = document.getElementById('sgFeather');
 
   if (modeSel) modeSel.value = String(overlayState.mode);
   if (toggleOverlay) toggleOverlay.checked = !!overlayState.showOverlay;
@@ -2823,11 +2894,20 @@ function applyOverlaySettings(obj){
   if (maskThresh) maskThresh.value = String(overlayState.maskThresh);
   if (panoFade) panoFade.value = String(overlayState.panoFade);
   if (bgColor) bgColor.value = overlayState.bgColor || "#0b0b0b";
-  if (bgOpacity) bgOpacity.value = String(overlayState.bgOpacity ?? 1.0);
-  if (bgOpacityNum) bgOpacityNum.value = String(overlayState.bgOpacity ?? 1.0);
   if (singleColor) singleColor.value = overlayState.singleColor || "#00ffd0";
   if (minSat) minSat.value = String(overlayState.minSat);
   if (minVal) minVal.value = String(overlayState.minVal);
+  
+  // Apply sky/ground gradient settings
+  if (sgEnable) sgEnable.checked = overlayState.sgEnable !== false;
+  if (sgSkyOn) sgSkyOn.checked = overlayState.sgSkyOn !== false;
+  if (sgGroundOn) sgGroundOn.checked = overlayState.sgGroundOn !== false;
+  if (sgSkyColor) sgSkyColor.value = overlayState.sgSkyColor || "#9bd7ff";
+  if (sgGroundColor) sgGroundColor.value = overlayState.sgGroundColor || "#f2e8d5";
+  if (sgSkyAlpha) sgSkyAlpha.value = String(overlayState.sgSkyAlpha ?? 0.35);
+  if (sgGroundAlpha) sgGroundAlpha.value = String(overlayState.sgGroundAlpha ?? 0.18);
+  if (sgInvert) sgInvert.checked = !!overlayState.sgInvert;
+  if (sgFeather) sgFeather.value = String(overlayState.sgFeather ?? 0.03);
 
   // apply to pano sphere
   try{
@@ -2837,10 +2917,26 @@ function applyOverlaySettings(obj){
     }
   }catch{}
 
-  // background
+  // background - always use full opacity (1.0) since it's the bottom layer
   try{
     document.body.style.background = overlayState.bgColor || "#000";
-    if (renderer && renderer.setClearColor) renderer.setClearColor(new THREE.Color(overlayState.bgColor || "#000"), (overlayState.bgOpacity ?? 1.0));
+    if (renderer && renderer.setClearColor) renderer.setClearColor(new THREE.Color(overlayState.bgColor || "#000"), 1.0);
+  }catch{}
+  
+  // Apply sky/ground gradient settings to uniforms
+  try{
+    if (sgMesh && sgMesh.material && sgMesh.material.uniforms) {
+      const u = sgMesh.material.uniforms;
+      u.enabled.value = overlayState.sgEnable ? 1.0 : 0.0;
+      u.skyOn.value = overlayState.sgSkyOn ? 1.0 : 0.0;
+      u.groundOn.value = overlayState.sgGroundOn ? 1.0 : 0.0;
+      u.invertMask.value = overlayState.sgInvert ? 1.0 : 0.0;
+      u.skyColor.value.set(overlayState.sgSkyColor || "#9bd7ff");
+      u.groundColor.value.set(overlayState.sgGroundColor || "#f2e8d5");
+      u.skyAlpha.value = overlayState.sgSkyAlpha ?? 0.35;
+      u.groundAlpha.value = overlayState.sgGroundAlpha ?? 0.18;
+      u.feather.value = overlayState.sgFeather ?? 0.03;
+    }
   }catch{}
 
   refreshModeUI_Overlay();
@@ -3318,8 +3414,6 @@ function hookOverlayUI(){
   const panoFade = document.getElementById('panoFade');
   const panoFadeNum = document.getElementById('panoFadeNum');
   const bgColor = document.getElementById('bgColor');
-  const bgOpacity = document.getElementById('bgOpacity');
-  const bgOpacityNum = document.getElementById('bgOpacityNum');
   const singleColor = document.getElementById('singleColor');
   const minSat = document.getElementById('minSat');
   const minSatNum = document.getElementById('minSatNum');
@@ -3451,21 +3545,9 @@ function hookOverlayUI(){
     overlayState.bgColor = e.target.value;
     try{
       document.body.style.background = overlayState.bgColor;
-      if (renderer && renderer.setClearColor) renderer.setClearColor(new THREE.Color(overlayState.bgColor), (overlayState.bgOpacity ?? 1.0));
+      // Background is always full opacity (1.0) since it's the bottom layer
+      if (renderer && renderer.setClearColor) renderer.setClearColor(new THREE.Color(overlayState.bgColor), 1.0);
     }catch{}
-    syncSettingsBox();
-  };
-
-  if (bgOpacity) bgOpacity.oninput = e=>{
-    overlayState.bgOpacity = Math.max(0, Math.min(1, parseFloat(e.target.value)));
-    if (bgOpacityNum) bgOpacityNum.value = String(overlayState.bgOpacity);
-    try{ if (renderer && renderer.setClearColor) renderer.setClearColor(new THREE.Color(overlayState.bgColor || '#000'), overlayState.bgOpacity); }catch{}
-    syncSettingsBox();
-  };
-  if (bgOpacityNum) bgOpacityNum.oninput = e=>{
-    overlayState.bgOpacity = Math.max(0, Math.min(1, parseFloat(e.target.value)));
-    if (bgOpacity) bgOpacity.value = String(overlayState.bgOpacity);
-    try{ if (renderer && renderer.setClearColor) renderer.setClearColor(new THREE.Color(overlayState.bgColor || '#000'), overlayState.bgOpacity); }catch{}
     syncSettingsBox();
   };
 
@@ -3870,19 +3952,20 @@ landmarkFilterSel.addEventListener('change', rebuildFromFilters);
 minVis.addEventListener('change', rebuildFromFilters);
 topN.addEventListener('change', rebuildFromFilters);
 mWorld.addEventListener('change', rebuildFromFilters);
-debugDotIn.addEventListener('change', rebuildFromFilters);
+debugDotIn.addEventListener('change', ()=>{ rebuildFromFilters(); if(window.syncLabelFxSettingsBox) syncLabelFxSettingsBox(); });
 riseWorldIn.addEventListener('change', rebuildFromFilters);
 sqWorldIn.addEventListener('change', rebuildFromFilters);
-lblWorldIn.addEventListener('change', rebuildFromFilters);
-animSecondsIn?.addEventListener('input', ()=>{});
-animSecondsIn?.addEventListener('change', ()=>{});
-loopCalloutIn?.addEventListener('change', ()=>{});
+lblWorldIn.addEventListener('change', ()=>{ rebuildFromFilters(); if(window.syncLabelFxSettingsBox) syncLabelFxSettingsBox(); });
+animSecondsIn?.addEventListener('input', ()=>{ if(window.syncLabelFxSettingsBox) syncLabelFxSettingsBox(); });
+animSecondsIn?.addEventListener('change', ()=>{ if(window.syncLabelFxSettingsBox) syncLabelFxSettingsBox(); });
+loopCalloutIn?.addEventListener('change', ()=>{ if(window.syncLabelFxSettingsBox) syncLabelFxSettingsBox(); });
 riseWorldIn.addEventListener('input', rebuildFromFilters);
 sqWorldIn.addEventListener('input', rebuildFromFilters);
-lblWorldIn.addEventListener('input', rebuildFromFilters);
+lblWorldIn.addEventListener('input', ()=>{ rebuildFromFilters(); if(window.syncLabelFxSettingsBox) syncLabelFxSettingsBox(); });
 fontSel?.addEventListener('change', ()=>{
   currentLabelFontStack = FONT_STACKS[fontSel.value] || FONT_STACKS.helvetica;
   rebuildFromFilters();
+  if(window.syncLabelFxSettingsBox) syncLabelFxSettingsBox();
 });
 
 distMaxIn.addEventListener('input', ()=>{
@@ -3891,9 +3974,9 @@ distMaxIn.addEventListener('input', ()=>{
 });
 distMaxLabel.textContent = `≤ ${distMaxIn.value}m`;
 
-showLabelsIn.addEventListener('change', rebuildLabels);
-calloutsIn.addEventListener('change', updateCalloutsVisibility);
-allCalloutsIn.addEventListener('change', updateCalloutsVisibility);
+showLabelsIn.addEventListener('change', ()=>{ rebuildLabels(); if(window.syncLabelFxSettingsBox) syncLabelFxSettingsBox(); });
+calloutsIn.addEventListener('change', ()=>{ updateCalloutsVisibility(); if(window.syncLabelFxSettingsBox) syncLabelFxSettingsBox(); });
+allCalloutsIn.addEventListener('change', ()=>{ updateCalloutsVisibility(); if(window.syncLabelFxSettingsBox) syncLabelFxSettingsBox(); });
 
 function applyExposure(){
   const v=parseFloat(exposureIn.value);
@@ -4271,7 +4354,7 @@ function computeMaxDistanceFromData(){
 
 
 // ================= Marker FX (wired to currentMarkers from verifier) =================
-let markerFxMode = "loading";
+let markerFxMode = "hover";
 let markerFxCfg = {
   helixColor: "#7efcff",
   ringColor:  "#b6ff6a",
@@ -4550,6 +4633,262 @@ function updateMarkerFx(dt){
   }
 }
 
+// ================= Marker FX Preset System =================
+const MARKER_FX_PRESET_KEY = "todi_markerFx_presets_v1";
+
+function getMarkerFxSettings() {
+  return {
+    mode: markerFxMode,
+    config: JSON.parse(JSON.stringify(markerFxCfg))
+  };
+}
+
+function applyMarkerFxSettings(settings) {
+  if (!settings) return;
+  
+  // Apply mode (migrate legacy "loading" to "hover")
+  if (settings.mode) {
+    markerFxMode = settings.mode === "loading" ? "hover" : settings.mode;
+    const sel = document.getElementById("markerFxSel");
+    if (sel) sel.value = markerFxMode;
+  }
+  
+  // Apply config
+  if (settings.config) {
+    Object.assign(markerFxCfg, settings.config);
+    
+    // Update UI elements
+    const cH = document.getElementById("fxHelixColor");
+    const cR = document.getElementById("fxRingColor");
+    const cB = document.getElementById("fxBirdColor");
+    const sp = document.getElementById("fxSpeed");
+    const dr = document.getElementById("fxDir");
+    const topY = document.getElementById("fxTopY");
+    const botY = document.getElementById("fxBotY");
+    const rad = document.getElementById("fxRadius");
+    const trn = document.getElementById("fxTurns");
+    const jit = document.getElementById("fxJitter");
+    const flk = document.getElementById("fxFlock");
+    
+    if (cH) cH.value = markerFxCfg.helixColor || "#7efcff";
+    if (cR) cR.value = markerFxCfg.ringColor || "#b6ff6a";
+    if (cB) cB.value = markerFxCfg.birdColor || "#ffffff";
+    if (sp) sp.value = String(markerFxCfg.speed ?? 1.0);
+    if (dr) dr.value = markerFxCfg.dir || "cw";
+    if (topY) topY.value = String(markerFxCfg.topY ?? 55);
+    if (botY) botY.value = String(markerFxCfg.botY ?? -55);
+    if (rad) rad.value = String(markerFxCfg.radius ?? 18);
+    if (trn) trn.value = String(markerFxCfg.turns ?? 5.0);
+    if (jit) jit.value = String(markerFxCfg.jitter ?? 2.2);
+    if (flk) flk.value = String(markerFxCfg.flock ?? 0.35);
+    
+    // Reapply to markers
+    for(const m of _getVerifierMarkers()) applyMarkerFxToMarker(m);
+  }
+  
+  syncMarkerFxSettingsBox();
+}
+
+function syncMarkerFxSettingsBox() {
+  const box = document.getElementById('markerFxSettingsBox');
+  if (box) box.value = JSON.stringify(getMarkerFxSettings(), null, 2);
+}
+window.syncMarkerFxSettingsBox = syncMarkerFxSettingsBox;
+
+function loadMarkerFxPresetStore() {
+  try {
+    const raw = localStorage.getItem(MARKER_FX_PRESET_KEY);
+    const list = raw ? JSON.parse(raw) : [];
+    return Array.isArray(list) ? list : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveMarkerFxPresetStore(list) {
+  localStorage.setItem(MARKER_FX_PRESET_KEY, JSON.stringify(list));
+}
+
+function refreshMarkerFxPresetList() {
+  const presetSel = document.getElementById('markerFxPresetSel');
+  if (!presetSel) return;
+  const all = loadMarkerFxPresetStore();
+  presetSel.innerHTML = "";
+  if (all.length === 0) {
+    const opt = document.createElement("option");
+    opt.value = "-1";
+    opt.textContent = "(no presets saved)";
+    presetSel.appendChild(opt);
+  } else {
+    all.forEach((p, i) => {
+      const opt = document.createElement("option");
+      opt.value = String(i);
+      opt.textContent = p.name;
+      presetSel.appendChild(opt);
+    });
+  }
+}
+
+async function copyMarkerFxSettings() {
+  const txt = JSON.stringify(getMarkerFxSettings(), null, 2);
+  const box = document.getElementById('markerFxSettingsBox');
+  if (box) box.value = txt;
+  try {
+    await navigator.clipboard.writeText(txt);
+    alert("Marker FX settings copied ✔");
+  } catch {
+    alert("Copied to box (clipboard blocked) ✔");
+  }
+}
+
+// ================= Label FX Preset System =================
+const LABEL_FX_PRESET_KEY = "todi_labelFx_presets_v1";
+
+function getLabelFxSettings() {
+  return {
+    showLabels: showLabelsIn?.checked ?? false,
+    lblWorld: parseFloat(lblWorldIn?.value) || 18,
+    font: fontSel?.value || "helvetica",
+    animSeconds: parseFloat(animSecondsIn?.value) || 1.8,
+    loopCallout: loopCalloutIn?.checked ?? false,
+    callouts: calloutsIn?.checked ?? true,
+    allCallouts: allCalloutsIn?.checked ?? false,
+    debugDot: debugDotIn?.checked ?? true
+  };
+}
+
+function applyLabelFxSettings(settings) {
+  if (!settings) return;
+  
+  if (showLabelsIn) showLabelsIn.checked = settings.showLabels ?? false;
+  if (lblWorldIn) lblWorldIn.value = String(settings.lblWorld ?? 18);
+  if (fontSel) fontSel.value = settings.font || "helvetica";
+  if (animSecondsIn) animSecondsIn.value = String(settings.animSeconds ?? 1.8);
+  if (loopCalloutIn) loopCalloutIn.checked = settings.loopCallout ?? false;
+  if (calloutsIn) calloutsIn.checked = settings.callouts ?? true;
+  if (allCalloutsIn) allCalloutsIn.checked = settings.allCallouts ?? false;
+  if (debugDotIn) debugDotIn.checked = settings.debugDot ?? true;
+  
+  // Apply font stack
+  if (settings.font) {
+    currentLabelFontStack = FONT_STACKS[settings.font] || FONT_STACKS.helvetica;
+  }
+  
+  // Rebuild to apply changes
+  rebuildFromFilters();
+  rebuildLabels();
+  updateCalloutsVisibility();
+  
+  syncLabelFxSettingsBox();
+}
+
+function syncLabelFxSettingsBox() {
+  const box = document.getElementById('labelFxSettingsBox');
+  if (box) box.value = JSON.stringify(getLabelFxSettings(), null, 2);
+}
+window.syncLabelFxSettingsBox = syncLabelFxSettingsBox;
+
+function loadLabelFxPresetStore() {
+  try {
+    const raw = localStorage.getItem(LABEL_FX_PRESET_KEY);
+    const list = raw ? JSON.parse(raw) : [];
+    return Array.isArray(list) ? list : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveLabelFxPresetStore(list) {
+  localStorage.setItem(LABEL_FX_PRESET_KEY, JSON.stringify(list));
+}
+
+function refreshLabelFxPresetList() {
+  const presetSel = document.getElementById('labelFxPresetSel');
+  if (!presetSel) return;
+  const all = loadLabelFxPresetStore();
+  presetSel.innerHTML = "";
+  if (all.length === 0) {
+    const opt = document.createElement("option");
+    opt.value = "-1";
+    opt.textContent = "(no presets saved)";
+    presetSel.appendChild(opt);
+  } else {
+    all.forEach((p, i) => {
+      const opt = document.createElement("option");
+      opt.value = String(i);
+      opt.textContent = p.name;
+      presetSel.appendChild(opt);
+    });
+  }
+}
+
+async function copyLabelFxSettings() {
+  const txt = JSON.stringify(getLabelFxSettings(), null, 2);
+  const box = document.getElementById('labelFxSettingsBox');
+  if (box) box.value = txt;
+  try {
+    await navigator.clipboard.writeText(txt);
+    alert("Label FX settings copied ✔");
+  } catch {
+    alert("Copied to box (clipboard blocked) ✔");
+  }
+}
+
+function hookLabelFxPresets() {
+  const saveBtn = document.getElementById('labelFxSavePresetBtn');
+  const loadBtn = document.getElementById('labelFxLoadPresetBtn');
+  const deleteBtn = document.getElementById('labelFxDeletePresetBtn');
+  const copyBtn = document.getElementById('labelFxCopyBtn');
+  const applyBtn = document.getElementById('labelFxApplyBtn');
+  const presetName = document.getElementById('labelFxPresetName');
+  const presetSel = document.getElementById('labelFxPresetSel');
+  
+  if (saveBtn) saveBtn.onclick = () => {
+    const name = (presetName?.value || "").trim();
+    if (!name) { alert("Preset needs a name."); return; }
+    const list = loadLabelFxPresetStore();
+    list.push({ name, settings: getLabelFxSettings() });
+    saveLabelFxPresetStore(list);
+    refreshLabelFxPresetList();
+    alert("Label FX preset saved ✔");
+  };
+  
+  if (loadBtn) loadBtn.onclick = () => {
+    const i = parseInt(presetSel?.value ?? "-1", 10);
+    const list = loadLabelFxPresetStore();
+    if (!list[i]) { alert("No preset selected."); return; }
+    applyLabelFxSettings(list[i].settings);
+    alert("Label FX preset loaded ✔");
+  };
+  
+  if (deleteBtn) deleteBtn.onclick = () => {
+    const i = parseInt(presetSel?.value ?? "-1", 10);
+    const list = loadLabelFxPresetStore();
+    if (!list[i]) { alert("No preset selected."); return; }
+    list.splice(i, 1);
+    saveLabelFxPresetStore(list);
+    refreshLabelFxPresetList();
+    alert("Label FX preset deleted ✔");
+  };
+  
+  if (copyBtn) copyBtn.onclick = copyLabelFxSettings;
+  
+  if (applyBtn) applyBtn.onclick = () => {
+    const box = document.getElementById('labelFxSettingsBox');
+    try {
+      const obj = JSON.parse(box.value);
+      applyLabelFxSettings(obj);
+      alert("Label FX settings applied ✔");
+    } catch (err) {
+      alert("Invalid JSON:\n" + String(err?.message || err));
+    }
+  };
+  
+  // Initialize
+  refreshLabelFxPresetList();
+  syncLabelFxSettingsBox();
+}
+
 function hookMarkerFxUI(){
   const sel = document.getElementById("markerFxSel");
   const cH = document.getElementById("fxHelixColor");
@@ -4569,25 +4908,82 @@ function hookMarkerFxUI(){
   }
 
   if(sel){
+    // Migrate legacy "loading" mode to "hover"
+    if (markerFxMode === "loading") markerFxMode = "hover";
     sel.value = markerFxMode;
     sel.onchange = ()=>{
       markerFxMode = sel.value;
       reapply();
+      syncMarkerFxSettingsBox();
     };
   }
-  if(cH) cH.oninput = ()=> markerFxCfg.helixColor = cH.value;
-  if(cR) cR.oninput = ()=> markerFxCfg.ringColor  = cR.value;
-  if(cB) cB.oninput = ()=> markerFxCfg.birdColor  = cB.value;
+  if(cH) cH.oninput = ()=> { markerFxCfg.helixColor = cH.value; syncMarkerFxSettingsBox(); };
+  if(cR) cR.oninput = ()=> { markerFxCfg.ringColor  = cR.value; syncMarkerFxSettingsBox(); };
+  if(cB) cB.oninput = ()=> { markerFxCfg.birdColor  = cB.value; syncMarkerFxSettingsBox(); };
 
-  if(sp) sp.oninput = ()=> markerFxCfg.speed = parseFloat(sp.value || "1");
-  if(dr) dr.onchange = ()=> markerFxCfg.dir = dr.value;
+  if(sp) sp.oninput = ()=> { markerFxCfg.speed = parseFloat(sp.value || "1"); syncMarkerFxSettingsBox(); };
+  if(dr) dr.onchange = ()=> { markerFxCfg.dir = dr.value; syncMarkerFxSettingsBox(); };
 
-  if(topY) topY.oninput = ()=>{ markerFxCfg.topY = parseFloat(topY.value||"55"); reapply(); };
-  if(botY) botY.oninput = ()=>{ markerFxCfg.botY = parseFloat(botY.value||"-55"); reapply(); };
-  if(rad)  rad.oninput  = ()=>{ markerFxCfg.radius = parseFloat(rad.value||"18"); reapply(); };
-  if(trn)  trn.oninput  = ()=>{ markerFxCfg.turns  = parseFloat(trn.value||"5"); reapply(); };
-  if(jit)  jit.oninput  = ()=> markerFxCfg.jitter = parseFloat(jit.value||"2.2");
-  if(flk)  flk.oninput  = ()=> markerFxCfg.flock  = parseFloat(flk.value||"0.35");
+  if(topY) topY.oninput = ()=>{ markerFxCfg.topY = parseFloat(topY.value||"55"); reapply(); syncMarkerFxSettingsBox(); };
+  if(botY) botY.oninput = ()=>{ markerFxCfg.botY = parseFloat(botY.value||"-55"); reapply(); syncMarkerFxSettingsBox(); };
+  if(rad)  rad.oninput  = ()=>{ markerFxCfg.radius = parseFloat(rad.value||"18"); reapply(); syncMarkerFxSettingsBox(); };
+  if(trn)  trn.oninput  = ()=>{ markerFxCfg.turns  = parseFloat(trn.value||"5"); reapply(); syncMarkerFxSettingsBox(); };
+  if(jit)  jit.oninput  = ()=> { markerFxCfg.jitter = parseFloat(jit.value||"2.2"); syncMarkerFxSettingsBox(); };
+  if(flk)  flk.oninput  = ()=> { markerFxCfg.flock  = parseFloat(flk.value||"0.35"); syncMarkerFxSettingsBox(); };
+  
+  // Preset buttons
+  const saveBtn = document.getElementById('markerFxSavePresetBtn');
+  const loadBtn = document.getElementById('markerFxLoadPresetBtn');
+  const deleteBtn = document.getElementById('markerFxDeletePresetBtn');
+  const copyBtn = document.getElementById('markerFxCopyBtn');
+  const applyBtn = document.getElementById('markerFxApplyBtn');
+  const presetName = document.getElementById('markerFxPresetName');
+  const presetSel = document.getElementById('markerFxPresetSel');
+  
+  if (saveBtn) saveBtn.onclick = () => {
+    const name = (presetName?.value || "").trim();
+    if (!name) { alert("Preset needs a name."); return; }
+    const list = loadMarkerFxPresetStore();
+    list.push({ name, settings: getMarkerFxSettings() });
+    saveMarkerFxPresetStore(list);
+    refreshMarkerFxPresetList();
+    alert("Marker FX preset saved ✔");
+  };
+  
+  if (loadBtn) loadBtn.onclick = () => {
+    const i = parseInt(presetSel?.value ?? "-1", 10);
+    const list = loadMarkerFxPresetStore();
+    if (!list[i]) { alert("No preset selected."); return; }
+    applyMarkerFxSettings(list[i].settings);
+    alert("Marker FX preset loaded ✔");
+  };
+  
+  if (deleteBtn) deleteBtn.onclick = () => {
+    const i = parseInt(presetSel?.value ?? "-1", 10);
+    const list = loadMarkerFxPresetStore();
+    if (!list[i]) { alert("No preset selected."); return; }
+    list.splice(i, 1);
+    saveMarkerFxPresetStore(list);
+    refreshMarkerFxPresetList();
+    alert("Marker FX preset deleted ✔");
+  };
+  
+  if (copyBtn) copyBtn.onclick = copyMarkerFxSettings;
+  
+  if (applyBtn) applyBtn.onclick = () => {
+    const box = document.getElementById('markerFxSettingsBox');
+    try {
+      const obj = JSON.parse(box.value);
+      applyMarkerFxSettings(obj);
+      alert("Marker FX settings applied ✔");
+    } catch (err) {
+      alert("Invalid JSON:\n" + String(err?.message || err));
+    }
+  };
+  
+  // Initialize
+  refreshMarkerFxPresetList();
+  syncMarkerFxSettingsBox();
 }
 async function init(){
   setStatus(`Fetching ${JSON_PATH}…`);
@@ -4598,7 +4994,7 @@ async function init(){
   // Overlay system init
   hookOverlayUI();
   hookMarkerFxUI();
-
+  hookLabelFxPresets();
 
     hookSkyGroundUI();
 // Overlay UI hooks
@@ -4857,6 +5253,20 @@ function hookSkyGroundUI(){
     u.groundAlpha.value = clamp01(sgGroundAlpha.value);
 
     u.feather.value = Math.max(0, Math.min(0.2, Number(sgFeather.value) || 0.03));
+    
+    // Update overlayState so these settings are exported
+    overlayState.sgEnable = sgEnable.checked;
+    overlayState.sgSkyOn = sgSkyOn.checked;
+    overlayState.sgGroundOn = sgGroundOn.checked;
+    overlayState.sgSkyColor = sgSkyColor.value;
+    overlayState.sgGroundColor = sgGroundColor.value;
+    overlayState.sgSkyAlpha = clamp01(sgSkyAlpha.value);
+    overlayState.sgGroundAlpha = clamp01(sgGroundAlpha.value);
+    overlayState.sgInvert = sgInvert.checked;
+    overlayState.sgFeather = Math.max(0, Math.min(0.2, Number(sgFeather.value) || 0.03));
+    
+    // Sync settings box for export
+    syncSettingsBox();
   }
 
   ["input","change"].forEach(evt=>{
@@ -5084,7 +5494,6 @@ init().then(()=>animate()).catch(err=>{
     <div class="ovRow"><span>Mask threshold</span><div style="display:flex;gap:10px;align-items:center"><input id="maskThresh" type="range" min="0" max="1" step="0.005" value="0.12"><input id="maskThreshNum" type="number" min="0" max="1" step="0.005" value="0.12" style="width:76px"></div></div>
     <div class="ovRow"><span>Pano fade</span><div style="display:flex;gap:10px;align-items:center"><input id="panoFade" type="range" min="0" max="1" step="0.01" value="1"><input id="panoFadeNum" type="number" min="0" max="1" step="0.01" value="1" style="width:76px"></div></div>
     <div class="ovRow"><span>Global background</span><input id="bgColor" type="color" value="#0b0b0b"></div>
-<div class="ovRow"><span>Background opacity</span><div style="display:flex;gap:10px;align-items:center"><input id="bgOpacity" type="range" min="0" max="1" step="0.01" value="1"><input id="bgOpacityNum" type="number" min="0" max="1" step="0.01" value="1" style="width:76px"></div></div>
 
     <div id="ovStatus">Ready.</div>
   </div>
@@ -5184,11 +5593,8 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
 
 
 
-<div id="edgeReopenLeft" class="edgeReopen" title="Open verifier">▶</div>
-<div id="edgeReopenRight" class="edgeReopen" title="Open overlays">◀</div>
-
-<button id="edgeReopenLeft" class="edgeReopen">▶</button>
-<button id="edgeReopenRight" class="edgeReopen">◀</button>
+<button id="edgeReopenLeft" class="edgeReopen" title="Open verifier">▶</button>
+<button id="edgeReopenRight" class="edgeReopen" title="Open overlays">◀</button>
 
 </body>
 </html>
