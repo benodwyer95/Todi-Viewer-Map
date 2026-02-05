@@ -504,6 +504,137 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
 #edgeReopenLeft{left:8px;}
 #edgeReopenRight{right:8px;}
 
+/* Modular Marker System Styles */
+.fxSection {
+  margin: 10px 0 12px 0;
+  padding: 10px;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 12px;
+  background: rgba(255,255,255,.04);
+}
+
+.fxSectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  cursor: pointer;
+  user-select: none;
+}
+
+.fxSectionBody {
+  margin-top: 10px;
+  max-height: 600px;
+  overflow-y: auto;
+  transition: max-height .3s ease, opacity .3s ease;
+}
+
+.fxSectionBody.collapsed {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  margin-top: 0;
+}
+
+.markerInstance {
+  margin: 10px 0;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 8px;
+  background: rgba(0,0,0,.25);
+}
+
+.markerHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: rgba(255,255,255,.05);
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  cursor: pointer;
+}
+
+.markerToggle {
+  border: none;
+  background: transparent;
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 2px 6px;
+}
+
+.markerName {
+  flex: 1;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.markerDelete {
+  border: none;
+  background: rgba(255,0,0,.3);
+  color: #fff;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.markerDelete:hover {
+  background: rgba(255,0,0,.5);
+}
+
+.markerBody {
+  padding: 12px;
+  max-height: 600px;
+  overflow-y: auto;
+  transition: max-height .3s ease;
+}
+
+.markerBody.collapsed {
+  max-height: 0;
+  padding: 0 12px;
+  overflow: hidden;
+}
+
+.ctrlRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 8px 0;
+  gap: 10px;
+}
+
+.ctrlRow label {
+  min-width: 100px;
+  font-size: 12px;
+}
+
+.ctrlRow input,
+.ctrlRow select {
+  flex: 1;
+  max-width: 200px;
+}
+
+.colorSingle, .colorCategory, .colorVisibility {
+  margin-left: 0;
+}
+
+.deleteMarkerBtn {
+  width: 100%;
+  margin-top: 12px;
+  padding: 8px;
+  background: rgba(255,0,0,.3);
+  border: 1px solid rgba(255,0,0,.5);
+  border-radius: 6px;
+  color: #fff;
+  cursor: pointer;
+}
+
+.deleteMarkerBtn:hover {
+  background: rgba(255,0,0,.5);
+}
+
 </style>
 </head>
 <body>
@@ -569,83 +700,29 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
   <div id="uiBody">
   <div style="margin:10px 0 12px 0; padding:10px; border:1px solid rgba(255,255,255,.12); border-radius:12px; background:rgba(255,255,255,.04)">
     
-<div class="sec">
-  <div class="secTitle">Marker FX</div>
-
-  <div class="row">
-    <label>Style</label>
-    <select id="markerFxSel">
-      <option value="hover">Hover only</option>
-      <option value="loading">Loading rings</option>
-      <option value="helix">Helix (starlings)</option>
-      <option value="ring">Ground ring</option>
-      <option value="halo">Bird halo</option>
-      <option value="birdshape">Bird shape</option>
-      <option value="combo">Combo (helix+ring+halo)</option>
-    </select>
+<div class="fxSection">
+  <div class="fxSectionHeader" onclick="this.nextElementSibling.classList.toggle('collapsed'); this.querySelector('.fxToggle').textContent = this.nextElementSibling.classList.contains('collapsed') ? '▶' : '▼';">
+    <span style="font-weight:700;font-size:13px;">Marker FX</span>
+    <button class="fxToggle" type="button" style="border:none;background:transparent;color:#fff;font-size:14px;cursor:pointer;padding:2px 6px;">▼</button>
   </div>
-
-  <div class="row">
-    <label>Top Y</label>
-    <input id="fxTopY" type="number" step="1" value="55"/>
-  </div>
-
-  <div class="row">
-    <label>Bottom Y</label>
-    <input id="fxBotY" type="number" step="1" value="-55"/>
-  </div>
-
-  <div class="row">
-    <label>Radius</label>
-    <input id="fxRadius" type="number" step="1" value="18"/>
-  </div>
-
-  <div class="row">
-    <label>Turns</label>
-    <input id="fxTurns" type="number" step="0.5" value="5"/>
-  </div>
-
-  <div class="row">
-    <label>Jitter</label>
-    <input id="fxJitter" type="number" step="0.1" value="2.2"/>
-  </div>
-
-  <div class="row">
-    <label>Flockiness</label>
-    <input id="fxFlock" type="number" step="0.05" value="0.35"/>
-  </div>
-
-  <div class="row">
-    <label>Speed</label>
-    <input id="fxSpeed" type="number" step="0.05" value="1.00"/>
-  </div>
-
-  <div class="row">
-    <label>Direction</label>
-    <select id="fxDir">
-      <option value="cw">Clockwise</option>
-      <option value="ccw">Counter-clockwise</option>
-    </select>
-  </div>
-
-  <div class="row">
-    <label>Helix</label>
-    <input id="fxHelixColor" type="color" value="#7efcff"/>
-  </div>
-
-  <div class="row">
-    <label>Ring</label>
-    <input id="fxRingColor" type="color" value="#b6ff6a"/>
-  </div>
-
-  <div class="row">
-    <label>Bird</label>
-    <input id="fxBirdColor" type="color" value="#ffffff"/>
-  </div>
-
-  <div class="hint" style="opacity:.8;margin-top:8px;line-height:1.35">
-    Helix uses a noisy flow field so it “flutters” like a murmuration rather than a perfect spiral.
-    Use Top/Bottom/Radius to tighten the whole effect.
+  <div class="fxSectionBody">
+    <!-- Add Marker Button -->
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
+      <button id="addMarkerBtn" type="button" style="flex:1;padding:10px;background:rgba(0,200,100,.3);border:1px solid rgba(0,255,100,.4);border-radius:8px;color:#fff;cursor:pointer;font-weight:700;">
+        <span>+ Add Marker</span>
+      </button>
+      <select id="markerTypeSelector" style="flex:1;display:none;">
+        <option value="">Select type...</option>
+        <option value="helix">Helix (Starlings)</option>
+        <option value="bird">Bird Halo</option>
+        <option value="ground">Ground Ring</option>
+        <option value="birdshape">Bird Shape</option>
+        <option value="loading">Loading Rings</option>
+      </select>
+    </div>
+    
+    <!-- Active Markers List (dynamically populated) -->
+    <div id="activeMarkersList"></div>
   </div>
 </div>
 
@@ -4517,6 +4594,353 @@ function updateMarkerFx(dt){
   }
 }
 
+// ================= MODULAR MARKER SYSTEM =================
+
+// Active marker configurations
+let activeMarkers = [];
+
+// Marker type definitions with default properties
+const markerTypeDefaults = {
+  helix: {
+    name: "Helix (Starlings)",
+    topY: 50,
+    bottomY: 0,
+    speed: 1.0,
+    direction: "cw",
+    colorMode: "single",
+    color: "#7efcff",
+    categoryColors: {},
+    visibilityColors: { high: "#00ff00", medium: "#ffff00", low: "#ff0000" },
+    radius: 18,
+    jitter: 2.2,
+    flockiness: 0.35,
+    turns: 5.0
+  },
+  bird: {
+    name: "Bird Halo",
+    topY: 55,
+    bottomY: -10,
+    speed: 1.5,
+    direction: "ccw",
+    colorMode: "single",
+    color: "#ffffff",
+    categoryColors: {},
+    visibilityColors: { high: "#00ff00", medium: "#ffff00", low: "#ff0000" },
+    radius: 15,
+    jitter: 1.8,
+    flockiness: 0.5
+  },
+  ground: {
+    name: "Ground Ring",
+    topY: 5,
+    bottomY: 0,
+    speed: 2.0,
+    direction: "cw",
+    colorMode: "single",
+    color: "#b6ff6a",
+    categoryColors: {},
+    radius: 20,
+    thickness: 2
+  },
+  birdshape: {
+    name: "Bird Shape",
+    topY: 60,
+    bottomY: 0,
+    speed: 1.2,
+    direction: "cw",
+    colorMode: "single",
+    color: "#ffffff",
+    categoryColors: {},
+    radius: 12,
+    jitter: 2.5,
+    flockiness: 0.6
+  },
+  loading: {
+    name: "Loading Rings",
+    topY: 40,
+    bottomY: -40,
+    speed: 1.5,
+    direction: "cw",
+    colorMode: "single",
+    color: "#00c8ff",
+    radius: 18
+  }
+};
+
+// Add new marker
+function addMarker(type) {
+  const id = `marker_${Date.now()}`;
+  const config = {
+    id,
+    type,
+    ...JSON.parse(JSON.stringify(markerTypeDefaults[type]))
+  };
+  activeMarkers.push(config);
+  renderMarkersList();
+  applyAllMarkers();
+}
+
+// Remove marker
+function removeMarker(id) {
+  activeMarkers = activeMarkers.filter(m => m.id !== id);
+  renderMarkersList();
+  applyAllMarkers();
+}
+
+// Render markers list UI
+function renderMarkersList() {
+  const container = document.getElementById('activeMarkersList');
+  if (!container) return;
+  
+  container.innerHTML = '';
+  
+  activeMarkers.forEach(marker => {
+    const markerDiv = document.createElement('div');
+    markerDiv.className = 'markerInstance';
+    markerDiv.innerHTML = `
+      <div class="markerHeader">
+        <button class="markerToggle" data-id="${marker.id}">▼</button>
+        <span class="markerName">${marker.name}</span>
+        <button class="markerDelete" data-id="${marker.id}" title="Delete">×</button>
+      </div>
+      <div class="markerBody" id="marker_${marker.id}">
+        ${renderMarkerControls(marker)}
+      </div>
+    `;
+    container.appendChild(markerDiv);
+  });
+  
+  // Wire up events
+  container.querySelectorAll('.markerToggle').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const id = e.target.dataset.id;
+      const body = document.getElementById(`marker_${id}`);
+      body.classList.toggle('collapsed');
+      e.target.textContent = body.classList.contains('collapsed') ? '▶' : '▼';
+    });
+  });
+  
+  container.querySelectorAll('.markerDelete').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      removeMarker(e.target.dataset.id);
+    });
+  });
+  
+  // Wire up control changes
+  container.querySelectorAll('[data-id][data-prop]').forEach(input => {
+    input.addEventListener('input', (e) => {
+      updateMarkerProperty(e.target.dataset.id, e.target.dataset.prop, e.target.value);
+    });
+    input.addEventListener('change', (e) => {
+      updateMarkerProperty(e.target.dataset.id, e.target.dataset.prop, e.target.value);
+    });
+  });
+}
+
+// Update marker property
+function updateMarkerProperty(id, prop, value) {
+  const marker = activeMarkers.find(m => m.id === id);
+  if (!marker) return;
+  
+  // Handle nested properties (e.g., "categoryColors.peak")
+  if (prop.includes('.')) {
+    const parts = prop.split('.');
+    let obj = marker;
+    for (let i = 0; i < parts.length - 1; i++) {
+      if (!obj[parts[i]]) obj[parts[i]] = {};
+      obj = obj[parts[i]];
+    }
+    obj[parts[parts.length - 1]] = value;
+  } else {
+    marker[prop] = isNaN(value) ? value : parseFloat(value);
+  }
+  
+  // Handle color mode changes
+  if (prop === 'colorMode') {
+    renderMarkersList();
+  }
+  
+  applyAllMarkers();
+}
+
+// Render individual marker controls
+function renderMarkerControls(marker) {
+  const hasParticles = ['helix', 'bird', 'birdshape'].includes(marker.type);
+  const hasHelixProps = marker.type === 'helix';
+  
+  return `
+    <!-- Universal Properties -->
+    <div class="ctrlRow">
+      <label>Top Y</label>
+      <input type="number" data-id="${marker.id}" data-prop="topY" value="${marker.topY}" step="1">
+    </div>
+    <div class="ctrlRow">
+      <label>Bottom Y</label>
+      <input type="number" data-id="${marker.id}" data-prop="bottomY" value="${marker.bottomY}" step="1">
+    </div>
+    <div class="ctrlRow">
+      <label>Speed</label>
+      <input type="number" data-id="${marker.id}" data-prop="speed" value="${marker.speed}" step="0.1" min="0">
+    </div>
+    <div class="ctrlRow">
+      <label>Direction</label>
+      <select data-id="${marker.id}" data-prop="direction">
+        <option value="cw" ${marker.direction === 'cw' ? 'selected' : ''}>Clockwise</option>
+        <option value="ccw" ${marker.direction === 'ccw' ? 'selected' : ''}>Counter-CW</option>
+      </select>
+    </div>
+    <div class="ctrlRow">
+      <label>Radius</label>
+      <input type="number" data-id="${marker.id}" data-prop="radius" value="${marker.radius}" step="1" min="1">
+    </div>
+    
+    <!-- Color Mode -->
+    <div class="ctrlRow">
+      <label>Color Mode</label>
+      <select data-id="${marker.id}" data-prop="colorMode">
+        <option value="single" ${marker.colorMode === 'single' ? 'selected' : ''}>Single Color</option>
+        <option value="category" ${marker.colorMode === 'category' ? 'selected' : ''}>By Category</option>
+        <option value="visibility" ${marker.colorMode === 'visibility' ? 'selected' : ''}>By Visibility</option>
+      </select>
+    </div>
+    
+    <!-- Single Color -->
+    <div class="ctrlRow colorSingle" style="${marker.colorMode !== 'single' ? 'display:none' : ''}">
+      <label>Color</label>
+      <input type="color" data-id="${marker.id}" data-prop="color" value="${marker.color}">
+    </div>
+    
+    <!-- Category Colors -->
+    <div class="colorCategory" style="${marker.colorMode !== 'category' ? 'display:none' : ''}">
+      <div class="ctrlRow"><label>Peak</label><input type="color" data-id="${marker.id}" data-prop="categoryColors.peak" value="${marker.categoryColors.peak || '#4ecdc4'}"></div>
+      <div class="ctrlRow"><label>Tower</label><input type="color" data-id="${marker.id}" data-prop="categoryColors.tower" value="${marker.categoryColors.tower || '#f38181'}"></div>
+      <div class="ctrlRow"><label>Church</label><input type="color" data-id="${marker.id}" data-prop="categoryColors.church" value="${marker.categoryColors.church || '#aa96da'}"></div>
+      <div class="ctrlRow"><label>Landmark</label><input type="color" data-id="${marker.id}" data-prop="categoryColors.landmark" value="${marker.categoryColors.landmark || '#ff6b6b'}"></div>
+    </div>
+    
+    <!-- Visibility Colors -->
+    <div class="colorVisibility" style="${marker.colorMode !== 'visibility' ? 'display:none' : ''}">
+      <div class="ctrlRow"><label>High (80-100%)</label><input type="color" data-id="${marker.id}" data-prop="visibilityColors.high" value="${marker.visibilityColors.high}"></div>
+      <div class="ctrlRow"><label>Med (40-80%)</label><input type="color" data-id="${marker.id}" data-prop="visibilityColors.medium" value="${marker.visibilityColors.medium}"></div>
+      <div class="ctrlRow"><label>Low (0-40%)</label><input type="color" data-id="${marker.id}" data-prop="visibilityColors.low" value="${marker.visibilityColors.low}"></div>
+    </div>
+    
+    ${hasParticles ? `
+    <!-- Particle Properties -->
+    <div class="ctrlRow">
+      <label>Jitter</label>
+      <input type="number" data-id="${marker.id}" data-prop="jitter" value="${marker.jitter}" step="0.1" min="0">
+    </div>
+    <div class="ctrlRow">
+      <label>Flockiness</label>
+      <input type="number" data-id="${marker.id}" data-prop="flockiness" value="${marker.flockiness}" step="0.05" min="0" max="1">
+    </div>
+    ` : ''}
+    
+    ${hasHelixProps ? `
+    <!-- Helix-specific -->
+    <div class="ctrlRow">
+      <label>Turns</label>
+      <input type="number" data-id="${marker.id}" data-prop="turns" value="${marker.turns}" step="0.5" min="1">
+    </div>
+    ` : ''}
+  `;
+}
+
+// Apply all active markers to scene
+function applyAllMarkers() {
+  const markers = _getVerifierMarkers();
+  markers.forEach(m => {
+    // Remove all existing FX
+    if (m.userData.fxGroups) {
+      m.userData.fxGroups.forEach(g => {
+        m.remove(g);
+        _fxDispose(g);
+      });
+    }
+    m.userData.fxGroups = [];
+    
+    // Apply each active marker config
+    activeMarkers.forEach(config => {
+      const fx = buildMarkerFXFromConfig(config, m);
+      if (fx) {
+        m.add(fx);
+        m.userData.fxGroups.push(fx);
+      }
+    });
+  });
+}
+
+// Build FX based on marker config (adapts existing FX generation)
+function buildMarkerFXFromConfig(config, targetMarker) {
+  // Store current markerFxCfg and markerFxMode to restore later
+  const oldCfg = {...markerFxCfg};
+  const oldMode = markerFxMode;
+  
+  // Set config from marker instance
+  markerFxCfg.topY = config.topY;
+  markerFxCfg.botY = config.bottomY;
+  markerFxCfg.radius = config.radius;
+  markerFxCfg.speed = config.speed;
+  markerFxCfg.dir = config.direction;
+  markerFxCfg.jitter = config.jitter || 2.2;
+  markerFxCfg.flock = config.flockiness || 0.35;
+  markerFxCfg.turns = config.turns || 5.0;
+  markerFxCfg.helixColor = config.color;
+  markerFxCfg.ringColor = config.color;
+  markerFxCfg.birdColor = config.color;
+  
+  // Build FX using existing function
+  const fx = _buildFX();
+  
+  // Apply visibility based on type
+  if (fx) {
+    fx.traverse(o => {
+      if (!o.isPoints) return;
+      const k = o.userData.kind;
+      if (config.type === "helix") o.visible = (k === "helix");
+      else if (config.type === "ground") o.visible = (k === "ring");
+      else if (config.type === "bird") o.visible = (k === "halo");
+      else if (config.type === "birdshape") o.visible = (k === "birdshape");
+      else if (config.type === "loading") o.visible = (k === "loading");
+      else o.visible = false;
+    });
+  }
+  
+  // Restore old config
+  markerFxCfg = oldCfg;
+  markerFxMode = oldMode;
+  
+  return fx;
+}
+
+// Initialize modular marker system
+function initModularMarkerSystem() {
+  const addBtn = document.getElementById('addMarkerBtn');
+  const typeSelector = document.getElementById('markerTypeSelector');
+  
+  if (addBtn && typeSelector) {
+    addBtn.addEventListener('click', () => {
+      // Toggle dropdown visibility
+      if (typeSelector.style.display === 'none') {
+        typeSelector.style.display = 'block';
+        addBtn.style.display = 'none';
+      }
+    });
+    
+    typeSelector.addEventListener('change', (e) => {
+      const type = e.target.value;
+      if (type && markerTypeDefaults[type]) {
+        addMarker(type);
+        // Reset dropdown
+        e.target.value = '';
+        typeSelector.style.display = 'none';
+        addBtn.style.display = 'block';
+      }
+    });
+  }
+}
+
 function hookMarkerFxUI(){
   const sel = document.getElementById("markerFxSel");
   const cH = document.getElementById("fxHelixColor");
@@ -4565,6 +4989,7 @@ async function init(){
   // Overlay system init
   hookOverlayUI();
   hookMarkerFxUI();
+  initModularMarkerSystem();
 
 
     hookSkyGroundUI();
