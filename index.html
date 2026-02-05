@@ -886,7 +886,6 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
     </div>
     <div id="markerFxPanel" class="fxSectionBody">
 <div class="sec">
-  <div class="secTitle">Marker FX</div>
 
   <div class="row">
     <label>Style</label>
@@ -1437,7 +1436,7 @@ function applyMarkerColor(marker, color) {
   // Apply to FX elements if they exist
   if (marker.userData.fxGroup) {
     marker.userData.fxGroup.traverse(obj => {
-      if (obj.material && obj.userData.markerVisual) {
+      if (obj.material) {
         obj.material.color.set(color);
       }
     });
@@ -4807,8 +4806,17 @@ function hookMarkerFxUI(){
   }
   
   // Category color pickers
-  ['landmark', 'peak', 'building', 'tower', 'church', 'default'].forEach(cat => {
-    const el = document.getElementById(`color${cat.charAt(0).toUpperCase() + cat.slice(1)}`);
+  const categoryIds = {
+    landmark: 'colorLandmark',
+    peak: 'colorPeak',
+    building: 'colorBuilding',
+    tower: 'colorTower',
+    church: 'colorChurch',
+    default: 'colorDefault'
+  };
+  
+  Object.entries(categoryIds).forEach(([cat, elId]) => {
+    const el = document.getElementById(elId);
     if (el) {
       el.value = markerColorConfig.category[cat];
       el.addEventListener('input', (e) => {
