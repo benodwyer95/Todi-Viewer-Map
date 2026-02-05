@@ -2667,7 +2667,6 @@ let overlayState = {
   maskThresh: 0.12,
   panoFade: 1.0,
   bgColor: "#0b0b0b",
-  bgOpacity: 1.0,
   singleColor: "#00ffd0",
   minSat: 0.16,
   minVal: 0.10,
@@ -2808,8 +2807,6 @@ function applyOverlaySettings(obj){
   const panoFade = document.getElementById('panoFade');
   const panoFadeNum = document.getElementById('panoFadeNum');
   const bgColor = document.getElementById('bgColor');
-  const bgOpacity = document.getElementById('bgOpacity');
-  const bgOpacityNum = document.getElementById('bgOpacityNum');
   const singleColor = document.getElementById('singleColor');
   const minSat = document.getElementById('minSat');
   const minSatNum = document.getElementById('minSatNum');
@@ -2823,8 +2820,6 @@ function applyOverlaySettings(obj){
   if (maskThresh) maskThresh.value = String(overlayState.maskThresh);
   if (panoFade) panoFade.value = String(overlayState.panoFade);
   if (bgColor) bgColor.value = overlayState.bgColor || "#0b0b0b";
-  if (bgOpacity) bgOpacity.value = String(overlayState.bgOpacity ?? 1.0);
-  if (bgOpacityNum) bgOpacityNum.value = String(overlayState.bgOpacity ?? 1.0);
   if (singleColor) singleColor.value = overlayState.singleColor || "#00ffd0";
   if (minSat) minSat.value = String(overlayState.minSat);
   if (minVal) minVal.value = String(overlayState.minVal);
@@ -2837,10 +2832,10 @@ function applyOverlaySettings(obj){
     }
   }catch{}
 
-  // background
+  // background - always use full opacity (1.0) since it's the bottom layer
   try{
     document.body.style.background = overlayState.bgColor || "#000";
-    if (renderer && renderer.setClearColor) renderer.setClearColor(new THREE.Color(overlayState.bgColor || "#000"), (overlayState.bgOpacity ?? 1.0));
+    if (renderer && renderer.setClearColor) renderer.setClearColor(new THREE.Color(overlayState.bgColor || "#000"), 1.0);
   }catch{}
 
   refreshModeUI_Overlay();
@@ -3318,8 +3313,6 @@ function hookOverlayUI(){
   const panoFade = document.getElementById('panoFade');
   const panoFadeNum = document.getElementById('panoFadeNum');
   const bgColor = document.getElementById('bgColor');
-  const bgOpacity = document.getElementById('bgOpacity');
-  const bgOpacityNum = document.getElementById('bgOpacityNum');
   const singleColor = document.getElementById('singleColor');
   const minSat = document.getElementById('minSat');
   const minSatNum = document.getElementById('minSatNum');
@@ -3451,21 +3444,9 @@ function hookOverlayUI(){
     overlayState.bgColor = e.target.value;
     try{
       document.body.style.background = overlayState.bgColor;
-      if (renderer && renderer.setClearColor) renderer.setClearColor(new THREE.Color(overlayState.bgColor), (overlayState.bgOpacity ?? 1.0));
+      // Background is always full opacity (1.0) since it's the bottom layer
+      if (renderer && renderer.setClearColor) renderer.setClearColor(new THREE.Color(overlayState.bgColor), 1.0);
     }catch{}
-    syncSettingsBox();
-  };
-
-  if (bgOpacity) bgOpacity.oninput = e=>{
-    overlayState.bgOpacity = Math.max(0, Math.min(1, parseFloat(e.target.value)));
-    if (bgOpacityNum) bgOpacityNum.value = String(overlayState.bgOpacity);
-    try{ if (renderer && renderer.setClearColor) renderer.setClearColor(new THREE.Color(overlayState.bgColor || '#000'), overlayState.bgOpacity); }catch{}
-    syncSettingsBox();
-  };
-  if (bgOpacityNum) bgOpacityNum.oninput = e=>{
-    overlayState.bgOpacity = Math.max(0, Math.min(1, parseFloat(e.target.value)));
-    if (bgOpacity) bgOpacity.value = String(overlayState.bgOpacity);
-    try{ if (renderer && renderer.setClearColor) renderer.setClearColor(new THREE.Color(overlayState.bgColor || '#000'), overlayState.bgOpacity); }catch{}
     syncSettingsBox();
   };
 
@@ -5084,7 +5065,6 @@ init().then(()=>animate()).catch(err=>{
     <div class="ovRow"><span>Mask threshold</span><div style="display:flex;gap:10px;align-items:center"><input id="maskThresh" type="range" min="0" max="1" step="0.005" value="0.12"><input id="maskThreshNum" type="number" min="0" max="1" step="0.005" value="0.12" style="width:76px"></div></div>
     <div class="ovRow"><span>Pano fade</span><div style="display:flex;gap:10px;align-items:center"><input id="panoFade" type="range" min="0" max="1" step="0.01" value="1"><input id="panoFadeNum" type="number" min="0" max="1" step="0.01" value="1" style="width:76px"></div></div>
     <div class="ovRow"><span>Global background</span><input id="bgColor" type="color" value="#0b0b0b"></div>
-<div class="ovRow"><span>Background opacity</span><div style="display:flex;gap:10px;align-items:center"><input id="bgOpacity" type="range" min="0" max="1" step="0.01" value="1"><input id="bgOpacityNum" type="number" min="0" max="1" step="0.01" value="1" style="width:76px"></div></div>
 
     <div id="ovStatus">Ready.</div>
   </div>
@@ -5184,11 +5164,8 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
 
 
 
-<div id="edgeReopenLeft" class="edgeReopen" title="Open verifier">▶</div>
-<div id="edgeReopenRight" class="edgeReopen" title="Open overlays">◀</div>
-
-<button id="edgeReopenLeft" class="edgeReopen">▶</button>
-<button id="edgeReopenRight" class="edgeReopen">◀</button>
+<button id="edgeReopenLeft" class="edgeReopen" title="Open verifier">▶</button>
+<button id="edgeReopenRight" class="edgeReopen" title="Open overlays">◀</button>
 
 </body>
 </html>
