@@ -297,7 +297,7 @@ hr.ovSep{border:none;border-top:1px solid rgba(255,255,255,.12);margin:10px 0}
   #status{font-size:11px;opacity:.85;margin-top:8px;line-height:1.25}
 
   #tip{
-    position:fixed;z-index:20;pointer-events:none;transform:translate(10px,10px);
+    position:fixed;z-index:100;pointer-events:none;transform:translate(10px,10px);
     padding:8px 10px;background:rgba(0,0,0,.75);
     border:1px solid rgba(255,255,255,.18);border-radius:10px;
     color:#fff;font-size:12px;max-width:340px;display:none;backdrop-filter: blur(6px);
@@ -609,7 +609,6 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
     <label>Style</label>
     <select id="markerFxSel">
       <option value="hover">Hover only</option>
-      <option value="loading">Loading rings</option>
       <option value="helix">Helix (starlings)</option>
       <option value="ring">Ground ring</option>
       <option value="halo">Bird halo</option>
@@ -4355,7 +4354,7 @@ function computeMaxDistanceFromData(){
 
 
 // ================= Marker FX (wired to currentMarkers from verifier) =================
-let markerFxMode = "loading";
+let markerFxMode = "hover";
 let markerFxCfg = {
   helixColor: "#7efcff",
   ringColor:  "#b6ff6a",
