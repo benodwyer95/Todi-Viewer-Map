@@ -4394,7 +4394,7 @@ let markerIdCounter = 0;
 let labelIdCounter = 0;
 
 const DROPDOWN_BLUR_DELAY_MS = 200;
-const GEOMETRY_AFFECTING_CLASSES = new Set(['markerTopY', 'markerBottomY', 'markerRadius', 'markerTurns']);
+const GEOMETRY_AFFECTING_INPUT_CLASSES = new Set(['markerTopY', 'markerBottomY', 'markerRadius', 'markerTurns']);
 
 function _fxColor(hex){ try{ return new THREE.Color(hex); }catch{ return new THREE.Color("#fff"); } }
 
@@ -4547,7 +4547,7 @@ function updateMarkerConfig(input){
   }
 
   // Reapply if geometry changed
-  if(Array.from(input.classList).some(cls => GEOMETRY_AFFECTING_CLASSES.has(cls))){
+  if(Array.from(input.classList).some(cls => GEOMETRY_AFFECTING_INPUT_CLASSES.has(cls))){
     applyMarkersToScene();
   }
 }
@@ -4637,31 +4637,34 @@ function renderMarkersList(){
   container.innerHTML = html;
 }
 
+// --- Helper: Get marker color based on config and candidate ---
+function getMarkerColor(config, candidate){
+  if(config.colorMode === "single"){
+    return config.color;
+  } else if(config.colorMode === "category" && candidate?.category){
+    return config.categoryColors[candidate.category] || config.categoryColors.default;
+  } else if(config.colorMode === "visibility" && candidate?.visibilityIndex !== undefined){
+    const vis = candidate.visibilityIndex;
+    if(vis >= 0.8) return config.visibilityColors.high;
+    if(vis >= 0.4) return config.visibilityColors.medium;
+    return config.visibilityColors.low;
+  }
+  return config.color;
+}
+
 // --- FX builders ---
 function buildMarkerFX(config, candidate){
   const g = new THREE.Group();
   g.userData.config = config;
   g.userData.t = 0;
+  g.userData.candidate = candidate;
 
   const topY = config.topY;
   const bottomY = config.bottomY;
   const height = (topY - bottomY);
   const radius0 = config.radius;
   
-  // Get color based on mode
-  function getColor(){
-    if(config.colorMode === "single"){
-      return config.color;
-    } else if(config.colorMode === "category" && candidate?.category){
-      return config.categoryColors[candidate.category] || config.categoryColors.default;
-    } else if(config.colorMode === "visibility" && candidate?.visibilityIndex !== undefined){
-      const vis = candidate.visibilityIndex;
-      if(vis >= 0.8) return config.visibilityColors.high;
-      if(vis >= 0.4) return config.visibilityColors.medium;
-      return config.visibilityColors.low;
-    }
-    return config.color;
-  }
+  const color = getMarkerColor(config, candidate);
 
   if(config.type === "helix"){
     const N = 820;
@@ -4689,7 +4692,7 @@ function buildMarkerFX(config, candidate){
     geo.setAttribute("base", new THREE.BufferAttribute(base,3));
     geo.setAttribute("phase", new THREE.BufferAttribute(phase,1));
 
-    const helix = new THREE.Points(geo, _mkPointsMaterial(getColor(), 1.15, 0.9));
+    const helix = new THREE.Points(geo, _mkPointsMaterial(color, 1.15, 0.9));
     helix.userData.kind="helix";
     g.add(helix);
   }
@@ -4712,7 +4715,7 @@ function buildMarkerFX(config, candidate){
     geo2.setAttribute("position", new THREE.BufferAttribute(pos2,3));
     geo2.setAttribute("base", new THREE.BufferAttribute(base2,3));
     geo2.setAttribute("phase", new THREE.BufferAttribute(phase2,1));
-    const ring = new THREE.Points(geo2, _mkPointsMaterial(getColor(), 1.6, 0.85));
+    const ring = new THREE.Points(geo2, _mkPointsMaterial(color, 1.6, 0.85));
     ring.userData.kind="ring";
     g.add(ring);
   }
@@ -4735,7 +4738,7 @@ function buildMarkerFX(config, candidate){
     geo3.setAttribute("position", new THREE.BufferAttribute(pos3,3));
     geo3.setAttribute("base", new THREE.BufferAttribute(base3,3));
     geo3.setAttribute("phase", new THREE.BufferAttribute(phase3,1));
-    const halo = new THREE.Points(geo3, _mkPointsMaterial(getColor(), 1.35, 0.9));
+    const halo = new THREE.Points(geo3, _mkPointsMaterial(color, 1.35, 0.9));
     halo.userData.kind="halo";
     g.add(halo);
   }
@@ -4765,7 +4768,7 @@ function buildMarkerFX(config, candidate){
     geo4.setAttribute("position", new THREE.BufferAttribute(pos4,3));
     geo4.setAttribute("base", new THREE.BufferAttribute(base4,3));
     geo4.setAttribute("phase", new THREE.BufferAttribute(phase4,1));
-    const birdshape = new THREE.Points(geo4, _mkPointsMaterial(getColor(), 1.2, 0.95));
+    const birdshape = new THREE.Points(geo4, _mkPointsMaterial(color, 1.2, 0.95));
     birdshape.userData.kind="birdshape";
     g.add(birdshape);
   }
@@ -4787,7 +4790,7 @@ function buildMarkerFX(config, candidate){
     geo5.setAttribute("position", new THREE.BufferAttribute(pos5,3));
     geo5.setAttribute("base", new THREE.BufferAttribute(base5,3));
     geo5.setAttribute("phase", new THREE.BufferAttribute(phase5,1));
-    const loading = new THREE.Points(geo5, _mkPointsMaterial(getColor(), 1.4, 0.88));
+    const loading = new THREE.Points(geo5, _mkPointsMaterial(color, 1.4, 0.88));
     loading.userData.kind="loading";
     g.add(loading);
   }
@@ -4844,20 +4847,8 @@ function updateMarkerFx(dt){
         if(!o.isPoints) return;
 
         // Update color dynamically based on mode
-        if(config.colorMode === "single"){
-          o.material.color.set(_fxColor(config.color));
-        } else if(config.colorMode === "category" && m.userData.candidate?.category){
-          const cat = m.userData.candidate.category;
-          const catColor = config.categoryColors[cat] || config.categoryColors.default;
-          o.material.color.set(_fxColor(catColor));
-        } else if(config.colorMode === "visibility" && m.userData.candidate?.visibilityIndex !== undefined){
-          const vis = m.userData.candidate.visibilityIndex;
-          let visColor;
-          if(vis >= 0.8) visColor = config.visibilityColors.high;
-          else if(vis >= 0.4) visColor = config.visibilityColors.medium;
-          else visColor = config.visibilityColors.low;
-          o.material.color.set(_fxColor(visColor));
-        }
+        const currentColor = getMarkerColor(config, fx.userData.candidate);
+        o.material.color.set(_fxColor(currentColor));
 
         // Murmuration-like jitter
         const geo = o.geometry;
@@ -5536,8 +5527,8 @@ init().then(()=>animate()).catch(err=>{
 </style>
 
 
-<button id="edgeReopenLeft" class="edgeReopen" title="Open verifier">▶</button>
-<button id="edgeReopenRight" class="edgeReopen" title="Open overlays">◀</button>
+<button id="edgeReopenLeft" class="edgeReopen" title="Open verifier" aria-label="Open verifier">▶</button>
+<button id="edgeReopenRight" class="edgeReopen" title="Open overlays" aria-label="Open overlays">◀</button>
 
 </body>
 </html>
