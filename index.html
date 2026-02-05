@@ -937,6 +937,32 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
       </span>
     </div>
 
+    <!-- Label FX Presets Section -->
+    <div id="row2" style="margin-top:12px;padding-top:12px;border-top:2px solid rgba(255,255,255,.15)">
+      <div style="font-weight:700;margin-bottom:8px;font-size:13px">Label FX Presets</div>
+      
+      <div style="display:flex;gap:8px;margin-bottom:6px">
+        <input id="labelFxPresetName" type="text" placeholder="e.g. Large Helvetica" style="flex:1;padding:6px"/>
+        <button id="labelFxSavePresetBtn" class="btnSmall" style="padding:6px 12px">Save</button>
+      </div>
+      
+      <div style="margin-bottom:6px">
+        <select id="labelFxPresetSel" style="width:100%;padding:6px"></select>
+      </div>
+      
+      <div style="display:flex;gap:8px;margin-bottom:6px">
+        <button id="labelFxLoadPresetBtn" class="btnSmall" style="padding:6px 12px;flex:1">Load</button>
+        <button id="labelFxDeletePresetBtn" class="btnSmall" style="padding:6px 12px;flex:1">Delete</button>
+      </div>
+      
+      <div style="display:flex;gap:8px;margin-bottom:6px">
+        <button id="labelFxCopyBtn" class="btnSmall" style="padding:6px 12px;flex:1">Copy JSON</button>
+        <button id="labelFxApplyBtn" class="btnSmall" style="padding:6px 12px;flex:1">Apply JSON</button>
+      </div>
+      
+      <textarea id="labelFxSettingsBox" placeholder="Paste label FX JSON here" style="width:100%;height:80px;font-size:11px;font-family:monospace;padding:6px"></textarea>
+    </div>
+
     <div id="list"></div>
   </div>
 </div>
@@ -3927,19 +3953,20 @@ landmarkFilterSel.addEventListener('change', rebuildFromFilters);
 minVis.addEventListener('change', rebuildFromFilters);
 topN.addEventListener('change', rebuildFromFilters);
 mWorld.addEventListener('change', rebuildFromFilters);
-debugDotIn.addEventListener('change', rebuildFromFilters);
+debugDotIn.addEventListener('change', ()=>{ rebuildFromFilters(); if(window.syncLabelFxSettingsBox) syncLabelFxSettingsBox(); });
 riseWorldIn.addEventListener('change', rebuildFromFilters);
 sqWorldIn.addEventListener('change', rebuildFromFilters);
-lblWorldIn.addEventListener('change', rebuildFromFilters);
-animSecondsIn?.addEventListener('input', ()=>{});
-animSecondsIn?.addEventListener('change', ()=>{});
-loopCalloutIn?.addEventListener('change', ()=>{});
+lblWorldIn.addEventListener('change', ()=>{ rebuildFromFilters(); if(window.syncLabelFxSettingsBox) syncLabelFxSettingsBox(); });
+animSecondsIn?.addEventListener('input', ()=>{ if(window.syncLabelFxSettingsBox) syncLabelFxSettingsBox(); });
+animSecondsIn?.addEventListener('change', ()=>{ if(window.syncLabelFxSettingsBox) syncLabelFxSettingsBox(); });
+loopCalloutIn?.addEventListener('change', ()=>{ if(window.syncLabelFxSettingsBox) syncLabelFxSettingsBox(); });
 riseWorldIn.addEventListener('input', rebuildFromFilters);
 sqWorldIn.addEventListener('input', rebuildFromFilters);
-lblWorldIn.addEventListener('input', rebuildFromFilters);
+lblWorldIn.addEventListener('input', ()=>{ rebuildFromFilters(); if(window.syncLabelFxSettingsBox) syncLabelFxSettingsBox(); });
 fontSel?.addEventListener('change', ()=>{
   currentLabelFontStack = FONT_STACKS[fontSel.value] || FONT_STACKS.helvetica;
   rebuildFromFilters();
+  if(window.syncLabelFxSettingsBox) syncLabelFxSettingsBox();
 });
 
 distMaxIn.addEventListener('input', ()=>{
@@ -3948,9 +3975,9 @@ distMaxIn.addEventListener('input', ()=>{
 });
 distMaxLabel.textContent = `≤ ${distMaxIn.value}m`;
 
-showLabelsIn.addEventListener('change', rebuildLabels);
-calloutsIn.addEventListener('change', updateCalloutsVisibility);
-allCalloutsIn.addEventListener('change', updateCalloutsVisibility);
+showLabelsIn.addEventListener('change', ()=>{ rebuildLabels(); if(window.syncLabelFxSettingsBox) syncLabelFxSettingsBox(); });
+calloutsIn.addEventListener('change', ()=>{ updateCalloutsVisibility(); if(window.syncLabelFxSettingsBox) syncLabelFxSettingsBox(); });
+allCalloutsIn.addEventListener('change', ()=>{ updateCalloutsVisibility(); if(window.syncLabelFxSettingsBox) syncLabelFxSettingsBox(); });
 
 function applyExposure(){
   const v=parseFloat(exposureIn.value);
@@ -4714,6 +4741,154 @@ async function copyMarkerFxSettings() {
   }
 }
 
+// ================= Label FX Preset System =================
+const LABEL_FX_PRESET_KEY = "todi_labelFx_presets_v1";
+
+function getLabelFxSettings() {
+  return {
+    showLabels: showLabelsIn?.checked ?? false,
+    lblWorld: parseFloat(lblWorldIn?.value) || 18,
+    font: fontSel?.value || "helvetica",
+    animSeconds: parseFloat(animSecondsIn?.value) || 1.8,
+    loopCallout: loopCalloutIn?.checked ?? false,
+    callouts: calloutsIn?.checked ?? true,
+    allCallouts: allCalloutsIn?.checked ?? false,
+    debugDot: debugDotIn?.checked ?? true
+  };
+}
+
+function applyLabelFxSettings(settings) {
+  if (!settings) return;
+  
+  if (showLabelsIn) showLabelsIn.checked = settings.showLabels ?? false;
+  if (lblWorldIn) lblWorldIn.value = String(settings.lblWorld ?? 18);
+  if (fontSel) fontSel.value = settings.font || "helvetica";
+  if (animSecondsIn) animSecondsIn.value = String(settings.animSeconds ?? 1.8);
+  if (loopCalloutIn) loopCalloutIn.checked = settings.loopCallout ?? false;
+  if (calloutsIn) calloutsIn.checked = settings.callouts ?? true;
+  if (allCalloutsIn) allCalloutsIn.checked = settings.allCallouts ?? false;
+  if (debugDotIn) debugDotIn.checked = settings.debugDot ?? true;
+  
+  // Apply font stack
+  if (settings.font) {
+    currentLabelFontStack = FONT_STACKS[settings.font] || FONT_STACKS.helvetica;
+  }
+  
+  // Rebuild to apply changes
+  rebuildFromFilters();
+  rebuildLabels();
+  updateCalloutsVisibility();
+  
+  syncLabelFxSettingsBox();
+}
+
+function syncLabelFxSettingsBox() {
+  const box = document.getElementById('labelFxSettingsBox');
+  if (box) box.value = JSON.stringify(getLabelFxSettings(), null, 2);
+}
+window.syncLabelFxSettingsBox = syncLabelFxSettingsBox;
+
+function loadLabelFxPresetStore() {
+  try {
+    const raw = localStorage.getItem(LABEL_FX_PRESET_KEY);
+    const list = raw ? JSON.parse(raw) : [];
+    return Array.isArray(list) ? list : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveLabelFxPresetStore(list) {
+  localStorage.setItem(LABEL_FX_PRESET_KEY, JSON.stringify(list));
+}
+
+function refreshLabelFxPresetList() {
+  const presetSel = document.getElementById('labelFxPresetSel');
+  if (!presetSel) return;
+  const all = loadLabelFxPresetStore();
+  presetSel.innerHTML = "";
+  if (all.length === 0) {
+    const opt = document.createElement("option");
+    opt.value = "-1";
+    opt.textContent = "(no presets saved)";
+    presetSel.appendChild(opt);
+  } else {
+    all.forEach((p, i) => {
+      const opt = document.createElement("option");
+      opt.value = String(i);
+      opt.textContent = p.name;
+      presetSel.appendChild(opt);
+    });
+  }
+}
+
+async function copyLabelFxSettings() {
+  const txt = JSON.stringify(getLabelFxSettings(), null, 2);
+  const box = document.getElementById('labelFxSettingsBox');
+  if (box) box.value = txt;
+  try {
+    await navigator.clipboard.writeText(txt);
+    alert("Label FX settings copied ✔");
+  } catch {
+    alert("Copied to box (clipboard blocked) ✔");
+  }
+}
+
+function hookLabelFxPresets() {
+  const saveBtn = document.getElementById('labelFxSavePresetBtn');
+  const loadBtn = document.getElementById('labelFxLoadPresetBtn');
+  const deleteBtn = document.getElementById('labelFxDeletePresetBtn');
+  const copyBtn = document.getElementById('labelFxCopyBtn');
+  const applyBtn = document.getElementById('labelFxApplyBtn');
+  const presetName = document.getElementById('labelFxPresetName');
+  const presetSel = document.getElementById('labelFxPresetSel');
+  
+  if (saveBtn) saveBtn.onclick = () => {
+    const name = (presetName?.value || "").trim();
+    if (!name) { alert("Preset needs a name."); return; }
+    const list = loadLabelFxPresetStore();
+    list.push({ name, settings: getLabelFxSettings() });
+    saveLabelFxPresetStore(list);
+    refreshLabelFxPresetList();
+    alert("Label FX preset saved ✔");
+  };
+  
+  if (loadBtn) loadBtn.onclick = () => {
+    const i = parseInt(presetSel?.value ?? "-1", 10);
+    const list = loadLabelFxPresetStore();
+    if (!list[i]) { alert("No preset selected."); return; }
+    applyLabelFxSettings(list[i].settings);
+    alert("Label FX preset loaded ✔");
+  };
+  
+  if (deleteBtn) deleteBtn.onclick = () => {
+    const i = parseInt(presetSel?.value ?? "-1", 10);
+    const list = loadLabelFxPresetStore();
+    if (!list[i]) { alert("No preset selected."); return; }
+    list.splice(i, 1);
+    saveLabelFxPresetStore(list);
+    refreshLabelFxPresetList();
+    alert("Label FX preset deleted ✔");
+  };
+  
+  if (copyBtn) copyBtn.onclick = copyLabelFxSettings;
+  
+  if (applyBtn) applyBtn.onclick = () => {
+    const box = document.getElementById('labelFxSettingsBox');
+    try {
+      const obj = JSON.parse(box.value);
+      applyLabelFxSettings(obj);
+      alert("Label FX settings applied ✔");
+    } catch (err) {
+      alert("Invalid JSON:\n" + (err?.message || err));
+    }
+  };
+  
+  // Initialize
+  refreshLabelFxPresetList();
+  syncLabelFxSettingsBox();
+}
+
 function hookMarkerFxUI(){
   const sel = document.getElementById("markerFxSel");
   const cH = document.getElementById("fxHelixColor");
@@ -4817,7 +4992,7 @@ async function init(){
   // Overlay system init
   hookOverlayUI();
   hookMarkerFxUI();
-
+  hookLabelFxPresets();
 
     hookSkyGroundUI();
 // Overlay UI hooks
