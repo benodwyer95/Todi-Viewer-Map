@@ -537,6 +537,46 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
 #edgeReopenLeft{left:8px;}
 #edgeReopenRight{right:8px;}
 
+/* ================= Collapsible Sections ================= */
+.collapsibleSection {
+  margin: 12px 0;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 12px;
+  background: rgba(255,255,255,.04);
+}
+
+.sectionHeader {
+  padding: 10px 12px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 700;
+  user-select: none;
+  border-radius: 12px;
+  transition: background 0.2s ease;
+}
+
+.sectionHeader:hover {
+  background: rgba(255,255,255,.06);
+}
+
+.sectionToggle {
+  font-size: 14px;
+  opacity: 0.7;
+  transition: transform 0.2s ease;
+}
+
+.sectionBody {
+  padding: 0 12px 12px 12px;
+  overflow: hidden;
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+}
+
+.sectionBody.collapsed {
+  display: none;
+}
+
 </style>
 </head>
 <body>
@@ -600,87 +640,93 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
   </div>
 
   <div id="uiBody">
-  <div style="margin:10px 0 12px 0; padding:10px; border:1px solid rgba(255,255,255,.12); border-radius:12px; background:rgba(255,255,255,.04)">
-    
-<div class="sec">
-  <div class="secTitle">Marker FX</div>
+  <!-- Collapsible Marker FX Section -->
+  <div class="collapsibleSection">
+    <div class="sectionHeader" data-section="markerFx">
+      <span>Marker FX</span>
+      <span class="sectionToggle">►</span>
+    </div>
+    <div class="sectionBody collapsed" id="markerFxBody">
+      <div class="sec">
+        <div class="row">
+          <label>Style</label>
+          <select id="markerFxSel">
+            <option value="hover">Hover only</option>
+            <option value="loading">Loading rings</option>
+            <option value="helix">Helix (starlings)</option>
+            <option value="ring">Ground ring</option>
+            <option value="halo">Bird halo</option>
+            <option value="birdshape">Bird shape</option>
+            <option value="combo">Combo (helix+ring+halo)</option>
+          </select>
+        </div>
 
-  <div class="row">
-    <label>Style</label>
-    <select id="markerFxSel">
-      <option value="hover">Hover only</option>
-      <option value="loading">Loading rings</option>
-      <option value="helix">Helix (starlings)</option>
-      <option value="ring">Ground ring</option>
-      <option value="halo">Bird halo</option>
-      <option value="birdshape">Bird shape</option>
-      <option value="combo">Combo (helix+ring+halo)</option>
-    </select>
+        <div class="row">
+          <label>Top Y</label>
+          <input id="fxTopY" type="number" step="1" value="55"/>
+        </div>
+
+        <div class="row">
+          <label>Bottom Y</label>
+          <input id="fxBotY" type="number" step="1" value="-55"/>
+        </div>
+
+        <div class="row">
+          <label>Radius</label>
+          <input id="fxRadius" type="number" step="1" value="18"/>
+        </div>
+
+        <div class="row">
+          <label>Turns</label>
+          <input id="fxTurns" type="number" step="0.5" value="5"/>
+        </div>
+
+        <div class="row">
+          <label>Jitter</label>
+          <input id="fxJitter" type="number" step="0.1" value="2.2"/>
+        </div>
+
+        <div class="row">
+          <label>Flockiness</label>
+          <input id="fxFlock" type="number" step="0.05" value="0.35"/>
+        </div>
+
+        <div class="row">
+          <label>Speed</label>
+          <input id="fxSpeed" type="number" step="0.05" value="1.00"/>
+        </div>
+
+        <div class="row">
+          <label>Direction</label>
+          <select id="fxDir">
+            <option value="cw">Clockwise</option>
+            <option value="ccw">Counter-clockwise</option>
+          </select>
+        </div>
+
+        <div class="row">
+          <label>Helix</label>
+          <input id="fxHelixColor" type="color" value="#7efcff"/>
+        </div>
+
+        <div class="row">
+          <label>Ring</label>
+          <input id="fxRingColor" type="color" value="#b6ff6a"/>
+        </div>
+
+        <div class="row">
+          <label>Bird</label>
+          <input id="fxBirdColor" type="color" value="#ffffff"/>
+        </div>
+
+        <div class="hint" style="opacity:.8;margin-top:8px;line-height:1.35">
+          Helix uses a noisy flow field so it "flutters" like a murmuration rather than a perfect spiral.
+          Use Top/Bottom/Radius to tighten the whole effect.
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div class="row">
-    <label>Top Y</label>
-    <input id="fxTopY" type="number" step="1" value="55"/>
-  </div>
-
-  <div class="row">
-    <label>Bottom Y</label>
-    <input id="fxBotY" type="number" step="1" value="-55"/>
-  </div>
-
-  <div class="row">
-    <label>Radius</label>
-    <input id="fxRadius" type="number" step="1" value="18"/>
-  </div>
-
-  <div class="row">
-    <label>Turns</label>
-    <input id="fxTurns" type="number" step="0.5" value="5"/>
-  </div>
-
-  <div class="row">
-    <label>Jitter</label>
-    <input id="fxJitter" type="number" step="0.1" value="2.2"/>
-  </div>
-
-  <div class="row">
-    <label>Flockiness</label>
-    <input id="fxFlock" type="number" step="0.05" value="0.35"/>
-  </div>
-
-  <div class="row">
-    <label>Speed</label>
-    <input id="fxSpeed" type="number" step="0.05" value="1.00"/>
-  </div>
-
-  <div class="row">
-    <label>Direction</label>
-    <select id="fxDir">
-      <option value="cw">Clockwise</option>
-      <option value="ccw">Counter-clockwise</option>
-    </select>
-  </div>
-
-  <div class="row">
-    <label>Helix</label>
-    <input id="fxHelixColor" type="color" value="#7efcff"/>
-  </div>
-
-  <div class="row">
-    <label>Ring</label>
-    <input id="fxRingColor" type="color" value="#b6ff6a"/>
-  </div>
-
-  <div class="row">
-    <label>Bird</label>
-    <input id="fxBirdColor" type="color" value="#ffffff"/>
-  </div>
-
-  <div class="hint" style="opacity:.8;margin-top:8px;line-height:1.35">
-    Helix uses a noisy flow field so it “flutters” like a murmuration rather than a perfect spiral.
-    Use Top/Bottom/Radius to tighten the whole effect.
-  </div>
-</div>
 
 
     <div id="row2">
@@ -821,78 +867,9 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
 
       <span class="pill">
         <label style="border:none;background:transparent;padding:0">
-          <input id="showLabels" type="checkbox" style="accent-color:#fff">
-          Show labels
-        </label>
-      </span>
-
-      <span class="pill">
-        <label style="border:none;background:transparent;padding:0">
-          <input id="callouts" type="checkbox" checked style="accent-color:#fff">
-          Callout preview
-        </label>
-      </span>
-
-      <span class="pill">
-        <label style="border:none;background:transparent;padding:0">
-          <input id="allCallouts" type="checkbox" style="accent-color:#fff">
-          All callouts
-        </label>
-      </span>
-
-      <span class="pill">
-        <label style="border:none;background:transparent;padding:0">
           <input id="debugDot" type="checkbox" checked style="accent-color:#fff">
           Debug dot
         </label>
-      </span>
-    </div>
-
-    <!-- Callout tuning -->
-    <div id="row2">
-      <span class="pill"><b>Rise</b><span class="muted">world</span>
-        <input id="riseWorld" type="number" value="40" min="5" max="140" step="1" style="width:80px;padding:6px 8px">
-      </span>
-      <span class="pill"><b>Square</b><span class="muted">world</span>
-        <input id="sqWorld" type="number" value="6" min="2" max="18" step="1" style="width:80px;padding:6px 8px">
-      </span>
-      <span class="pill"><b>Label</b><span class="muted">world</span>
-        <input id="lblWorld" type="number" value="18" min="6" max="60" step="1" style="width:80px;padding:6px 8px">
-      </span>
-      <span class="pill"><b>Font</b><span class="muted">labels</span>
-        <select id="fontSel" style="width:160px;padding:6px 8px">
-          <option value="helvetica" selected>Helvetica</option>
-          <option value="inter">Inter</option>
-          <option value="manrope">Manrope</option>
-          <option value="ibmplex">IBM Plex Sans</option>
-          <option value="spacegrotesk">Space Grotesk</option>
-          <option value="system">System UI</option>
-        </select>
-      </span>
-
-      <span class="pill"><b>Anim sec</b><span class="muted">0→1</span>
-        <input id="animSeconds" type="number" value="1.80" min="0.20" max="10.00" step="0.05" style="width:80px;padding:6px 8px">
-      </span>
-      <span class="pill">
-        <label style="border:none;background:transparent;padding:0">
-          <input id="loopCallout" type="checkbox" style="accent-color:#fff">
-          Loop callout
-        </label>
-      </span>
-
-      <span class="muted" style="font-size:11px">
-        (Preview matches your end animation: square → line → square → HELVETICA CAPS 11.)
-
-      <span class="pill"><b>Anim</b><span class="muted">sec</span>
-        <input id="animSeconds" type="number" value="1.8" min="0.4" max="10" step="0.1" style="width:80px;padding:6px 8px">
-      </span>
-      <span class="pill">
-        <label style="border:none;background:transparent;padding:0">
-          <input id="loopCallout" type="checkbox" style="accent-color:#fff">
-          Loop callout
-        </label>
-      </span>
-
       </span>
     </div>
 
@@ -905,6 +882,77 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
       <span class="muted" style="font-size:11px">
         Exports/imports: global yaw+Z per pano + per-point yaw/pitch/Z per pano.
       </span>
+    </div>
+
+    <!-- Collapsible Label FX Section -->
+    <div class="collapsibleSection">
+      <div class="sectionHeader" data-section="labelFx">
+        <span>Label FX</span>
+        <span class="sectionToggle">►</span>
+      </div>
+      <div class="sectionBody collapsed" id="labelFxBody">
+        <div class="sec">
+          <div id="row2">
+            <span class="pill">
+              <label style="border:none;background:transparent;padding:0">
+                <input id="showLabels" type="checkbox" style="accent-color:#fff">
+                Show labels
+              </label>
+            </span>
+
+            <span class="pill">
+              <label style="border:none;background:transparent;padding:0">
+                <input id="callouts" type="checkbox" checked style="accent-color:#fff">
+                Callout preview
+              </label>
+            </span>
+
+            <span class="pill">
+              <label style="border:none;background:transparent;padding:0">
+                <input id="allCallouts" type="checkbox" style="accent-color:#fff">
+                All callouts
+              </label>
+            </span>
+          </div>
+
+          <!-- Callout tuning -->
+          <div id="row2">
+            <span class="pill"><b>Rise</b><span class="muted">world</span>
+              <input id="riseWorld" type="number" value="40" min="5" max="140" step="1" style="width:80px;padding:6px 8px">
+            </span>
+            <span class="pill"><b>Square</b><span class="muted">world</span>
+              <input id="sqWorld" type="number" value="6" min="2" max="18" step="1" style="width:80px;padding:6px 8px">
+            </span>
+            <span class="pill"><b>Label</b><span class="muted">world</span>
+              <input id="lblWorld" type="number" value="18" min="6" max="60" step="1" style="width:80px;padding:6px 8px">
+            </span>
+            <span class="pill"><b>Font</b><span class="muted">labels</span>
+              <select id="fontSel" style="width:160px;padding:6px 8px">
+                <option value="helvetica" selected>Helvetica</option>
+                <option value="inter">Inter</option>
+                <option value="manrope">Manrope</option>
+                <option value="ibmplex">IBM Plex Sans</option>
+                <option value="spacegrotesk">Space Grotesk</option>
+                <option value="system">System UI</option>
+              </select>
+            </span>
+
+            <span class="pill"><b>Anim sec</b><span class="muted">0→1</span>
+              <input id="animSeconds" type="number" value="1.80" min="0.20" max="10.00" step="0.05" style="width:80px;padding:6px 8px">
+            </span>
+            <span class="pill">
+              <label style="border:none;background:transparent;padding:0">
+                <input id="loopCallout" type="checkbox" style="accent-color:#fff">
+                Loop callout
+              </label>
+            </span>
+
+            <span class="muted" style="font-size:11px">
+              (Preview matches your end animation: square → line → square → HELVETICA CAPS 11.)
+            </span>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div id="list"></div>
@@ -969,7 +1017,7 @@ npx http-server . -a 127.0.0.1 -p 8000 -c-1</code>
       const mk = (id, side)=>{
         const b = document.createElement("button");
         b.id = id;
-        b.className = "edgeReopenBtn";
+        b.className = "edgeReopen";
         b.type = "button";
         b.title = side === "left" ? "Reopen Verifier" : "Reopen Overlay";
         b.textContent = side === "left" ? "›" : "‹";
@@ -1031,6 +1079,18 @@ npx http-server . -a 127.0.0.1 -p 8000 -c-1</code>
       });
     }
   }catch(e){}
+
+  // Handle collapsible sections (Marker FX, Label FX)
+  document.querySelectorAll('.sectionHeader').forEach(header => {
+    header.addEventListener('click', () => {
+      const body = header.nextElementSibling;
+      const toggle = header.querySelector('.sectionToggle');
+      if (body && toggle) {
+        body.classList.toggle('collapsed');
+        toggle.textContent = body.classList.contains('collapsed') ? '►' : '▼';
+      }
+    });
+  });
 })();
 
 import * as THREE from 'three';
