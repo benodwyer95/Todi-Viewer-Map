@@ -702,57 +702,10 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
   <div id="uiBody">
   <div style="margin:10px 0 12px 0; padding:10px; border:1px solid rgba(255,255,255,.12); border-radius:12px; background:rgba(255,255,255,.04)">
     
-<div class="fxSection">
-  <div class="fxSectionHeader" onclick="this.nextElementSibling.classList.toggle('collapsed'); this.querySelector('.fxToggle').textContent = this.nextElementSibling.classList.contains('collapsed') ? '▶' : '▼';">
-    <span style="font-weight:700;font-size:13px;">Marker FX</span>
-    <button class="fxToggle" type="button" style="border:none;background:transparent;color:#fff;font-size:14px;cursor:pointer;padding:2px 6px;">▼</button>
-  </div>
-  <div class="fxSectionBody">
-    <!-- Add Marker Button -->
-    <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
-      <button id="addMarkerBtn" type="button" style="flex:1;padding:10px;background:rgba(0,200,100,.3);border:1px solid rgba(0,255,100,.4);border-radius:8px;color:#fff;cursor:pointer;font-weight:700;">
-        <span>+ Add Marker</span>
-      </button>
-      <select id="markerTypeSelector" style="flex:1;display:none;" aria-label="Select marker type">
-        <option value="">Select type...</option>
-        <option value="helix">Helix (Starlings)</option>
-        <option value="bird">Bird Halo</option>
-        <option value="ground">Ground Ring</option>
-        <option value="birdshape">Bird Shape</option>
-        <option value="loading">Loading Rings</option>
-      </select>
-    </div>
-    
-    <!-- Active Markers List (dynamically populated) -->
-    <div id="activeMarkersList"></div>
-  </div>
-</div>
+    <!-- 1. List of Locations - MOVED TO TOP -->
+    <div id="list"></div>
 
-<div class="fxSection">
-  <div class="fxSectionHeader" onclick="this.nextElementSibling.classList.toggle('collapsed'); this.querySelector('.fxToggle').textContent = this.nextElementSibling.classList.contains('collapsed') ? '▶' : '▼';">
-    <span style="font-weight:700;font-size:13px;">Label FX</span>
-    <button class="fxToggle" type="button" style="border:none;background:transparent;color:#fff;font-size:14px;cursor:pointer;padding:2px 6px;">▼</button>
-  </div>
-  <div class="fxSectionBody">
-    <!-- Add Label Button -->
-    <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
-      <button id="addLabelBtn" type="button" style="flex:1;padding:10px;background:rgba(0,150,255,.3);border:1px solid rgba(0,200,255,.4);border-radius:8px;color:#fff;cursor:pointer;font-weight:700;">
-        <span>+ Add Label Type</span>
-      </button>
-      <select id="labelTypeSelector" style="flex:1;display:none;">
-        <option value="">Select type...</option>
-        <option value="hover">Hover Tip</option>
-        <option value="clickLine">Click → Animated Line</option>
-        <option value="fixed">Fixed Display</option>
-      </select>
-    </div>
-    
-    <!-- Active Labels List (dynamically populated) -->
-    <div id="activeLabelsList"></div>
-  </div>
-</div>
-
-
+    <!-- 2. Info Pills -->
     <div id="row2">
       <span class="pill"><b>Type</b> <span id="srcType">—</span></span>
       <span class="pill"><b>ID</b> <span id="srcId">—</span></span>
@@ -763,210 +716,295 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
       <span class="pill"><b>Markers</b> <span id="srcMk">—</span></span>
     </div>
 
-    <!-- Placement / QA controls -->
-    <div id="row2">
-      <span class="pill"><b>Adjust mode</b>
-        <select id="adjustMode" style="padding:6px 8px">
-          <option value="global" selected>Global (pano)</option>
-          <option value="point">Selected point</option>
-        </select>
-      </span>
+    <!-- 3. Verifier Controls Section (Collapsible) -->
+    <div class="fxSection">
+      <div class="fxSectionHeader" onclick="this.nextElementSibling.classList.toggle('collapsed'); this.querySelector('.fxToggle').textContent = this.nextElementSibling.classList.contains('collapsed') ? '▶' : '▼';">
+        <span style="font-weight:700;font-size:13px;">Verifier Controls</span>
+        <button class="fxToggle" type="button" style="border:none;background:transparent;color:#fff;font-size:14px;cursor:pointer;padding:2px 6px;">▼</button>
+      </div>
+      <div class="fxSectionBody">
+        <!-- Placement / QA controls -->
+        <div id="row2">
+          <span class="pill"><b>Adjust mode</b>
+            <select id="adjustMode" style="padding:6px 8px">
+              <option value="global" selected>Global (pano)</option>
+              <option value="point">Selected point</option>
+            </select>
+          </span>
 
-      <span class="pill"><b>Place</b>
-        <select id="placeMode" style="padding:6px 8px">
-          <option value="arrows" selected>Arrows only</option>
-          <option value="mouse">Mouse snap</option>
-          <option value="both">Mouse + arrows</option>
-        </select>
-      </span>
+          <span class="pill"><b>Place</b>
+            <select id="placeMode" style="padding:6px 8px">
+              <option value="arrows" selected>Arrows only</option>
+              <option value="mouse">Mouse snap</option>
+              <option value="both">Mouse + arrows</option>
+            </select>
+          </span>
 
-      <span class="pill"><b>Auto-next</b>
-        <label style="border:none;background:transparent;padding:0">
-          <input id="autoNext" type="checkbox" checked style="accent-color:#fff">
-          after click
-        </label>
-      </span>
+          <span class="pill"><b>Auto-next</b>
+            <label style="border:none;background:transparent;padding:0">
+              <input id="autoNext" type="checkbox" checked style="accent-color:#fff">
+              after click
+            </label>
+          </span>
 
-      <button id="nudgeLeft"  class="btnSmall" title="Yaw -">◀</button>
-      <button id="nudgeRight" class="btnSmall" title="Yaw +">▶</button>
-      <button id="nudgeUp"    class="btnSmall" title="Pitch +">▲</button>
-      <button id="nudgeDown"  class="btnSmall" title="Pitch -">▼</button>
+          <button id="nudgeLeft"  class="btnSmall" title="Yaw -">◀</button>
+          <button id="nudgeRight" class="btnSmall" title="Yaw +">▶</button>
+          <button id="nudgeUp"    class="btnSmall" title="Pitch +">▲</button>
+          <button id="nudgeDown"  class="btnSmall" title="Pitch -">▼</button>
 
-      <span class="pill"><b>Yaw step</b>
-        <select id="yawStepPreset" style="padding:6px 8px">
-          <option value="5">5</option>
-          <option value="2">2</option>
-          <option value="1" selected>1</option>
-          <option value="0.5">0.5</option>
-          <option value="0.01">0.01</option>
-        </select>
-        <span class="muted">deg</span>
-      </span>
+          <span class="pill"><b>Yaw step</b>
+            <select id="yawStepPreset" style="padding:6px 8px">
+              <option value="5">5</option>
+              <option value="2">2</option>
+              <option value="1" selected>1</option>
+              <option value="0.5">0.5</option>
+              <option value="0.01">0.01</option>
+            </select>
+            <span class="muted">deg</span>
+          </span>
 
-      <span class="pill"><b>Pitch step</b>
-        <input id="pitchStep" type="number" value="0.25" min="0.01" step="0.01" style="width:80px;padding:6px 8px">
-        <span class="muted">deg</span>
-      </span>
+          <span class="pill"><b>Pitch step</b>
+            <input id="pitchStep" type="number" value="0.25" min="0.01" step="0.01" style="width:80px;padding:6px 8px">
+            <span class="muted">deg</span>
+          </span>
 
-      <button id="resetAdj" class="btnSmall">Reset (mode)</button>
+          <button id="resetAdj" class="btnSmall">Reset (mode)</button>
+        </div>
+
+        <!-- Z controls (global or per-point via adjust mode) -->
+        <div id="row2">
+          <button id="zDown" class="btnSmall">⬇ Z -</button>
+          <button id="zUp"   class="btnSmall">⬆ Z +</button>
+
+          <span class="pill"><b>Z step</b>
+            <select id="zStepPreset" style="padding:6px 8px">
+              <option value="5">5</option>
+              <option value="2">2</option>
+              <option value="1">1</option>
+              <option value="0.5">0.5</option>
+              <option value="0.01">0.01</option>
+            </select>
+            <span class="muted">m</span>
+          </span>
+
+          <button id="zZero" class="btnSmall">Reset Z (mode)</button>
+
+          <span class="muted" style="font-size:11px">
+            Tip: point Z is best for DSM/DTM + pano height mismatch, global Z for systematic sensor height bias.
+          </span>
+        </div>
+      </div>
     </div>
 
-    <!-- Z controls (global or per-point via adjust mode) -->
-    <div id="row2">
-      <button id="zDown" class="btnSmall">⬇ Z -</button>
-      <button id="zUp"   class="btnSmall">⬆ Z +</button>
-
-      <span class="pill"><b>Z step</b>
-        <select id="zStepPreset" style="padding:6px 8px">
-          <option value="5">5</option>
-          <option value="2">2</option>
-          <option value="1">1</option>
-          <option value="0.5">0.5</option>
-          <option value="0.01">0.01</option>
-        </select>
-        <span class="muted">m</span>
-      </span>
-
-      <button id="zZero" class="btnSmall">Reset Z (mode)</button>
-
-      <span class="muted" style="font-size:11px">
-        Tip: point Z is best for DSM/DTM + pano height mismatch, global Z for systematic sensor height bias.
-      </span>
+    <!-- 4. Marker FX Section -->
+    <div class="fxSection">
+      <div class="fxSectionHeader" onclick="this.nextElementSibling.classList.toggle('collapsed'); this.querySelector('.fxToggle').textContent = this.nextElementSibling.classList.contains('collapsed') ? '▶' : '▼';">
+        <span style="font-weight:700;font-size:13px;">Marker FX</span>
+        <button class="fxToggle" type="button" style="border:none;background:transparent;color:#fff;font-size:14px;cursor:pointer;padding:2px 6px;">▼</button>
+      </div>
+      <div class="fxSectionBody">
+        <!-- Add Marker Button -->
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
+          <button id="addMarkerBtn" type="button" style="flex:1;padding:10px;background:rgba(0,200,100,.3);border:1px solid rgba(0,255,100,.4);border-radius:8px;color:#fff;cursor:pointer;font-weight:700;">
+            <span>+ Add Marker</span>
+          </button>
+          <select id="markerTypeSelector" style="flex:1;display:none;" aria-label="Select marker type">
+            <option value="">Select type...</option>
+            <option value="helix">Helix (Starlings)</option>
+            <option value="bird">Bird Halo</option>
+            <option value="ground">Ground Ring</option>
+            <option value="birdshape">Bird Shape</option>
+            <option value="loading">Loading Rings</option>
+          </select>
+        </div>
+        
+        <!-- Active Markers List (dynamically populated) -->
+        <div id="activeMarkersList"></div>
+      </div>
     </div>
 
-    <!-- Filtering -->
-    <div id="row2">
-      <span class="pill"><b>Visibility</b>
-        <select id="visFilter" style="padding:6px 8px">
-          <option value="any" selected>All</option>
-          <option value="visible">Visible</option>
-          <option value="not_visible">Not visible</option>
-        </select>
-      </span>
-
-      <span class="pill"><b>Category</b>
-        <select id="categoryFilter" style="padding:6px 8px">
-          <option value="all" selected>All</option>
-          <option value="building">Buildings</option>
-          <option value="amenity">Amenities</option>
-          <option value="leisure">Leisure</option>
-          <option value="place">Places</option>
-        </select>
-      </span>
-
-      <span class="pill"><b>Landmarks</b>
-        <select id="landmarkFilter" style="padding:6px 8px">
-          <option value="any" selected>All</option>
-          <option value="landmarks_all">Only landmarks</option>
-          <option value="landmarks_buildings">Landmarks: buildings</option>
-          <option value="landmarks_leisure">Landmarks: leisure</option>
-          <option value="landmarks_places">Landmarks: places</option>
-          <option value="non_landmarks">Non-landmarks</option>
-        </select>
-      </span>
-
-      <span class="pill"><b>Distance</b>
-        <input id="distMax" type="range" min="0" max="2000" step="25" value="2000" style="width:220px;padding:0">
-        <span id="distMaxLabel" class="muted">≤ 2000m</span>
-      </span>
-
-      <span class="pill"><b>Top</b>
-        <input id="topN" type="number" value="25" min="1" max="200" step="1" style="width:80px;padding:6px 8px">
-      </span>
-
-      <span class="pill"><b>Min vis%</b>
-        <input id="minVis" type="number" value="0" min="0" max="100" step="1" style="width:80px;padding:6px 8px">
-      </span>
+    <!-- 5. Label FX Section -->
+    <div class="fxSection">
+      <div class="fxSectionHeader" onclick="this.nextElementSibling.classList.toggle('collapsed'); this.querySelector('.fxToggle').textContent = this.nextElementSibling.classList.contains('collapsed') ? '▶' : '▼';">
+        <span style="font-weight:700;font-size:13px;">Label FX</span>
+        <button class="fxToggle" type="button" style="border:none;background:transparent;color:#fff;font-size:14px;cursor:pointer;padding:2px 6px;">▼</button>
+      </div>
+      <div class="fxSectionBody">
+        <!-- Add Label Button -->
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
+          <button id="addLabelBtn" type="button" style="flex:1;padding:10px;background:rgba(0,150,255,.3);border:1px solid rgba(0,200,255,.4);border-radius:8px;color:#fff;cursor:pointer;font-weight:700;">
+            <span>+ Add Label Type</span>
+          </button>
+          <select id="labelTypeSelector" style="flex:1;display:none;">
+            <option value="">Select type...</option>
+            <option value="hover">Hover Tip</option>
+            <option value="clickLine">Click → Animated Line</option>
+            <option value="fixed">Fixed Display</option>
+          </select>
+        </div>
+        
+        <!-- Active Labels List (dynamically populated) -->
+        <div id="activeLabelsList"></div>
+      </div>
     </div>
 
-    <!-- Visual options -->
-    <div id="row2">
-      <span class="pill"><b>Marker size</b><span class="muted">world</span>
-        <input id="mWorld" type="number" value="18" min="4" max="80" step="1" style="width:80px;padding:6px 8px">
-      </span>
+    <!-- 6. Filtering Section (Collapsible) -->
+    <div class="fxSection">
+      <div class="fxSectionHeader" onclick="this.nextElementSibling.classList.toggle('collapsed'); this.querySelector('.fxToggle').textContent = this.nextElementSibling.classList.contains('collapsed') ? '▶' : '▼';">
+        <span style="font-weight:700;font-size:13px;">Filtering</span>
+        <button class="fxToggle" type="button" style="border:none;background:transparent;color:#fff;font-size:14px;cursor:pointer;padding:2px 6px;">▼</button>
+      </div>
+      <div class="fxSectionBody">
+        <div id="row2">
+          <span class="pill"><b>Visibility</b>
+            <select id="visFilter" style="padding:6px 8px">
+              <option value="any" selected>All</option>
+              <option value="visible">Visible</option>
+              <option value="not_visible">Not visible</option>
+            </select>
+          </span>
 
-      <span class="pill"><b>Exposure</b>
-        <input id="exposure" type="number" value="1.0" min="0.6" max="1.6" step="0.05" style="width:80px;padding:6px 8px">
-      </span>
+          <span class="pill"><b>Category</b>
+            <select id="categoryFilter" style="padding:6px 8px">
+              <option value="all" selected>All</option>
+              <option value="building">Buildings</option>
+              <option value="amenity">Amenities</option>
+              <option value="leisure">Leisure</option>
+              <option value="place">Places</option>
+            </select>
+          </span>
 
-      <span class="pill">
-        <label style="border:none;background:transparent;padding:0">
-          <input id="showLabels" type="checkbox" style="accent-color:#fff">
-          Show labels
-        </label>
-      </span>
+          <span class="pill"><b>Landmarks</b>
+            <select id="landmarkFilter" style="padding:6px 8px">
+              <option value="any" selected>All</option>
+              <option value="landmarks_all">Only landmarks</option>
+              <option value="landmarks_buildings">Landmarks: buildings</option>
+              <option value="landmarks_leisure">Landmarks: leisure</option>
+              <option value="landmarks_places">Landmarks: places</option>
+              <option value="non_landmarks">Non-landmarks</option>
+            </select>
+          </span>
 
-      <span class="pill">
-        <label style="border:none;background:transparent;padding:0">
-          <input id="callouts" type="checkbox" checked style="accent-color:#fff">
-          Callout preview
-        </label>
-      </span>
+          <span class="pill"><b>Distance</b>
+            <input id="distMax" type="range" min="0" max="2000" step="25" value="2000" style="width:220px;padding:0">
+            <span id="distMaxLabel" class="muted">≤ 2000m</span>
+          </span>
 
-      <span class="pill">
-        <label style="border:none;background:transparent;padding:0">
-          <input id="allCallouts" type="checkbox" style="accent-color:#fff">
-          All callouts
-        </label>
-      </span>
+          <span class="pill"><b>Top</b>
+            <input id="topN" type="number" value="25" min="1" max="200" step="1" style="width:80px;padding:6px 8px">
+          </span>
 
-      <span class="pill">
-        <label style="border:none;background:transparent;padding:0">
-          <input id="debugDot" type="checkbox" checked style="accent-color:#fff">
-          Debug dot
-        </label>
-      </span>
+          <span class="pill"><b>Min vis%</b>
+            <input id="minVis" type="number" value="0" min="0" max="100" step="1" style="width:80px;padding:6px 8px">
+          </span>
+        </div>
+      </div>
     </div>
 
-    <!-- Callout tuning -->
-    <div id="row2">
-      <span class="pill"><b>Rise</b><span class="muted">world</span>
-        <input id="riseWorld" type="number" value="40" min="5" max="140" step="1" style="width:80px;padding:6px 8px">
-      </span>
-      <span class="pill"><b>Square</b><span class="muted">world</span>
-        <input id="sqWorld" type="number" value="6" min="2" max="18" step="1" style="width:80px;padding:6px 8px">
-      </span>
-      <span class="pill"><b>Label</b><span class="muted">world</span>
-        <input id="lblWorld" type="number" value="18" min="6" max="60" step="1" style="width:80px;padding:6px 8px">
-      </span>
-      <span class="pill"><b>Font</b><span class="muted">labels</span>
-        <select id="fontSel" style="width:160px;padding:6px 8px">
-          <option value="helvetica" selected>Helvetica</option>
-          <option value="inter">Inter</option>
-          <option value="manrope">Manrope</option>
-          <option value="ibmplex">IBM Plex Sans</option>
-          <option value="spacegrotesk">Space Grotesk</option>
-          <option value="system">System UI</option>
-        </select>
-      </span>
+    <!-- 7. Visual Options Section (Collapsible) -->
+    <div class="fxSection">
+      <div class="fxSectionHeader" onclick="this.nextElementSibling.classList.toggle('collapsed'); this.querySelector('.fxToggle').textContent = this.nextElementSibling.classList.contains('collapsed') ? '▶' : '▼';">
+        <span style="font-weight:700;font-size:13px;">Visual Options</span>
+        <button class="fxToggle" type="button" style="border:none;background:transparent;color:#fff;font-size:14px;cursor:pointer;padding:2px 6px;">▼</button>
+      </div>
+      <div class="fxSectionBody">
+        <div id="row2">
+          <span class="pill"><b>Marker size</b><span class="muted">world</span>
+            <input id="mWorld" type="number" value="18" min="4" max="80" step="1" style="width:80px;padding:6px 8px">
+          </span>
 
-      <span class="pill"><b>Anim sec</b><span class="muted">0→1</span>
-        <input id="animSeconds" type="number" value="1.80" min="0.20" max="10.00" step="0.05" style="width:80px;padding:6px 8px">
-      </span>
-      <span class="pill">
-        <label style="border:none;background:transparent;padding:0">
-          <input id="loopCallout" type="checkbox" style="accent-color:#fff">
-          Loop callout
-        </label>
-      </span>
+          <span class="pill"><b>Exposure</b>
+            <input id="exposure" type="number" value="1.0" min="0.6" max="1.6" step="0.05" style="width:80px;padding:6px 8px">
+          </span>
 
-      <span class="muted" style="font-size:11px">
-        (Preview matches your end animation: square → line → square → HELVETICA CAPS 11.)
+          <span class="pill">
+            <label style="border:none;background:transparent;padding:0">
+              <input id="showLabels" type="checkbox" style="accent-color:#fff">
+              Show labels
+            </label>
+          </span>
 
-      <span class="pill"><b>Anim</b><span class="muted">sec</span>
-        <input id="animSeconds2" type="number" value="1.8" min="0.4" max="10" step="0.1" style="width:80px;padding:6px 8px">
-      </span>
-      <span class="pill">
-        <label style="border:none;background:transparent;padding:0">
-          <input id="loopCallout2" type="checkbox" style="accent-color:#fff">
-          Loop callout
-        </label>
-      </span>
+          <span class="pill">
+            <label style="border:none;background:transparent;padding:0">
+              <input id="callouts" type="checkbox" checked style="accent-color:#fff">
+              Callout preview
+            </label>
+          </span>
 
-      </span>
+          <span class="pill">
+            <label style="border:none;background:transparent;padding:0">
+              <input id="allCallouts" type="checkbox" style="accent-color:#fff">
+              All callouts
+            </label>
+          </span>
+
+          <span class="pill">
+            <label style="border:none;background:transparent;padding:0">
+              <input id="debugDot" type="checkbox" checked style="accent-color:#fff">
+              Debug dot
+            </label>
+          </span>
+        </div>
+      </div>
     </div>
 
-    <!-- Export / Import -->
+    <!-- 8. Callout Tuning Section (Collapsible) -->
+    <div class="fxSection">
+      <div class="fxSectionHeader" onclick="this.nextElementSibling.classList.toggle('collapsed'); this.querySelector('.fxToggle').textContent = this.nextElementSibling.classList.contains('collapsed') ? '▶' : '▼';">
+        <span style="font-weight:700;font-size:13px;">Callout Tuning</span>
+        <button class="fxToggle" type="button" style="border:none;background:transparent;color:#fff;font-size:14px;cursor:pointer;padding:2px 6px;">▼</button>
+      </div>
+      <div class="fxSectionBody">
+        <div id="row2">
+          <span class="pill"><b>Rise</b><span class="muted">world</span>
+            <input id="riseWorld" type="number" value="40" min="5" max="140" step="1" style="width:80px;padding:6px 8px">
+          </span>
+          <span class="pill"><b>Square</b><span class="muted">world</span>
+            <input id="sqWorld" type="number" value="6" min="2" max="18" step="1" style="width:80px;padding:6px 8px">
+          </span>
+          <span class="pill"><b>Label</b><span class="muted">world</span>
+            <input id="lblWorld" type="number" value="18" min="6" max="60" step="1" style="width:80px;padding:6px 8px">
+          </span>
+          <span class="pill"><b>Font</b><span class="muted">labels</span>
+            <select id="fontSel" style="width:160px;padding:6px 8px">
+              <option value="helvetica" selected>Helvetica</option>
+              <option value="inter">Inter</option>
+              <option value="manrope">Manrope</option>
+              <option value="ibmplex">IBM Plex Sans</option>
+              <option value="spacegrotesk">Space Grotesk</option>
+              <option value="system">System UI</option>
+            </select>
+          </span>
+
+          <span class="pill"><b>Anim sec</b><span class="muted">0→1</span>
+            <input id="animSeconds" type="number" value="1.80" min="0.20" max="10.00" step="0.05" style="width:80px;padding:6px 8px">
+          </span>
+          <span class="pill">
+            <label style="border:none;background:transparent;padding:0">
+              <input id="loopCallout" type="checkbox" style="accent-color:#fff">
+              Loop callout
+            </label>
+          </span>
+
+          <span class="muted" style="font-size:11px">
+            (Preview matches your end animation: square → line → square → HELVETICA CAPS 11.)
+
+          <span class="pill"><b>Anim</b><span class="muted">sec</span>
+            <input id="animSeconds2" type="number" value="1.8" min="0.4" max="10" step="0.1" style="width:80px;padding:6px 8px">
+          </span>
+          <span class="pill">
+            <label style="border:none;background:transparent;padding:0">
+              <input id="loopCallout2" type="checkbox" style="accent-color:#fff">
+              Loop callout
+            </label>
+          </span>
+
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 9. Export / Import -->
     <div id="row2">
       <button id="exportOffsets" class="btnSmall">Export offsets</button>
       <label class="btnSmall" style="padding:0;border:none;background:transparent">
@@ -977,7 +1015,6 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
       </span>
     </div>
 
-    <div id="list"></div>
   </div>
 </div>
 
@@ -4665,6 +4702,7 @@ const markerTypeDefaults = {
     colorMode: "single",
     color: "#b6ff6a",
     categoryColors: {},
+    visibilityColors: { high: "#00ff00", medium: "#ffff00", low: "#ff0000" },
     radius: 20,
     thickness: 2
   },
@@ -4677,6 +4715,7 @@ const markerTypeDefaults = {
     colorMode: "single",
     color: "#ffffff",
     categoryColors: {},
+    visibilityColors: { high: "#00ff00", medium: "#ffff00", low: "#ff0000" },
     radius: 12,
     jitter: 2.5,
     flockiness: 0.6
@@ -4689,6 +4728,8 @@ const markerTypeDefaults = {
     direction: "cw",
     colorMode: "single",
     color: "#00c8ff",
+    categoryColors: {},
+    visibilityColors: { high: "#00ff00", medium: "#ffff00", low: "#ff0000" },
     radius: 18
   }
 };
@@ -4820,6 +4861,10 @@ function renderMarkerFXControls(marker) {
   const hasParticles = ['helix', 'bird', 'birdshape'].includes(marker.type);
   const hasHelixProps = marker.type === 'helix';
   
+  // SAFETY: Ensure required properties exist
+  marker.categoryColors = marker.categoryColors || {};
+  marker.visibilityColors = marker.visibilityColors || { high: "#00ff00", medium: "#ffff00", low: "#ff0000" };
+  
   return `
     <!-- Universal Properties -->
     <div class="ctrlRow">
@@ -4943,7 +4988,7 @@ function buildMarkerFXFromConfig(config, targetMarker) {
   markerFxCfg.birdColor = config.color;
   
   // Build FX using existing function
-  const fx = _buildFX();
+  const fx = buildHelixFX();
   
   // Apply visibility based on type
   if (fx) {
