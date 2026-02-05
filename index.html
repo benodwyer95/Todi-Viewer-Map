@@ -648,6 +648,42 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
     </div>
     <div class="sectionBody collapsed" id="markerFxBody">
       <div class="sec">
+        <!-- Color Mode Section -->
+        <div style="margin-bottom:16px;padding:10px;background:rgba(255,255,255,.02);border-radius:8px;">
+          <div style="font-weight:700;margin-bottom:8px;">Marker Color Mode</div>
+          
+          <div class="row">
+            <label>Mode</label>
+            <select id="colorModeSel">
+              <option value="persistent">Persistent (type-based)</option>
+              <option value="category">By Category</option>
+              <option value="visibility">By Visibility %</option>
+            </select>
+          </div>
+          
+          <!-- By Category Controls -->
+          <div id="colorByCategoryControls" style="display:none;margin-top:10px;">
+            <div style="font-size:13px;opacity:.8;margin-bottom:6px;">Category Colors:</div>
+            <div id="categoryColorList"></div>
+          </div>
+          
+          <!-- By Visibility Controls -->
+          <div id="colorByVisibilityControls" style="display:none;margin-top:10px;">
+            <div style="font-size:13px;opacity:.8;margin-bottom:6px;">Visibility Range Colors:</div>
+            <div id="visibilityColorList"></div>
+          </div>
+          
+          <!-- FX Color Inheritance -->
+          <div class="row" style="margin-top:10px;">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+              <input id="fxInheritColor" type="checkbox" style="accent-color:#fff">
+              <span>FX inherits marker color</span>
+            </label>
+          </div>
+          
+          <button id="refreshMarkersBtn" class="btnSmall" style="margin-top:8px;">Refresh Markers</button>
+        </div>
+
         <div class="row">
           <label>Style</label>
           <select id="markerFxSel">
@@ -1327,6 +1363,51 @@ const TYPE_COLORS = {
   other:             0xffffff
 };
 
+// --------------------
+// Marker Color Configuration
+// --------------------
+const markerColorConfig = {
+  mode: "persistent", // "persistent" | "category" | "visibility"
+  byCategory: {
+    "building_landmark": "#00c8ff",
+    "leisure_landmark": "#ffb000",
+    "place_landmark": "#ff4d4d",
+    "amenity": "#64ff7a",
+    "other": "#ffffff"
+  },
+  byVisibility: [
+    { min: 0, max: 25, color: "#ff4757" },
+    { min: 25, max: 50, color: "#ffa502" },
+    { min: 50, max: 75, color: "#ffd32a" },
+    { min: 75, max: 100, color: "#26de81" }
+  ],
+  fxInheritColor: false, // whether FX uses marker color
+  helix: "#7efcff",
+  ring: "#b6ff6a",
+  bird: "#ffffff"
+};
+
+// Load color config from localStorage
+function loadColorConfig(){
+  try{
+    const raw = localStorage.getItem('markerColorConfig');
+    if (raw){
+      const saved = JSON.parse(raw);
+      Object.assign(markerColorConfig, saved);
+    }
+  }catch(e){ console.warn('Failed to load color config:', e); }
+}
+
+// Save color config to localStorage
+function saveColorConfig(){
+  try{
+    localStorage.setItem('markerColorConfig', JSON.stringify(markerColorConfig));
+  }catch(e){ console.warn('Failed to save color config:', e); }
+}
+
+// Load config on startup
+loadColorConfig();
+
 function colorKeyForCandidate(c){
   const cat = categoryOf(c);
   const isLm = hasLandmarkIdentity(c);
@@ -1342,9 +1423,48 @@ function colorKeyForCandidate(c){
 }
 
 function colorHexForCandidate(c){
+  const mode = markerColorConfig.mode;
+  
+  if (mode === "category") {
+    const k = colorKeyForCandidate(c);
+    const colorStr = markerColorConfig.byCategory[k] || markerColorConfig.byCategory.other || "#ffffff";
+    return parseInt(colorStr.replace('#', ''), 16);
+  }
+  
+  if (mode === "visibility") {
+    const visPct = getCandidateVisPct(c);
+    for (const range of markerColorConfig.byVisibility) {
+      if (visPct >= range.min && visPct <= range.max) {
+        return parseInt(range.color.replace('#', ''), 16);
+      }
+    }
+    // Fallback to white if no range matches
+    return 0xffffff;
+  }
+  
+  // Default: persistent mode
   const k = colorKeyForCandidate(c);
   return TYPE_COLORS[k] ?? TYPE_COLORS.other;
 }
+
+// Get FX colors (helix, ring, bird) based on config
+function getFxColors(markerColorHex){
+  if (markerColorConfig.fxInheritColor) {
+    // Use marker color for all FX elements
+    return {
+      helix: markerColorHex,
+      ring: markerColorHex,
+      bird: markerColorHex
+    };
+  }
+  // Use custom FX colors
+  return {
+    helix: parseInt(markerColorConfig.helix.replace('#', ''), 16),
+    ring: parseInt(markerColorConfig.ring.replace('#', ''), 16),
+    bird: parseInt(markerColorConfig.bird.replace('#', ''), 16)
+  };
+}
+
 
 // --------------------
 // DOM
@@ -1417,6 +1537,18 @@ const animSecondsIn = document.getElementById('animSeconds');
 const loopCalloutIn = document.getElementById('loopCallout');
 const exportOffsetsBtn = document.getElementById('exportOffsets');
 const importOffsetsIn  = document.getElementById('importOffsets');
+
+// Color mode controls
+const colorModeSel = document.getElementById('colorModeSel');
+const colorByCategoryControls = document.getElementById('colorByCategoryControls');
+const colorByVisibilityControls = document.getElementById('colorByVisibilityControls');
+const categoryColorList = document.getElementById('categoryColorList');
+const visibilityColorList = document.getElementById('visibilityColorList');
+const fxInheritColorIn = document.getElementById('fxInheritColor');
+const refreshMarkersBtn = document.getElementById('refreshMarkersBtn');
+const fxHelixColorIn = document.getElementById('fxHelixColor');
+const fxRingColorIn = document.getElementById('fxRingColor');
+const fxBirdColorIn = document.getElementById('fxBirdColor');
 
 const tip = document.getElementById('tip');
 const tipTitle = document.getElementById('tipTitle');
@@ -3984,6 +4116,168 @@ distMaxLabel.textContent = `≤ ${distMaxIn.value}m`;
 showLabelsIn.addEventListener('change', rebuildLabels);
 calloutsIn.addEventListener('change', updateCalloutsVisibility);
 allCalloutsIn.addEventListener('change', updateCalloutsVisibility);
+
+// --------------------
+// Color Mode System
+// --------------------
+function initColorModeUI(){
+  // Set initial values from config
+  if (colorModeSel) colorModeSel.value = markerColorConfig.mode;
+  if (fxInheritColorIn) fxInheritColorIn.checked = markerColorConfig.fxInheritColor;
+  if (fxHelixColorIn) fxHelixColorIn.value = markerColorConfig.helix;
+  if (fxRingColorIn) fxRingColorIn.value = markerColorConfig.ring;
+  if (fxBirdColorIn) fxBirdColorIn.value = markerColorConfig.bird;
+  
+  updateColorModeUI();
+}
+
+function updateColorModeUI(){
+  const mode = colorModeSel?.value || 'persistent';
+  
+  // Show/hide relevant controls
+  if (colorByCategoryControls) {
+    colorByCategoryControls.style.display = mode === 'category' ? 'block' : 'none';
+  }
+  if (colorByVisibilityControls) {
+    colorByVisibilityControls.style.display = mode === 'visibility' ? 'block' : 'none';
+  }
+  
+  // Build category list if in category mode
+  if (mode === 'category' && categoryColorList) {
+    buildCategoryColorList();
+  }
+  
+  // Build visibility list if in visibility mode
+  if (mode === 'visibility' && visibilityColorList) {
+    buildVisibilityColorList();
+  }
+}
+
+function buildCategoryColorList(){
+  if (!categoryColorList) return;
+  
+  const categories = Object.keys(markerColorConfig.byCategory);
+  categoryColorList.innerHTML = '';
+  
+  categories.forEach(cat => {
+    const row = document.createElement('div');
+    row.className = 'row';
+    row.style.marginTop = '6px';
+    
+    const label = document.createElement('label');
+    label.textContent = cat.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+    label.style.flex = '1';
+    
+    const input = document.createElement('input');
+    input.type = 'color';
+    input.value = markerColorConfig.byCategory[cat];
+    input.addEventListener('change', (e) => {
+      markerColorConfig.byCategory[cat] = e.target.value;
+      saveColorConfig();
+    });
+    
+    row.appendChild(label);
+    row.appendChild(input);
+    categoryColorList.appendChild(row);
+  });
+}
+
+function buildVisibilityColorList(){
+  if (!visibilityColorList) return;
+  
+  visibilityColorList.innerHTML = '';
+  
+  markerColorConfig.byVisibility.forEach((range, idx) => {
+    const row = document.createElement('div');
+    row.className = 'row';
+    row.style.marginTop = '6px';
+    
+    const label = document.createElement('label');
+    label.textContent = `${range.min}-${range.max}%`;
+    label.style.flex = '1';
+    
+    const input = document.createElement('input');
+    input.type = 'color';
+    input.value = range.color;
+    input.addEventListener('change', (e) => {
+      markerColorConfig.byVisibility[idx].color = e.target.value;
+      saveColorConfig();
+    });
+    
+    row.appendChild(label);
+    row.appendChild(input);
+    visibilityColorList.appendChild(row);
+  });
+}
+
+function refreshMarkerColors(){
+  // Update colors for all existing markers
+  currentMarkers.forEach(marker => {
+    const cand = marker.userData?.cand;
+    if (!cand) return;
+    
+    const newColorHex = colorHexForCandidate(cand);
+    marker.userData.colorHex = newColorHex;
+    
+    // Update marker visual if it exists
+    const visual = marker.userData?.markerVisual;
+    if (visual && visual.material) {
+      visual.material.color.setHex(newColorHex);
+    }
+  });
+  
+  // Reapply marker FX if needed
+  currentMarkers.forEach(m => {
+    try { applyMarkerFxToMarker(m); } catch(e) {}
+  });
+}
+
+// Event handlers
+if (colorModeSel) {
+  colorModeSel.addEventListener('change', () => {
+    markerColorConfig.mode = colorModeSel.value;
+    saveColorConfig();
+    updateColorModeUI();
+  });
+}
+
+if (fxInheritColorIn) {
+  fxInheritColorIn.addEventListener('change', () => {
+    markerColorConfig.fxInheritColor = fxInheritColorIn.checked;
+    saveColorConfig();
+  });
+}
+
+if (fxHelixColorIn) {
+  fxHelixColorIn.addEventListener('change', () => {
+    markerColorConfig.helix = fxHelixColorIn.value;
+    saveColorConfig();
+  });
+}
+
+if (fxRingColorIn) {
+  fxRingColorIn.addEventListener('change', () => {
+    markerColorConfig.ring = fxRingColorIn.value;
+    saveColorConfig();
+  });
+}
+
+if (fxBirdColorIn) {
+  fxBirdColorIn.addEventListener('change', () => {
+    markerColorConfig.bird = fxBirdColorIn.value;
+    saveColorConfig();
+  });
+}
+
+if (refreshMarkersBtn) {
+  refreshMarkersBtn.addEventListener('click', () => {
+    refreshMarkerColors();
+    setStatus('✔ Marker colors refreshed');
+  });
+}
+
+// Initialize on load
+initColorModeUI();
 
 function applyExposure(){
   const v=parseFloat(exposureIn.value);
