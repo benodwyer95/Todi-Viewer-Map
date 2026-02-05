@@ -4393,6 +4393,9 @@ let activeLabels = [];
 let markerIdCounter = 0;
 let labelIdCounter = 0;
 
+const DROPDOWN_BLUR_DELAY_MS = 200;
+const GEOMETRY_AFFECTING_CLASSES = new Set(['markerTopY', 'markerBottomY', 'markerRadius', 'markerTurns']);
+
 function _fxColor(hex){ try{ return new THREE.Color(hex); }catch{ return new THREE.Color("#fff"); } }
 
 function _mkPointsMaterial(hex, size, opacity=0.92){
@@ -4544,8 +4547,7 @@ function updateMarkerConfig(input){
   }
 
   // Reapply if geometry changed
-  if(input.classList.contains("markerTopY") || input.classList.contains("markerBottomY") || 
-     input.classList.contains("markerRadius") || input.classList.contains("markerTurns")){
+  if(Array.from(input.classList).some(cls => GEOMETRY_AFFECTING_CLASSES.has(cls))){
     applyMarkersToScene();
   }
 }
@@ -4642,8 +4644,8 @@ function buildMarkerFX(config, candidate){
   g.userData.t = 0;
 
   const topY = config.topY;
-  const botY = config.bottomY;
-  const height = (topY - botY);
+  const bottomY = config.bottomY;
+  const height = (topY - bottomY);
   const radius0 = config.radius;
   
   // Get color based on mode
@@ -4674,7 +4676,7 @@ function buildMarkerFX(config, candidate){
       const r = radius0 * (1.0 - 0.35*t);
 
       const x = Math.cos(ang)*r;
-      const y = botY + t*height;
+      const y = bottomY + t*height;
       const z = Math.sin(ang)*r;
 
       pos[i*3+0]=x; pos[i*3+1]=y; pos[i*3+2]=z;
@@ -4700,7 +4702,7 @@ function buildMarkerFX(config, candidate){
       const a = (i/(M-1)) * (Math.PI*1.5);
       const R = radius0 * 1.15;
       const x = Math.cos(a)*R;
-      const y = botY;
+      const y = bottomY;
       const z = Math.sin(a)*R;
       pos2[i*3+0]=x; pos2[i*3+1]=y; pos2[i*3+2]=z;
       base2[i*3+0]=x; base2[i*3+1]=y; base2[i*3+2]=z;
@@ -4775,7 +4777,7 @@ function buildMarkerFX(config, candidate){
     for(let i=0;i<L;i++){
       const a = (i/(L-1)) * Math.PI * 2;
       const x = Math.cos(a)*radius0;
-      const y = (botY + topY) / 2;
+      const y = (bottomY + topY) / 2;
       const z = Math.sin(a)*radius0;
       pos5[i*3+0]=x; pos5[i*3+1]=y; pos5[i*3+2]=z;
       base5[i*3+0]=x; base5[i*3+1]=y; base5[i*3+2]=z;
@@ -4928,6 +4930,12 @@ function renderLabelsList(){
   container.innerHTML = html;
 }
 
+function createDropdownBlurHandler(selector){
+  return () => {
+    setTimeout(() => { selector.style.display = "none"; }, DROPDOWN_BLUR_DELAY_MS);
+  };
+}
+
 function hookModularMarkerUI(){
   const addBtn = document.getElementById("addMarkerBtn");
   const typeSelector = document.getElementById("markerTypeSelector");
@@ -4951,9 +4959,7 @@ function hookModularMarkerUI(){
       }
     };
     
-    typeSelector.onblur = () => {
-      setTimeout(() => { typeSelector.style.display = "none"; }, 200);
-    };
+    typeSelector.onblur = createDropdownBlurHandler(typeSelector);
   }
 
   renderMarkersList();
@@ -4982,9 +4988,7 @@ function hookModularLabelUI(){
       }
     };
     
-    typeSelector.onblur = () => {
-      setTimeout(() => { typeSelector.style.display = "none"; }, 200);
-    };
+    typeSelector.onblur = createDropdownBlurHandler(typeSelector);
   }
 
   renderLabelsList();
