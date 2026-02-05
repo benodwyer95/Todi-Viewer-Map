@@ -4670,7 +4670,7 @@ const markerTypeDefaults = {
 // Add new marker
 let markerIdCounter = 0;
 function addMarker(type) {
-  const id = `marker_${Date.now()}_${markerIdCounter++}`;
+  const id = `marker_${markerIdCounter++}`;
   const config = {
     id,
     type,
@@ -4728,6 +4728,7 @@ function renderMarkersList() {
   });
   
   // Wire up control changes
+  const inputTimeouts = new WeakMap();
   container.querySelectorAll('[data-id][data-prop]').forEach(input => {
     const inputType = input.type;
     // For color and select inputs, only use change event
@@ -4737,16 +4738,18 @@ function renderMarkersList() {
         updateMarkerProperty(e.target.dataset.id, e.target.dataset.prop, e.target.value);
       });
     } else {
-      // Debounce input events
-      let timeoutId;
+      // Debounce input events with per-element timeout tracking
       input.addEventListener('input', (e) => {
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(() => {
+        const existingTimeout = inputTimeouts.get(input);
+        if (existingTimeout) clearTimeout(existingTimeout);
+        const timeoutId = setTimeout(() => {
           updateMarkerProperty(e.target.dataset.id, e.target.dataset.prop, e.target.value);
         }, 150);
+        inputTimeouts.set(input, timeoutId);
       });
       input.addEventListener('change', (e) => {
-        clearTimeout(timeoutId);
+        const existingTimeout = inputTimeouts.get(input);
+        if (existingTimeout) clearTimeout(existingTimeout);
         updateMarkerProperty(e.target.dataset.id, e.target.dataset.prop, e.target.value);
       });
     }
@@ -4768,7 +4771,12 @@ function updateMarkerProperty(id, prop, value) {
     }
     obj[parts[parts.length - 1]] = value;
   } else {
-    marker[prop] = isNaN(value) ? value : parseFloat(value);
+    // Parse numbers, but keep strings if empty or non-numeric
+    if (value !== '' && !isNaN(value) && value !== null) {
+      marker[prop] = parseFloat(value);
+    } else {
+      marker[prop] = value;
+    }
   }
   
   // Handle color mode changes
