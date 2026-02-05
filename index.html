@@ -969,7 +969,7 @@ npx http-server . -a 127.0.0.1 -p 8000 -c-1</code>
       const mk = (id, side)=>{
         const b = document.createElement("button");
         b.id = id;
-        b.className = "edgeReopenBtn";
+        b.className = "edgeReopen";
         b.type = "button";
         b.title = side === "left" ? "Reopen Verifier" : "Reopen Overlay";
         b.textContent = side === "left" ? "›" : "‹";
@@ -5183,12 +5183,6 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
 </style>
 
 
-
-<div id="edgeReopenLeft" class="edgeReopen" title="Open verifier">▶</div>
-<div id="edgeReopenRight" class="edgeReopen" title="Open overlays">◀</div>
-
-<button id="edgeReopenLeft" class="edgeReopen">▶</button>
-<button id="edgeReopenRight" class="edgeReopen">◀</button>
 
 </body>
 </html>
