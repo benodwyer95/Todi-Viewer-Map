@@ -4522,6 +4522,48 @@ function buildHelixFX(){
   return g;
 }
 
+// Build all FX components (called by buildMarkerFXFromConfig)
+function _buildFX() {
+  // Start with the helix FX which includes: helix, ring, halo, birdshape
+  const g = buildHelixFX();
+  
+  // Add loading ring effect (spinning concentric rings)
+  const ringCount = 3;
+  for (let ringIdx = 0; ringIdx < ringCount; ringIdx++) {
+    const P = 180; // points per ring
+    const posL = new Float32Array(P * 3);
+    const baseL = new Float32Array(P * 3);
+    const phaseL = new Float32Array(P);
+    
+    const yPos = markerFxCfg.botY + (ringIdx / (ringCount - 1)) * (markerFxCfg.topY - markerFxCfg.botY);
+    const R = markerFxCfg.radius * (0.7 + 0.15 * ringIdx);
+    
+    for (let i = 0; i < P; i++) {
+      const a = (i / (P - 1)) * Math.PI * 2.0;
+      const x = Math.cos(a) * R;
+      const z = Math.sin(a) * R;
+      posL[i * 3 + 0] = x;
+      posL[i * 3 + 1] = yPos;
+      posL[i * 3 + 2] = z;
+      baseL[i * 3 + 0] = x;
+      baseL[i * 3 + 1] = yPos;
+      baseL[i * 3 + 2] = z;
+      phaseL[i] = _hash1(10000 + ringIdx * 1000 + i) * Math.PI * 2.0;
+    }
+    
+    const geoL = new THREE.BufferGeometry();
+    geoL.setAttribute("position", new THREE.BufferAttribute(posL, 3));
+    geoL.setAttribute("base", new THREE.BufferAttribute(baseL, 3));
+    geoL.setAttribute("phase", new THREE.BufferAttribute(phaseL, 1));
+    
+    const loadingRing = new THREE.Points(geoL, _mkPointsMaterial(markerFxCfg.helixColor, 1.4, 0.8));
+    loadingRing.userData.kind = "loading";
+    g.add(loadingRing);
+  }
+  
+  return g;
+}
+
 function _setVisibleByMode(fx){
   if(!fx) return;
   fx.traverse(o=>{
@@ -4531,6 +4573,7 @@ function _setVisibleByMode(fx){
     else if(markerFxMode === "ring")  o.visible = (k==="ring");
     else if(markerFxMode === "halo")  o.visible = (k==="halo");
     else if(markerFxMode === "birdshape") o.visible = (k==="birdshape");
+    else if(markerFxMode === "loading") o.visible = (k==="loading");
     else if(markerFxMode === "combo") o.visible = (k==="helix"||k==="ring"||k==="halo");
     else o.visible = false;
   });
@@ -4582,6 +4625,7 @@ function updateMarkerFx(dt){
       if(o.userData.kind==="helix") o.material.color.set(_fxColor(markerFxCfg.helixColor));
       if(o.userData.kind==="ring")  o.material.color.set(_fxColor(markerFxCfg.ringColor));
       if(o.userData.kind==="halo" || o.userData.kind==="birdshape") o.material.color.set(_fxColor(markerFxCfg.birdColor));
+      if(o.userData.kind==="loading") o.material.color.set(_fxColor(markerFxCfg.helixColor));
 
       // murmuration-like jitter
       const geo = o.geometry;
