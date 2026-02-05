@@ -2210,7 +2210,7 @@ function updateAllPillFonts(){
   });
 }
 
-function makeCalloutAnimated(root, name, isVisible=true, typeHex=0x00c8ff){
+function makeCalloutAnimated(root, name, isVisible=true, typeHex=0x00c8ff, lineColorHex=null){
   const rise = 40; // Default value, will be overridden by Label FX config
   const sqW  = 6;  // Default value, will be overridden by Label FX config
   const lblW = 18; // Default value, will be overridden by Label FX config
@@ -2234,13 +2234,14 @@ function makeCalloutAnimated(root, name, isVisible=true, typeHex=0x00c8ff){
   const geo = new THREE.BufferGeometry().setFromPoints(pts);
 
   let line;
+  const actualLineColor = lineColorHex !== null ? lineColorHex : typeHex;
   if (isVisible){
-    const mat = new THREE.LineBasicMaterial({ color: 0x000000, transparent:true, opacity:0.0 });
+    const mat = new THREE.LineBasicMaterial({ color: actualLineColor, transparent:true, opacity:0.0 });
     mat.depthTest = false;
     line = new THREE.Line(geo, mat);
   } else {
     const mat = new THREE.LineDashedMaterial({
-      color: 0x000000,
+      color: actualLineColor,
       transparent:true,
       opacity:0.0,
       dashSize: Math.max(3, rise * 0.18),
@@ -2297,6 +2298,7 @@ function makeCalloutAnimated(root, name, isVisible=true, typeHex=0x00c8ff){
     rise, sqW, lblW,
     gap1, gap2, gap3,
     typeHex: (typeHex ?? 0x00c8ff),
+    lineColorHex: (lineColorHex !== null ? lineColorHex : (typeHex ?? 0x00c8ff)),
     sq1, sq2, line, label, xSpr,
     t: 0,
     target: 0,
@@ -2441,8 +2443,17 @@ function updateCalloutAnims(){
     const rb = Math.round(lerp(0, tb, sp));
     const strokeHex = (rr<<16) | (rg<<8) | rb;
 
-    // line matches pill stroke colour
-    if (ud.line?.material?.color) ud.line.material.color.setHex(strokeHex);
+    // line uses lineColorHex (which may differ from typeHex based on label config)
+    if (ud.line?.material?.color) {
+      const ltr = (ud.lineColorHex >> 16) & 255;
+      const ltg = (ud.lineColorHex >> 8) & 255;
+      const ltb = ud.lineColorHex & 255;
+      const lrr = Math.round(lerp(0, ltr, sp));
+      const lrg = Math.round(lerp(0, ltg, sp));
+      const lrb = Math.round(lerp(0, ltb, sp));
+      const lineStrokeHex = (lrr<<16) | (lrg<<8) | lrb;
+      ud.line.material.color.setHex(lineStrokeHex);
+    }
 
     if (strokeHex !== ud.lastStrokeHex){
       updatePillSprite(ud.label, ud.name, ud.lblW, strokeHex);
@@ -5022,6 +5033,48 @@ function resolveMarkerColor(config, targetMarker) {
   }
 }
 
+// Helper function to resolve line color for labels based on config and candidate data
+function resolveLabelLineColor(config, targetMarker) {
+  const cand = targetMarker?.userData?.cand;
+  if (!cand) return config.lineColor || '#00ff00';
+  
+  const colorMode = config.lineColorMode || 'single';
+  
+  if (colorMode === 'category') {
+    // Use the same category color logic as markers
+    const normalizeDstType = (type) => {
+      if (!type) return '';
+      return String(type).toLowerCase().trim();
+    };
+    
+    const dstType = normalizeDstType(cand.dst_type);
+    
+    // Default category colors matching marker defaults
+    const categoryColors = {
+      'landmark': '#ff6b6b',
+      'leisure': '#4ecdc4',
+      'place': '#f38181',
+      'amenity': '#aa96da'
+    };
+    
+    for (const key in categoryColors) {
+      if (normalizeDstType(key) === dstType) {
+        return categoryColors[key];
+      }
+    }
+    return config.lineColor || '#00ff00';
+  } else if (colorMode === 'visibility') {
+    // Color based on vis_pct
+    const visPct = Number(cand.vis_pct ?? cand.visibility ?? 0);
+    if (visPct >= 80) return '#00ff00';
+    if (visPct >= 40) return '#ffff00';
+    return '#ff0000';
+  } else {
+    // Single color mode
+    return config.lineColor || '#00ff00';
+  }
+}
+
 // Build FX based on marker config (adapts existing FX generation)
 function buildMarkerFXFromConfig(config, targetMarker) {
   // Handle X marker type specially
@@ -5128,12 +5181,14 @@ const labelTypeDefaults = {
     name: "Hover Tip",
     format: "pill",
     position: "above",
-    content: "name",
+    content: ["name"],
     opacity: 0.95,
     fontSize: 12,
-    backgroundColor: "rgba(0,0,0,0.8)",
+    backgroundColor: "rgba(0,0,0,0.75)",
     textColor: "#ffffff",
-    borderColor: "rgba(255,255,255,0.25)",
+    borderColor: "rgba(255,255,255,0.18)",
+    backdropFilter: "blur(6px)",
+    cornerRadius: 10,
     showOnHover: true,
     fadeDistance: 100,
     maxDistance: 500
@@ -5142,8 +5197,9 @@ const labelTypeDefaults = {
     name: "Click → Animated Line",
     format: "pill", // Changed from "badge" to match other label types for consistency
     position: "rightOfLine",
-    content: "nameAndType",
+    content: ["name", "type"],
     lineColor: "#00ff00",
+    lineColorMode: "category",
     lineOpacity: 0.8,
     lineWidth: 2,
     animationSpeed: 1.5,
@@ -5153,6 +5209,7 @@ const labelTypeDefaults = {
     backgroundColor: "rgba(0,100,0,0.7)",
     textColor: "#ffffff",
     borderColor: "rgba(0,255,0,0.5)",
+    cornerRadius: 999,
     // Callout animation params (migrated from old system)
     riseWorld: 40,
     squareWorld: 6,
@@ -5165,12 +5222,13 @@ const labelTypeDefaults = {
     name: "Fixed Display",
     format: "pill",
     position: "center",
-    content: "name",
+    content: ["name"],
     opacity: 1.0,
     fontSize: 14,
     textColor: "#ffffff",
     backgroundColor: "rgba(0,0,0,0.6)",
     borderColor: "rgba(255,255,255,0.3)",
+    cornerRadius: 999,
     showShadow: true,
     shadowColor: "rgba(0,0,0,0.8)",
     fadeWithDistance: true,
@@ -5249,11 +5307,51 @@ function renderLabelFXList() {
   // Wire up control changes
   container.querySelectorAll('[data-id][data-prop]').forEach(input => {
     const inputType = input.type;
+    const prop = input.dataset.prop;
+    
+    // Special handling for content checkboxes
+    if (inputType === 'checkbox' && prop === 'content') {
+      input.addEventListener('change', (e) => {
+        const labelId = e.target.dataset.id;
+        const contentValue = e.target.dataset.contentValue;
+        const label = activeLabels.find(l => l.id === labelId);
+        if (!label) return;
+        
+        // Ensure content is an array
+        if (!Array.isArray(label.content)) {
+          label.content = label.content ? [label.content] : [];
+        }
+        
+        // Add or remove the content value
+        if (e.target.checked) {
+          if (!label.content.includes(contentValue)) {
+            label.content.push(contentValue);
+          }
+        } else {
+          label.content = label.content.filter(v => v !== contentValue);
+        }
+        
+        // Ensure at least one item is selected
+        if (label.content.length === 0) {
+          label.content = ['name'];
+          e.target.checked = contentValue === 'name';
+        }
+        
+        renderLabelFXList();
+      });
+      return; // Skip the normal handler
+    }
+    
     // For color and select inputs, only use change event
     // For text and number inputs, debounce input
     if (inputType === 'color' || input.tagName === 'SELECT') {
       input.addEventListener('change', (e) => {
         updateLabelFXProperty(e.target.dataset.id, e.target.dataset.prop, e.target.value);
+      });
+    } else if (inputType === 'checkbox') {
+      // Handle other checkboxes (e.g., loop)
+      input.addEventListener('change', (e) => {
+        updateLabelFXProperty(e.target.dataset.id, e.target.dataset.prop, e.target.checked);
       });
     } else {
       // Debounce input events with per-element timeout tracking
@@ -5313,6 +5411,13 @@ function renderLabelFXControls(label) {
       </select>
     </div>
     
+    ${label.format !== 'text' ? `
+    <div class="ctrlRow">
+      <label>Corner Radius</label>
+      <input type="number" data-id="${label.id}" data-prop="cornerRadius" value="${label.cornerRadius ?? (label.format === 'pill' ? 999 : 8)}" step="1" min="0" max="999">
+    </div>
+    ` : ''}
+    
     <!-- Position -->
     <div class="ctrlRow">
       <label>Position</label>
@@ -5325,16 +5430,35 @@ function renderLabelFXControls(label) {
     </div>
     
     <!-- Content -->
-    <div class="ctrlRow">
-      <label>Content</label>
-      <select data-id="${label.id}" data-prop="content">
-        <option value="name" ${label.content === 'name' ? 'selected' : ''}>Name Only</option>
-        <option value="type" ${label.content === 'type' ? 'selected' : ''}>Type Only</option>
-        <option value="nameAndType" ${label.content === 'nameAndType' ? 'selected' : ''}>Name + Type</option>
-        <option value="visibility" ${label.content === 'visibility' ? 'selected' : ''}>Visibility %</option>
-        <option value="distance" ${label.content === 'distance' ? 'selected' : ''}>Distance</option>
-        <option value="full" ${label.content === 'full' ? 'selected' : ''}>Full Info</option>
-      </select>
+    <div class="ctrlRow" style="flex-direction: column; align-items: flex-start;">
+      <label style="margin-bottom: 6px;">Content (select multiple)</label>
+      <div style="display: flex; flex-direction: column; gap: 4px; width: 100%;">
+        <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
+          <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="name" 
+            ${(Array.isArray(label.content) ? label.content : [label.content]).includes('name') ? 'checked' : ''}>
+          <span>Name</span>
+        </label>
+        <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
+          <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="type" 
+            ${(Array.isArray(label.content) ? label.content : [label.content]).includes('type') ? 'checked' : ''}>
+          <span>Type</span>
+        </label>
+        <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
+          <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="distance" 
+            ${(Array.isArray(label.content) ? label.content : [label.content]).includes('distance') ? 'checked' : ''}>
+          <span>Distance</span>
+        </label>
+        <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
+          <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="visibility" 
+            ${(Array.isArray(label.content) ? label.content : [label.content]).includes('visibility') ? 'checked' : ''}>
+          <span>Visibility</span>
+        </label>
+        <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
+          <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="id" 
+            ${(Array.isArray(label.content) ? label.content : [label.content]).includes('id') ? 'checked' : ''}>
+          <span>ID</span>
+        </label>
+      </div>
     </div>
 
     ${hasCalloutAnim ? `
@@ -5412,6 +5536,15 @@ function renderLabelFXControls(label) {
     <div style="font-weight:700;margin-bottom:8px;">Line Properties</div>
     
     <div class="ctrlRow">
+      <label>Color Mode</label>
+      <select data-id="${label.id}" data-prop="lineColorMode">
+        <option value="single" ${(label.lineColorMode || 'single') === 'single' ? 'selected' : ''}>Single Color</option>
+        <option value="category" ${label.lineColorMode === 'category' ? 'selected' : ''}>By Type</option>
+        <option value="visibility" ${label.lineColorMode === 'visibility' ? 'selected' : ''}>By Visibility</option>
+      </select>
+    </div>
+    
+    <div class="ctrlRow">
       <label>Line Color</label>
       <input type="color" data-id="${label.id}" data-prop="lineColor" value="${label.lineColor}">
     </div>
@@ -5461,12 +5594,20 @@ function applyLabelConfigToMarkers(config) {
     const cand = m.userData?.cand;
     if (!cand) return;
 
+    // Resolve line color based on config and candidate data
+    let lineColorHex = null;
+    if (config.type === 'clickLine') {
+      const lineColorStr = resolveLabelLineColor(config, m);
+      lineColorHex = parseInt(lineColorStr.replace('#', ''), 16);
+    }
+
     // Build callout with config parameters
     const callout = makeCalloutAnimated(
       m,
       getLabelText(config.content, cand),
       isVisibleCandidate(cand),
-      m.userData.colorHex || 0x00c8ff
+      m.userData.colorHex || 0x00c8ff,
+      lineColorHex
     );
 
     // Add callout to marker and store reference for later updates
@@ -5520,6 +5661,22 @@ function applyLabelConfigToMarkers(config) {
 }
 
 function getLabelText(contentType, cand) {
+  // Handle array of content types (checkbox selections)
+  if (Array.isArray(contentType)) {
+    const parts = contentType.map(type => {
+      switch(type) {
+        case 'name': return candidateName(cand);
+        case 'type': return safeStr(cand?.dst_type || '');
+        case 'visibility': return `${fmt(getCandidateVisPct(cand), 0)}%`;
+        case 'distance': return `${fmt(getCandidateDistanceM(cand), 1)}m`;
+        case 'id': return safeStr(cand?.id || '');
+        default: return '';
+      }
+    }).filter(part => part); // Remove empty strings
+    return parts.join(' • ');
+  }
+  
+  // Legacy single content type handling
   switch(contentType) {
     case 'name': return candidateName(cand);
     case 'type': return safeStr(cand?.dst_type || '');
