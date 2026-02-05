@@ -752,7 +752,14 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
   </div>
 </div>
 
-
+<!-- Verifier Controls Section -->
+<div class="fxSection">
+  <div class="fxSectionHeader" onclick="this.nextElementSibling.classList.toggle('collapsed'); this.querySelector('.fxToggle').textContent = this.nextElementSibling.classList.contains('collapsed') ? '▶' : '▼';">
+    <span style="font-weight:700;font-size:13px;">Verifier Controls</span>
+    <button class="fxToggle" type="button" style="border:none;background:transparent;color:#fff;font-size:14px;cursor:pointer;padding:2px 6px;">▼</button>
+  </div>
+  <div class="fxSectionBody">
+    
     <div id="row2">
       <span class="pill"><b>Type</b> <span id="srcType">—</span></span>
       <span class="pill"><b>ID</b> <span id="srcId">—</span></span>
@@ -762,7 +769,7 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
       <span class="pill"><b>Sel</b> <span id="selId">—</span></span>
       <span class="pill"><b>Markers</b> <span id="srcMk">—</span></span>
     </div>
-
+    
     <!-- Placement / QA controls -->
     <div id="row2">
       <span class="pill"><b>Adjust mode</b>
@@ -811,7 +818,7 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
       <button id="resetAdj" class="btnSmall">Reset (mode)</button>
     </div>
 
-    <!-- Z controls (global or per-point via adjust mode) -->
+    <!-- Z controls -->
     <div id="row2">
       <button id="zDown" class="btnSmall">⬇ Z -</button>
       <button id="zUp"   class="btnSmall">⬆ Z +</button>
@@ -834,7 +841,28 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
       </span>
     </div>
 
-    <!-- Filtering -->
+    <!-- Export / Import -->
+    <div id="row2">
+      <button id="exportOffsets" class="btnSmall">Export offsets</button>
+      <label class="btnSmall" style="padding:0;border:none;background:transparent">
+        <input id="importOffsets" type="file" accept=".json" style="width:260px">
+      </label>
+      <span class="muted" style="font-size:11px">
+        Exports/imports: global yaw+Z per pano + per-point yaw/pitch/Z per pano.
+      </span>
+    </div>
+
+  </div>
+</div>
+
+<!-- Filtering Section -->
+<div class="fxSection">
+  <div class="fxSectionHeader" onclick="this.nextElementSibling.classList.toggle('collapsed'); this.querySelector('.fxToggle').textContent = this.nextElementSibling.classList.contains('collapsed') ? '▶' : '▼';">
+    <span style="font-weight:700;font-size:13px;">Filtering</span>
+    <button class="fxToggle" type="button" style="border:none;background:transparent;color:#fff;font-size:14px;cursor:pointer;padding:2px 6px;">▼</button>
+  </div>
+  <div class="fxSectionBody">
+    
     <div id="row2">
       <span class="pill"><b>Visibility</b>
         <select id="visFilter" style="padding:6px 8px">
@@ -879,35 +907,24 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
       </span>
     </div>
 
-    <!-- Visual options -->
+  </div>
+</div>
+
+<!-- Visual Options Section -->
+<div class="fxSection">
+  <div class="fxSectionHeader" onclick="this.nextElementSibling.classList.toggle('collapsed'); this.querySelector('.fxToggle').textContent = this.nextElementSibling.classList.contains('collapsed') ? '▶' : '▼';">
+    <span style="font-weight:700;font-size:13px;">Visual Options</span>
+    <button class="fxToggle" type="button" style="border:none;background:transparent;color:#fff;font-size:14px;cursor:pointer;padding:2px 6px;">▼</button>
+  </div>
+  <div class="fxSectionBody">
+    
     <div id="row2">
-      <span class="pill"><b>Marker size</b><span class="muted">world</span>
-        <input id="mWorld" type="number" value="18" min="4" max="80" step="1" style="width:80px;padding:6px 8px">
+      <span class="pill"><b>Particle Size</b><span class="muted">Marker FX only</span>
+        <input id="mWorld" type="number" value="18" min="4" max="80" step="1" style="width:80px;padding:6px 8px" title="Size of particle effects in Marker FX">
       </span>
 
       <span class="pill"><b>Exposure</b>
-        <input id="exposure" type="number" value="1.0" min="0.6" max="1.6" step="0.05" style="width:80px;padding:6px 8px">
-      </span>
-
-      <span class="pill">
-        <label style="border:none;background:transparent;padding:0">
-          <input id="showLabels" type="checkbox" style="accent-color:#fff">
-          Show labels
-        </label>
-      </span>
-
-      <span class="pill">
-        <label style="border:none;background:transparent;padding:0">
-          <input id="callouts" type="checkbox" checked style="accent-color:#fff">
-          Callout preview
-        </label>
-      </span>
-
-      <span class="pill">
-        <label style="border:none;background:transparent;padding:0">
-          <input id="allCallouts" type="checkbox" style="accent-color:#fff">
-          All callouts
-        </label>
+        <input id="exposure" type="number" value="1.0" min="0.6" max="1.6" step="0.05" style="width:80px;padding:6px 8px" title="Pano image brightness only">
       </span>
 
       <span class="pill">
@@ -918,64 +935,8 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
       </span>
     </div>
 
-    <!-- Callout tuning -->
-    <div id="row2">
-      <span class="pill"><b>Rise</b><span class="muted">world</span>
-        <input id="riseWorld" type="number" value="40" min="5" max="140" step="1" style="width:80px;padding:6px 8px">
-      </span>
-      <span class="pill"><b>Square</b><span class="muted">world</span>
-        <input id="sqWorld" type="number" value="6" min="2" max="18" step="1" style="width:80px;padding:6px 8px">
-      </span>
-      <span class="pill"><b>Label</b><span class="muted">world</span>
-        <input id="lblWorld" type="number" value="18" min="6" max="60" step="1" style="width:80px;padding:6px 8px">
-      </span>
-      <span class="pill"><b>Font</b><span class="muted">labels</span>
-        <select id="fontSel" style="width:160px;padding:6px 8px">
-          <option value="helvetica" selected>Helvetica</option>
-          <option value="inter">Inter</option>
-          <option value="manrope">Manrope</option>
-          <option value="ibmplex">IBM Plex Sans</option>
-          <option value="spacegrotesk">Space Grotesk</option>
-          <option value="system">System UI</option>
-        </select>
-      </span>
-
-      <span class="pill"><b>Anim sec</b><span class="muted">0→1</span>
-        <input id="animSeconds" type="number" value="1.80" min="0.20" max="10.00" step="0.05" style="width:80px;padding:6px 8px">
-      </span>
-      <span class="pill">
-        <label style="border:none;background:transparent;padding:0">
-          <input id="loopCallout" type="checkbox" style="accent-color:#fff">
-          Loop callout
-        </label>
-      </span>
-
-      <span class="muted" style="font-size:11px">
-        (Preview matches your end animation: square → line → square → HELVETICA CAPS 11.)
-
-      <span class="pill"><b>Anim</b><span class="muted">sec</span>
-        <input id="animSeconds2" type="number" value="1.8" min="0.4" max="10" step="0.1" style="width:80px;padding:6px 8px">
-      </span>
-      <span class="pill">
-        <label style="border:none;background:transparent;padding:0">
-          <input id="loopCallout2" type="checkbox" style="accent-color:#fff">
-          Loop callout
-        </label>
-      </span>
-
-      </span>
-    </div>
-
-    <!-- Export / Import -->
-    <div id="row2">
-      <button id="exportOffsets" class="btnSmall">Export offsets</button>
-      <label class="btnSmall" style="padding:0;border:none;background:transparent">
-        <input id="importOffsets" type="file" accept=".json" style="width:260px">
-      </label>
-      <span class="muted" style="font-size:11px">
-        Exports/imports: global yaw+Z per pano + per-point yaw/pitch/Z per pano.
-      </span>
-    </div>
+  </div>
+</div>
 
     <div id="list"></div>
   </div>
@@ -4943,7 +4904,7 @@ function buildMarkerFXFromConfig(config, targetMarker) {
   markerFxCfg.birdColor = config.color;
   
   // Build FX using existing function
-  const fx = _buildFX();
+  const fx = buildHelixFX();
   
   // Apply visibility based on type
   if (fx) {
