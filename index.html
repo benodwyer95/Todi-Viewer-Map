@@ -4390,6 +4390,8 @@ function computeMaxDistanceFromData(){
 // ================= Modular Marker FX System =================
 let activeMarkers = [];
 let activeLabels = [];
+let markerIdCounter = 0;
+let labelIdCounter = 0;
 
 function _fxColor(hex){ try{ return new THREE.Color(hex); }catch{ return new THREE.Color("#fff"); } }
 
@@ -4440,7 +4442,7 @@ function _flowVec(x,y,z,t){
 // --- Marker Management ---
 function addMarker(type){
   const config = {
-    id: "marker-" + Date.now(),
+    id: "marker-" + (++markerIdCounter),
     type: type,
     colorMode: "single",
     color: "#7efcff",
@@ -4477,13 +4479,12 @@ function deleteMarkerBtn(btn, event){
 
 function toggleMarker(header){
   const inst = header.closest(".markerInstance");
-  const body = inst.querySelector(".markerBody");
   const toggle = inst.querySelector(".markerToggle");
-  if(body.style.display === "none"){
-    body.style.display = "block";
+  if(inst.classList.contains("collapsed")){
+    inst.classList.remove("collapsed");
     toggle.textContent = "▼";
   } else {
-    body.style.display = "none";
+    inst.classList.add("collapsed");
     toggle.textContent = "▶";
   }
 }
@@ -4550,7 +4551,7 @@ function updateMarkerConfig(input){
 }
 
 function renderMarkersList(){
-  const container = document.getElementById("markersListContainer");
+  const container = document.getElementById("activeMarkersList");
   if(!container) return;
   
   const typeNames = {
@@ -4892,7 +4893,7 @@ function updateMarkerFx(dt){
 // --- Label Management ---
 function addLabel(type){
   const config = {
-    id: "label-" + Date.now(),
+    id: "label-" + (++labelIdCounter),
     type: type,
     text: "Label Text",
     fontSize: 12,
@@ -4911,7 +4912,7 @@ function deleteLabel(id){
 }
 
 function renderLabelsList(){
-  const container = document.getElementById("labelsListContainer");
+  const container = document.getElementById("activeLabelsList");
   if(!container) return;
   
   let html = "";
@@ -4928,23 +4929,64 @@ function renderLabelsList(){
 }
 
 function hookModularMarkerUI(){
-  const addHelixBtn = document.getElementById("addHelixBtn");
-  const addBirdHaloBtn = document.getElementById("addBirdHaloBtn");
-  const addGroundRingBtn = document.getElementById("addGroundRingBtn");
-  const addBirdShapeBtn = document.getElementById("addBirdShapeBtn");
-  const addLoadingRingBtn = document.getElementById("addLoadingRingBtn");
+  const addBtn = document.getElementById("addMarkerBtn");
+  const typeSelector = document.getElementById("markerTypeSelector");
 
-  if(addHelixBtn) addHelixBtn.onclick = () => addMarker("helix");
-  if(addBirdHaloBtn) addBirdHaloBtn.onclick = () => addMarker("birdHalo");
-  if(addGroundRingBtn) addGroundRingBtn.onclick = () => addMarker("groundRing");
-  if(addBirdShapeBtn) addBirdShapeBtn.onclick = () => addMarker("birdShape");
-  if(addLoadingRingBtn) addLoadingRingBtn.onclick = () => addMarker("loadingRing");
+  if(addBtn && typeSelector){
+    addBtn.onclick = () => {
+      if(typeSelector.style.display === "none"){
+        typeSelector.style.display = "inline-block";
+        typeSelector.focus();
+      } else {
+        typeSelector.style.display = "none";
+      }
+    };
+    
+    typeSelector.onchange = () => {
+      const type = typeSelector.value;
+      if(type){
+        addMarker(type);
+        typeSelector.value = "";
+        typeSelector.style.display = "none";
+      }
+    };
+    
+    typeSelector.onblur = () => {
+      setTimeout(() => { typeSelector.style.display = "none"; }, 200);
+    };
+  }
 
   renderMarkersList();
 }
 
 function hookModularLabelUI(){
-  // Placeholder for label UI hooks
+  const addBtn = document.getElementById("addLabelBtn");
+  const typeSelector = document.getElementById("labelTypeSelector");
+
+  if(addBtn && typeSelector){
+    addBtn.onclick = () => {
+      if(typeSelector.style.display === "none"){
+        typeSelector.style.display = "inline-block";
+        typeSelector.focus();
+      } else {
+        typeSelector.style.display = "none";
+      }
+    };
+    
+    typeSelector.onchange = () => {
+      const type = typeSelector.value;
+      if(type){
+        addLabel(type);
+        typeSelector.value = "";
+        typeSelector.style.display = "none";
+      }
+    };
+    
+    typeSelector.onblur = () => {
+      setTimeout(() => { typeSelector.style.display = "none"; }, 200);
+    };
+  }
+
   renderLabelsList();
 }
 async function init(){
