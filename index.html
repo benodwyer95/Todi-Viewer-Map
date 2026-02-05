@@ -470,54 +470,197 @@ hr.ovSep{border:none;border-top:1px solid rgba(255,255,255,.12);margin:10px 0}
 .ovRow input[type="color"]::-webkit-color-swatch-wrapper{padding:0;border-radius:6px;}
 .ovRow input[type="color"]::-webkit-color-swatch{border:none;border-radius:6px;}
 
+/* ================= Modular Marker & Label System ================= */
+.fxSection {
+  margin: 10px 0;
+}
+
+.fxSectionHeader {
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 8px;
+  color: #fff;
+  opacity: 0.95;
+}
+
+.fxSectionBody {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.addBtn {
+  width: 100%;
+  padding: 10px;
+  background: rgba(255,255,255,.1);
+  border: 1px dashed rgba(255,255,255,.3);
+  border-radius: 8px;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 13px;
+  transition: background .2s ease;
+}
+
+.addBtn:hover {
+  background: rgba(255,255,255,.15);
+}
+
+.markerInstance, .labelInstance {
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 8px;
+  margin: 8px 0;
+  background: rgba(0,0,0,.3);
+  transition: all .2s ease;
+}
+
+.markerHeader, .labelHeader {
+  display: flex;
+  align-items: center;
+  padding: 8px 10px;
+  cursor: pointer;
+  user-select: none;
+  gap: 8px;
+}
+
+.markerToggle, .labelToggle {
+  font-size: 12px;
+  transition: transform .2s;
+  width: 16px;
+  text-align: center;
+}
+
+.markerInstance.collapsed .markerToggle,
+.labelInstance.collapsed .labelToggle {
+  transform: rotate(-90deg);
+}
+
+.markerName, .labelName {
+  flex: 1;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.markerDelete, .labelDelete {
+  background: rgba(255,0,0,.2);
+  border: 1px solid rgba(255,0,0,.4);
+  color: #fff;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  transition: all .2s ease;
+}
+
+.markerDelete:hover, .labelDelete:hover {
+  background: rgba(255,0,0,.4);
+  border-color: rgba(255,0,0,.6);
+}
+
+.markerBody, .labelBody {
+  padding: 10px;
+  max-height: 800px;
+  overflow-y: auto;
+  transition: max-height .3s, padding .3s;
+}
+
+.markerInstance.collapsed .markerBody,
+.labelInstance.collapsed .labelBody {
+  max-height: 0;
+  padding: 0 10px;
+  overflow: hidden;
+}
+
+.markerBody .row, .labelBody .row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 6px 0;
+  gap: 10px;
+  font-size: 12px;
+}
+
+.markerBody .row label, .labelBody .row label {
+  min-width: 100px;
+  opacity: 0.9;
+}
+
+.markerBody .row input,
+.markerBody .row select,
+.labelBody .row input,
+.labelBody .row select {
+  flex: 1;
+  background: rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,.2);
+  color: #fff;
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 12px;
+}
+
+.markerBody .row input[type="color"],
+.labelBody .row input[type="color"] {
+  width: 48px;
+  height: 24px;
+  padding: 0;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.colorSingle, .colorCategory, .colorVisibility,
+.particleProps, .helixProps, .hoverTipProps,
+.clickAnimatedProps, .fixedDisplayProps {
+  margin-top: 4px;
+}
+
+.colorCategory .row, .colorVisibility .row {
+  font-size: 11px;
+  margin: 4px 0;
+}
+
+.markerDeleteBtn, .labelDeleteBtn {
+  width: 100%;
+  padding: 8px;
+  margin-top: 8px;
+  background: rgba(255,0,0,.15);
+  border: 1px solid rgba(255,0,0,.3);
+  border-radius: 6px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all .2s ease;
+}
+
+.markerDeleteBtn:hover, .labelDeleteBtn:hover {
+  background: rgba(255,0,0,.3);
+  border-color: rgba(255,0,0,.5);
+}
+
+#markerTypeSelector, #labelTypeSelector {
+  width: 100%;
+  padding: 8px;
+  background: rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,.3);
+  border-radius: 8px;
+  color: #fff;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+#markerTypeSelector option, #labelTypeSelector option {
+  background: #222;
+  color: #fff;
+}
+
 /* Edge reopen buttons (visible only when dock collapsed) */
 .edgeReopen{
   position:fixed;
   top:50%;
   transform:translateY(-50%);
-  width:30px;height:54px;
-  display:flex;
-  align-items:center;justify-content:center;
-  background:rgba(0,0,0,.60);
-  border:1px solid rgba(255,255,255,.22);
-  border-radius:12px;
-  color:#fff;
-  cursor:pointer;
-  user-select:none;
-  z-index:100000;
-  backdrop-filter: blur(8px);
-  font-weight:900;
-  opacity:0;
-  pointer-events:none;
-  transition: opacity .12s ease;
-}
-body.verifier-collapsed #edgeReopenLeft{ opacity:1; pointer-events:auto; }
-body.overlay-collapsed  #edgeReopenRight{ opacity:1; pointer-events:auto; }
-#edgeReopenLeft{ left:8px; }
-#edgeReopenRight{ right:8px; }
-
-
-/* --- Edge reopen buttons (appear only when docks collapsed) --- */
-
-/* --- EDGE REOPEN (hard) --- */
-
-#edgeReopenLeft{ left:10px !important; }
-#edgeReopenRight{ right:10px !important; }
-
-.edgeReopenBtn:hover{ transform: scale(1.04); }
-#edgeReopenLeft{ left:10px; }
-#edgeReopenRight{ right:10px; }
-body.verifier-collapsed #edgeReopenLeft{ opacity:1; pointer-events:auto; }
-body.overlay-collapsed  #edgeReopenRight{ opacity:1; pointer-events:auto; }
-
-
-/* === CLEAN EDGE REOPEN === */
-.edgeReopen{
-  position:fixed;
-  top:50%;
-  transform:translateY(-50%);
-  width:34px;
-  height:64px;
+  width:40px;
+  height:70px;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -526,16 +669,28 @@ body.overlay-collapsed  #edgeReopenRight{ opacity:1; pointer-events:auto; }
   border-radius:12px;
   color:#fff;
   cursor:pointer;
+  user-select:none;
   z-index:999999;
   backdrop-filter: blur(8px);
   font-weight:900;
+  font-size:16px;
   opacity:0;
   pointer-events:none;
+  transition: opacity .12s ease, transform .2s ease;
 }
-body.verifier-collapsed #edgeReopenLeft{opacity:1;pointer-events:auto;}
-body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
-#edgeReopenLeft{left:8px;}
-#edgeReopenRight{right:8px;}
+.edgeReopen:hover{
+  transform:translateY(-50%) scale(1.04);
+}
+body.verifier-collapsed #edgeReopenLeft{
+  opacity:1;
+  pointer-events:auto;
+}
+body.overlay-collapsed #edgeReopenRight{
+  opacity:1;
+  pointer-events:auto;
+}
+#edgeReopenLeft{left:10px;}
+#edgeReopenRight{right:10px;}
 
 </style>
 </head>
@@ -602,85 +757,47 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
   <div id="uiBody">
   <div style="margin:10px 0 12px 0; padding:10px; border:1px solid rgba(255,255,255,.12); border-radius:12px; background:rgba(255,255,255,.04)">
     
-<div class="sec">
-  <div class="secTitle">Marker FX</div>
 
-  <div class="row">
-    <label>Style</label>
-    <select id="markerFxSel">
-      <option value="hover">Hover only</option>
-      <option value="loading">Loading rings</option>
-      <option value="helix">Helix (starlings)</option>
-      <option value="ring">Ground ring</option>
-      <option value="halo">Bird halo</option>
-      <option value="birdshape">Bird shape</option>
-      <option value="combo">Combo (helix+ring+halo)</option>
+<!-- Modular Marker FX System -->
+<div class="fxSection">
+  <div class="fxSectionHeader">Marker FX</div>
+  <div class="fxSectionBody">
+    
+    <!-- Add Marker Button -->
+    <button id="addMarkerBtn" class="addBtn">+ Add Marker</button>
+    <select id="markerTypeSelector" style="display:none">
+      <option value="">Select type...</option>
+      <option value="helix">Helix (Starlings)</option>
+      <option value="birdHalo">Bird Halo</option>
+      <option value="groundRing">Ground Ring</option>
+      <option value="birdShape">Bird Shape (particles)</option>
+      <option value="loadingRing">Loading Ring</option>
     </select>
-  </div>
-
-  <div class="row">
-    <label>Top Y</label>
-    <input id="fxTopY" type="number" step="1" value="55"/>
-  </div>
-
-  <div class="row">
-    <label>Bottom Y</label>
-    <input id="fxBotY" type="number" step="1" value="-55"/>
-  </div>
-
-  <div class="row">
-    <label>Radius</label>
-    <input id="fxRadius" type="number" step="1" value="18"/>
-  </div>
-
-  <div class="row">
-    <label>Turns</label>
-    <input id="fxTurns" type="number" step="0.5" value="5"/>
-  </div>
-
-  <div class="row">
-    <label>Jitter</label>
-    <input id="fxJitter" type="number" step="0.1" value="2.2"/>
-  </div>
-
-  <div class="row">
-    <label>Flockiness</label>
-    <input id="fxFlock" type="number" step="0.05" value="0.35"/>
-  </div>
-
-  <div class="row">
-    <label>Speed</label>
-    <input id="fxSpeed" type="number" step="0.05" value="1.00"/>
-  </div>
-
-  <div class="row">
-    <label>Direction</label>
-    <select id="fxDir">
-      <option value="cw">Clockwise</option>
-      <option value="ccw">Counter-clockwise</option>
-    </select>
-  </div>
-
-  <div class="row">
-    <label>Helix</label>
-    <input id="fxHelixColor" type="color" value="#7efcff"/>
-  </div>
-
-  <div class="row">
-    <label>Ring</label>
-    <input id="fxRingColor" type="color" value="#b6ff6a"/>
-  </div>
-
-  <div class="row">
-    <label>Bird</label>
-    <input id="fxBirdColor" type="color" value="#ffffff"/>
-  </div>
-
-  <div class="hint" style="opacity:.8;margin-top:8px;line-height:1.35">
-    Helix uses a noisy flow field so it “flutters” like a murmuration rather than a perfect spiral.
-    Use Top/Bottom/Radius to tighten the whole effect.
+    
+    <!-- Container for active markers -->
+    <div id="activeMarkersList"></div>
+    
   </div>
 </div>
+
+<!-- Modular Label FX System -->
+<div class="fxSection" style="margin-top:20px">
+  <div class="fxSectionHeader">Label FX</div>
+  <div class="fxSectionBody">
+    
+    <button id="addLabelBtn" class="addBtn">+ Add Label Type</button>
+    <select id="labelTypeSelector" style="display:none">
+      <option value="">Select type...</option>
+      <option value="hoverTip">Hover Tip</option>
+      <option value="clickAnimated">Click → Animated Line</option>
+      <option value="fixedDisplay">Fixed Display</option>
+    </select>
+    
+    <div id="activeLabelsList"></div>
+    
+  </div>
+</div>
+
 
 
     <div id="row2">
@@ -2499,7 +2616,7 @@ function rebuildMarkersAndList(){
   cands.forEach((c,i)=>{
     const m = addMarker(source, c, i);
     currentMarkers.push(m);
-    try{ applyMarkerFxToMarker(m); }catch{}
+    try{ applyMarkersToScene(); }catch(e){ console.warn("Failed to apply markers to scene:", e); }
 
     const item=document.createElement('div');
     item.className='item';
@@ -4270,21 +4387,14 @@ function computeMaxDistanceFromData(){
 
 
 
-// ================= Marker FX (wired to currentMarkers from verifier) =================
-let markerFxMode = "loading";
-let markerFxCfg = {
-  helixColor: "#7efcff",
-  ringColor:  "#b6ff6a",
-  birdColor:  "#ffffff",
-  speed: 1.0,
-  dir: "cw",
-  topY: 55,
-  botY: -55,
-  radius: 18,
-  turns: 5.0,
-  jitter: 2.2,
-  flock: 0.35
-};
+// ================= Modular Marker FX System =================
+let activeMarkers = [];
+let activeLabels = [];
+let markerIdCounter = 0;
+let labelIdCounter = 0;
+
+const DROPDOWN_BLUR_DELAY_MS = 200;
+const GEOMETRY_AFFECTING_INPUT_CLASSES = new Set(['markerTopY', 'markerBottomY', 'markerRadius', 'markerTurns']);
 
 function _fxColor(hex){ try{ return new THREE.Color(hex); }catch{ return new THREE.Color("#fff"); } }
 
@@ -4332,262 +4442,547 @@ function _flowVec(x,y,z,t){
   return new THREE.Vector3(nx, ny, nz);
 }
 
+// --- Marker Management ---
+function addMarker(type){
+  const config = {
+    id: "marker-" + (++markerIdCounter),
+    type: type,
+    colorMode: "single",
+    color: "#7efcff",
+    categoryColors: { landmark: "#ff6b6b", peak: "#4ecdc4", building: "#95e1d3", tower: "#f38181", church: "#aa96da", default: "#ffffff" },
+    visibilityColors: { high: "#00ff00", medium: "#ffff00", low: "#ff0000" },
+    topY: 55,
+    bottomY: -55,
+    speed: 1.0,
+    direction: "cw",
+    radius: 18,
+    jitter: 2.2,
+    flock: 0.35,
+    turns: 5.0
+  };
+  activeMarkers.push(config);
+  renderMarkersList();
+  applyMarkersToScene();
+}
+
+function deleteMarker(id){
+  activeMarkers = activeMarkers.filter(m => m.id !== id);
+  renderMarkersList();
+  applyMarkersToScene();
+}
+
+function deleteMarkerBtn(btn, event){
+  event.stopPropagation();
+  const inst = btn.closest(".markerInstance");
+  if(inst){
+    const id = inst.getAttribute("data-marker-id");
+    deleteMarker(id);
+  }
+}
+
+function toggleMarker(header){
+  const inst = header.closest(".markerInstance");
+  const toggle = inst.querySelector(".markerToggle");
+  if(inst.classList.contains("collapsed")){
+    inst.classList.remove("collapsed");
+    toggle.textContent = "▼";
+  } else {
+    inst.classList.add("collapsed");
+    toggle.textContent = "▶";
+  }
+}
+
+function updateMarkerConfig(input){
+  const inst = input.closest(".markerInstance");
+  const id = inst.getAttribute("data-marker-id");
+  const marker = activeMarkers.find(m => m.id === id);
+  if(!marker) return;
+
+  // Update config based on input class
+  if(input.classList.contains("markerColorMode")){
+    marker.colorMode = input.value;
+    // Show/hide color sections
+    const single = inst.querySelector(".colorSingle");
+    const category = inst.querySelector(".colorCategory");
+    const visibility = inst.querySelector(".colorVisibility");
+    single.style.display = (input.value === "single") ? "block" : "none";
+    category.style.display = (input.value === "category") ? "block" : "none";
+    visibility.style.display = (input.value === "visibility") ? "block" : "none";
+  } else if(input.classList.contains("markerColor")){
+    marker.color = input.value;
+  } else if(input.classList.contains("catLandmark")){
+    marker.categoryColors.landmark = input.value;
+  } else if(input.classList.contains("catPeak")){
+    marker.categoryColors.peak = input.value;
+  } else if(input.classList.contains("catBuilding")){
+    marker.categoryColors.building = input.value;
+  } else if(input.classList.contains("catTower")){
+    marker.categoryColors.tower = input.value;
+  } else if(input.classList.contains("catChurch")){
+    marker.categoryColors.church = input.value;
+  } else if(input.classList.contains("catDefault")){
+    marker.categoryColors.default = input.value;
+  } else if(input.classList.contains("visHigh")){
+    marker.visibilityColors.high = input.value;
+  } else if(input.classList.contains("visMedium")){
+    marker.visibilityColors.medium = input.value;
+  } else if(input.classList.contains("visLow")){
+    marker.visibilityColors.low = input.value;
+  } else if(input.classList.contains("markerTopY")){
+    marker.topY = parseFloat(input.value || "50");
+  } else if(input.classList.contains("markerBottomY")){
+    marker.bottomY = parseFloat(input.value || "0");
+  } else if(input.classList.contains("markerSpeed")){
+    marker.speed = parseFloat(input.value || "1.0");
+  } else if(input.classList.contains("markerDirection")){
+    marker.direction = input.value;
+  } else if(input.classList.contains("markerRadius")){
+    marker.radius = parseFloat(input.value || "18");
+  } else if(input.classList.contains("markerJitter")){
+    marker.jitter = parseFloat(input.value || "2.2");
+  } else if(input.classList.contains("markerFlock")){
+    marker.flock = parseFloat(input.value || "0.35");
+  } else if(input.classList.contains("markerTurns")){
+    marker.turns = parseFloat(input.value || "5.0");
+  }
+
+  // Reapply if geometry changed
+  if(Array.from(input.classList).some(cls => GEOMETRY_AFFECTING_INPUT_CLASSES.has(cls))){
+    applyMarkersToScene();
+  }
+}
+
+function renderMarkersList(){
+  const container = document.getElementById("activeMarkersList");
+  if(!container) return;
+  
+  const typeNames = {
+    helix: "Helix (Starlings)",
+    birdHalo: "Bird Halo",
+    groundRing: "Ground Ring",
+    birdShape: "Bird Shape",
+    loadingRing: "Loading Ring"
+  };
+  
+  let html = "";
+  for(const m of activeMarkers){
+    const displayMode = m.colorMode === "single" ? "block" : "none";
+    const displayCategory = m.colorMode === "category" ? "block" : "none";
+    const displayVisibility = m.colorMode === "visibility" ? "block" : "none";
+    const showParticle = (m.type === "helix" || m.type === "birdHalo" || m.type === "birdShape");
+    const showHelix = (m.type === "helix");
+    
+    html += `<div class="markerInstance" data-marker-id="${m.id}" data-type="${m.type}">
+  <div class="markerHeader" onclick="toggleMarker(this)">
+    <span class="markerToggle">▼</span>
+    <span class="markerName">${typeNames[m.type] || m.type}</span>
+    <button class="markerDelete" onclick="deleteMarkerBtn(this, event)">×</button>
+  </div>
+  
+  <div class="markerBody">
+    <div class="row">
+      <label>Color Mode</label>
+      <select class="markerColorMode" onchange="updateMarkerConfig(this)">
+        <option value="single" ${m.colorMode === "single" ? "selected" : ""}>Single Color</option>
+        <option value="category" ${m.colorMode === "category" ? "selected" : ""}>By Category</option>
+        <option value="visibility" ${m.colorMode === "visibility" ? "selected" : ""}>By Visibility</option>
+      </select>
+    </div>
+    
+    <div class="colorSingle" style="display:${displayMode}">
+      <div class="row">
+        <label>Color</label>
+        <input type="color" class="markerColor" value="${m.color}" oninput="updateMarkerConfig(this)">
+      </div>
+    </div>
+    
+    <div class="colorCategory" style="display:${displayCategory}">
+      <div class="row"><label>Landmark</label><input type="color" class="catLandmark" value="${m.categoryColors.landmark}" oninput="updateMarkerConfig(this)"></div>
+      <div class="row"><label>Peak</label><input type="color" class="catPeak" value="${m.categoryColors.peak}" oninput="updateMarkerConfig(this)"></div>
+      <div class="row"><label>Building</label><input type="color" class="catBuilding" value="${m.categoryColors.building}" oninput="updateMarkerConfig(this)"></div>
+      <div class="row"><label>Tower</label><input type="color" class="catTower" value="${m.categoryColors.tower}" oninput="updateMarkerConfig(this)"></div>
+      <div class="row"><label>Church</label><input type="color" class="catChurch" value="${m.categoryColors.church}" oninput="updateMarkerConfig(this)"></div>
+      <div class="row"><label>Default</label><input type="color" class="catDefault" value="${m.categoryColors.default}" oninput="updateMarkerConfig(this)"></div>
+    </div>
+    
+    <div class="colorVisibility" style="display:${displayVisibility}">
+      <div class="row"><label>High (80-100%)</label><input type="color" class="visHigh" value="${m.visibilityColors.high}" oninput="updateMarkerConfig(this)"></div>
+      <div class="row"><label>Medium (40-80%)</label><input type="color" class="visMedium" value="${m.visibilityColors.medium}" oninput="updateMarkerConfig(this)"></div>
+      <div class="row"><label>Low (0-40%)</label><input type="color" class="visLow" value="${m.visibilityColors.low}" oninput="updateMarkerConfig(this)"></div>
+    </div>
+    
+    <div class="row"><label>Top Y</label><input type="number" class="markerTopY" value="${m.topY}" step="1" oninput="updateMarkerConfig(this)"></div>
+    <div class="row"><label>Bottom Y</label><input type="number" class="markerBottomY" value="${m.bottomY}" step="1" oninput="updateMarkerConfig(this)"></div>
+    <div class="row"><label>Speed</label><input type="number" class="markerSpeed" value="${m.speed}" step="0.1" min="0.1" max="5" oninput="updateMarkerConfig(this)"></div>
+    <div class="row"><label>Direction</label><select class="markerDirection" onchange="updateMarkerConfig(this)">
+      <option value="cw" ${m.direction === "cw" ? "selected" : ""}>Clockwise</option>
+      <option value="ccw" ${m.direction === "ccw" ? "selected" : ""}>Counter-Clockwise</option>
+    </select></div>
+    <div class="row"><label>Radius</label><input type="number" class="markerRadius" value="${m.radius}" step="1" min="5" max="50" oninput="updateMarkerConfig(this)"></div>
+    
+    ${showParticle ? `<div class="particleProps">
+      <div class="row"><label>Jitter</label><input type="number" class="markerJitter" value="${m.jitter}" step="0.1" min="0" max="10" oninput="updateMarkerConfig(this)"></div>
+      <div class="row"><label>Flockiness</label><input type="number" class="markerFlock" value="${m.flock}" step="0.05" min="0" max="1" oninput="updateMarkerConfig(this)"></div>
+    </div>` : ""}
+    
+    ${showHelix ? `<div class="helixProps">
+      <div class="row"><label>Turns</label><input type="number" class="markerTurns" value="${m.turns}" step="0.5" min="1" max="20" oninput="updateMarkerConfig(this)"></div>
+    </div>` : ""}
+    
+    <button class="markerDeleteBtn" onclick="deleteMarkerBtn(this, event)">Delete Marker</button>
+  </div>
+</div>`;
+  }
+  
+  container.innerHTML = html;
+}
+
+// --- Helper: Get marker color based on config and candidate ---
+function getMarkerColor(config, candidate){
+  if(config.colorMode === "single"){
+    return config.color;
+  } else if(config.colorMode === "category" && candidate?.category){
+    return config.categoryColors[candidate.category] || config.categoryColors.default;
+  } else if(config.colorMode === "visibility" && candidate?.visibilityIndex !== undefined){
+    const vis = candidate.visibilityIndex;
+    if(vis >= 0.8) return config.visibilityColors.high;
+    if(vis >= 0.4) return config.visibilityColors.medium;
+    return config.visibilityColors.low;
+  }
+  return config.color;
+}
+
 // --- FX builders ---
-function buildHelixFX(){
+function buildMarkerFX(config, candidate){
   const g = new THREE.Group();
-
-  const N = 820; // denser for murmuration feel
-  const pos = new Float32Array(N*3);
-  const base = new Float32Array(N*3);
-  const phase = new Float32Array(N);
-
-  const topY = markerFxCfg.topY;
-  const botY = markerFxCfg.botY;
-  const height = (topY - botY);
-  const radius0 = markerFxCfg.radius;
-  const turns = markerFxCfg.turns;
-
-  for(let i=0;i<N;i++){
-    const t = i/(N-1);
-    const ang = t * Math.PI * 2.0 * turns;
-    const r = radius0 * (1.0 - 0.35*t);
-
-    const x = Math.cos(ang)*r;
-    const y = botY + t*height;
-    const z = Math.sin(ang)*r;
-
-    pos[i*3+0]=x; pos[i*3+1]=y; pos[i*3+2]=z;
-    base[i*3+0]=x; base[i*3+1]=y; base[i*3+2]=z;
-    phase[i]=_hash1(i)*Math.PI*2.0;
-  }
-
-  const geo = new THREE.BufferGeometry();
-  geo.setAttribute("position", new THREE.BufferAttribute(pos,3));
-  geo.setAttribute("base", new THREE.BufferAttribute(base,3));
-  geo.setAttribute("phase", new THREE.BufferAttribute(phase,1));
-
-  const helix = new THREE.Points(geo, _mkPointsMaterial(markerFxCfg.helixColor, 1.15, 0.9));
-  helix.userData.kind="helix";
-  g.add(helix);
-
-  // ground ring (3/4 circle)
-  const M = 320;
-  const pos2 = new Float32Array(M*3);
-  const base2 = new Float32Array(M*3);
-  const phase2= new Float32Array(M);
-  for(let i=0;i<M;i++){
-    const a = (i/(M-1)) * (Math.PI*1.5);
-    const R = radius0 * 1.15;
-    const x = Math.cos(a)*R;
-    const y = botY;
-    const z = Math.sin(a)*R;
-    pos2[i*3+0]=x; pos2[i*3+1]=y; pos2[i*3+2]=z;
-    base2[i*3+0]=x; base2[i*3+1]=y; base2[i*3+2]=z;
-    phase2[i]=_hash1(1000+i)*Math.PI*2.0;
-  }
-  const geo2 = new THREE.BufferGeometry();
-  geo2.setAttribute("position", new THREE.BufferAttribute(pos2,3));
-  geo2.setAttribute("base", new THREE.BufferAttribute(base2,3));
-  geo2.setAttribute("phase", new THREE.BufferAttribute(phase2,1));
-  const ring = new THREE.Points(geo2, _mkPointsMaterial(markerFxCfg.ringColor, 1.6, 0.85));
-  ring.userData.kind="ring";
-  g.add(ring);
-
-  // halo near top (kept as separate option)
-  const B = 360;
-  const pos3 = new Float32Array(B*3);
-  const base3= new Float32Array(B*3);
-  const phase3=new Float32Array(B);
-  for(let i=0;i<B;i++){
-    const a = _hash1(2000+i)*Math.PI*2;
-    const r = (radius0*0.55) + _hash1(3000+i)*(radius0*0.25);
-    const x = Math.cos(a)*r;
-    const y = topY + (_hash1(4000+i)-0.5)*10;
-    const z = Math.sin(a)*r;
-    pos3[i*3+0]=x; pos3[i*3+1]=y; pos3[i*3+2]=z;
-    base3[i*3+0]=x; base3[i*3+1]=y; base3[i*3+2]=z;
-    phase3[i]=_hash1(5000+i)*Math.PI*2.0;
-  }
-  const geo3 = new THREE.BufferGeometry();
-  geo3.setAttribute("position", new THREE.BufferAttribute(pos3,3));
-  geo3.setAttribute("base", new THREE.BufferAttribute(base3,3));
-  geo3.setAttribute("phase", new THREE.BufferAttribute(phase3,1));
-  const halo = new THREE.Points(geo3, _mkPointsMaterial(markerFxCfg.birdColor, 1.35, 0.9));
-  halo.userData.kind="halo";
-  g.add(halo);
-
-  // bird-shape point cloud (simple stylised 3D silhouette)
-  const S = 520;
-  const pos4 = new Float32Array(S*3);
-  const base4= new Float32Array(S*3);
-  const phase4=new Float32Array(S);
-  for(let i=0;i<S;i++){
-    // sample a stylised bird with two wings + body; z adds thickness
-    const u = _hash1(6000+i)*2 - 1;     // -1..1 across wings
-    const v = _hash1(7000+i)*2 - 1;     // -1..1 along body
-    const wing = 1.0 - Math.abs(v);     // taper
-    const wingCurve = 0.35*Math.sin(v*Math.PI); // camber
-    let x = u * (radius0*0.65) * (0.25 + 0.75*wing);
-    let y = wingCurve * (radius0*0.22) + (topY + 12) + v*(radius0*0.18);
-    let z = ( _hash1(8000+i)-0.5 ) * (radius0*0.20);
-
-    // body bias near center
-    const bodyMask = Math.exp(-Math.abs(u)*3.2);
-    y += bodyMask * (radius0*0.10);
-    x *= (0.55 + 0.45*(1-bodyMask));
-
-    pos4[i*3+0]=x; pos4[i*3+1]=y; pos4[i*3+2]=z;
-    base4[i*3+0]=x; base4[i*3+1]=y; base4[i*3+2]=z;
-    phase4[i]=_hash1(9000+i)*Math.PI*2.0;
-  }
-  const geo4 = new THREE.BufferGeometry();
-  geo4.setAttribute("position", new THREE.BufferAttribute(pos4,3));
-  geo4.setAttribute("base", new THREE.BufferAttribute(base4,3));
-  geo4.setAttribute("phase", new THREE.BufferAttribute(phase4,1));
-  const birdshape = new THREE.Points(geo4, _mkPointsMaterial(markerFxCfg.birdColor, 1.2, 0.95));
-  birdshape.userData.kind="birdshape";
-  g.add(birdshape);
-
+  g.userData.config = config;
   g.userData.t = 0;
+  g.userData.candidate = candidate;
+
+  const topY = config.topY;
+  const bottomY = config.bottomY;
+  const height = (topY - bottomY);
+  const radius0 = config.radius;
+  
+  const color = getMarkerColor(config, candidate);
+
+  if(config.type === "helix"){
+    const N = 820;
+    const pos = new Float32Array(N*3);
+    const base = new Float32Array(N*3);
+    const phase = new Float32Array(N);
+    const turns = config.turns;
+
+    for(let i=0;i<N;i++){
+      const t = i/(N-1);
+      const ang = t * Math.PI * 2.0 * turns;
+      const r = radius0 * (1.0 - 0.35*t);
+
+      const x = Math.cos(ang)*r;
+      const y = bottomY + t*height;
+      const z = Math.sin(ang)*r;
+
+      pos[i*3+0]=x; pos[i*3+1]=y; pos[i*3+2]=z;
+      base[i*3+0]=x; base[i*3+1]=y; base[i*3+2]=z;
+      phase[i]=_hash1(i)*Math.PI*2.0;
+    }
+
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.BufferAttribute(pos,3));
+    geo.setAttribute("base", new THREE.BufferAttribute(base,3));
+    geo.setAttribute("phase", new THREE.BufferAttribute(phase,1));
+
+    const helix = new THREE.Points(geo, _mkPointsMaterial(color, 1.15, 0.9));
+    helix.userData.kind="helix";
+    g.add(helix);
+  }
+  else if(config.type === "groundRing"){
+    const M = 320;
+    const pos2 = new Float32Array(M*3);
+    const base2 = new Float32Array(M*3);
+    const phase2= new Float32Array(M);
+    for(let i=0;i<M;i++){
+      const a = (i/(M-1)) * (Math.PI*1.5);
+      const R = radius0 * 1.15;
+      const x = Math.cos(a)*R;
+      const y = bottomY;
+      const z = Math.sin(a)*R;
+      pos2[i*3+0]=x; pos2[i*3+1]=y; pos2[i*3+2]=z;
+      base2[i*3+0]=x; base2[i*3+1]=y; base2[i*3+2]=z;
+      phase2[i]=_hash1(1000+i)*Math.PI*2.0;
+    }
+    const geo2 = new THREE.BufferGeometry();
+    geo2.setAttribute("position", new THREE.BufferAttribute(pos2,3));
+    geo2.setAttribute("base", new THREE.BufferAttribute(base2,3));
+    geo2.setAttribute("phase", new THREE.BufferAttribute(phase2,1));
+    const ring = new THREE.Points(geo2, _mkPointsMaterial(color, 1.6, 0.85));
+    ring.userData.kind="ring";
+    g.add(ring);
+  }
+  else if(config.type === "birdHalo"){
+    const B = 360;
+    const pos3 = new Float32Array(B*3);
+    const base3= new Float32Array(B*3);
+    const phase3=new Float32Array(B);
+    for(let i=0;i<B;i++){
+      const a = _hash1(2000+i)*Math.PI*2;
+      const r = (radius0*0.55) + _hash1(3000+i)*(radius0*0.25);
+      const x = Math.cos(a)*r;
+      const y = topY + (_hash1(4000+i)-0.5)*10;
+      const z = Math.sin(a)*r;
+      pos3[i*3+0]=x; pos3[i*3+1]=y; pos3[i*3+2]=z;
+      base3[i*3+0]=x; base3[i*3+1]=y; base3[i*3+2]=z;
+      phase3[i]=_hash1(5000+i)*Math.PI*2.0;
+    }
+    const geo3 = new THREE.BufferGeometry();
+    geo3.setAttribute("position", new THREE.BufferAttribute(pos3,3));
+    geo3.setAttribute("base", new THREE.BufferAttribute(base3,3));
+    geo3.setAttribute("phase", new THREE.BufferAttribute(phase3,1));
+    const halo = new THREE.Points(geo3, _mkPointsMaterial(color, 1.35, 0.9));
+    halo.userData.kind="halo";
+    g.add(halo);
+  }
+  else if(config.type === "birdShape"){
+    const S = 520;
+    const pos4 = new Float32Array(S*3);
+    const base4= new Float32Array(S*3);
+    const phase4=new Float32Array(S);
+    for(let i=0;i<S;i++){
+      const u = _hash1(6000+i)*2 - 1;
+      const v = _hash1(7000+i)*2 - 1;
+      const wing = 1.0 - Math.abs(v);
+      const wingCurve = 0.35*Math.sin(v*Math.PI);
+      let x = u * (radius0*0.65) * (0.25 + 0.75*wing);
+      let y = wingCurve * (radius0*0.22) + (topY + 12) + v*(radius0*0.18);
+      let z = ( _hash1(8000+i)-0.5 ) * (radius0*0.20);
+
+      const bodyMask = Math.exp(-Math.abs(u)*3.2);
+      y += bodyMask * (radius0*0.10);
+      x *= (0.55 + 0.45*(1-bodyMask));
+
+      pos4[i*3+0]=x; pos4[i*3+1]=y; pos4[i*3+2]=z;
+      base4[i*3+0]=x; base4[i*3+1]=y; base4[i*3+2]=z;
+      phase4[i]=_hash1(9000+i)*Math.PI*2.0;
+    }
+    const geo4 = new THREE.BufferGeometry();
+    geo4.setAttribute("position", new THREE.BufferAttribute(pos4,3));
+    geo4.setAttribute("base", new THREE.BufferAttribute(base4,3));
+    geo4.setAttribute("phase", new THREE.BufferAttribute(phase4,1));
+    const birdshape = new THREE.Points(geo4, _mkPointsMaterial(color, 1.2, 0.95));
+    birdshape.userData.kind="birdshape";
+    g.add(birdshape);
+  }
+  else if(config.type === "loadingRing"){
+    const L = 200;
+    const pos5 = new Float32Array(L*3);
+    const base5 = new Float32Array(L*3);
+    const phase5 = new Float32Array(L);
+    for(let i=0;i<L;i++){
+      const a = (i/(L-1)) * Math.PI * 2;
+      const x = Math.cos(a)*radius0;
+      const y = (bottomY + topY) / 2;
+      const z = Math.sin(a)*radius0;
+      pos5[i*3+0]=x; pos5[i*3+1]=y; pos5[i*3+2]=z;
+      base5[i*3+0]=x; base5[i*3+1]=y; base5[i*3+2]=z;
+      phase5[i]=_hash1(10000+i)*Math.PI*2.0;
+    }
+    const geo5 = new THREE.BufferGeometry();
+    geo5.setAttribute("position", new THREE.BufferAttribute(pos5,3));
+    geo5.setAttribute("base", new THREE.BufferAttribute(base5,3));
+    geo5.setAttribute("phase", new THREE.BufferAttribute(phase5,1));
+    const loading = new THREE.Points(geo5, _mkPointsMaterial(color, 1.4, 0.88));
+    loading.userData.kind="loading";
+    g.add(loading);
+  }
+
   return g;
 }
 
-function _setVisibleByMode(fx){
-  if(!fx) return;
-  fx.traverse(o=>{
-    if(!o.isPoints) return;
-    const k = o.userData.kind;
-    if(markerFxMode === "helix")      o.visible = (k==="helix");
-    else if(markerFxMode === "ring")  o.visible = (k==="ring");
-    else if(markerFxMode === "halo")  o.visible = (k==="halo");
-    else if(markerFxMode === "birdshape") o.visible = (k==="birdshape");
-    else if(markerFxMode === "combo") o.visible = (k==="helix"||k==="ring"||k==="halo");
-    else o.visible = false;
-  });
-}
-
-function applyMarkerFxToMarker(m){
-  if(!m) return;
-  m.userData ||= {};
-
-  // clear existing
-  if(m.userData.fxGroup){
-    m.remove(m.userData.fxGroup);
-    _fxDispose(m.userData.fxGroup);
-    m.userData.fxGroup = null;
+function applyMarkersToScene(){
+  const list = _getVerifierMarkers();
+  
+  for(const m of list){
+    m.userData ||= {};
+    
+    // Clear existing FX groups
+    if(m.userData.fxGroups){
+      for(const fx of m.userData.fxGroups){
+        m.remove(fx);
+        _fxDispose(fx);
+      }
+    }
+    m.userData.fxGroups = [];
+    
+    // Build and add all active markers
+    for(const config of activeMarkers){
+      const fx = buildMarkerFX(config, m.userData.candidate);
+      m.add(fx);
+      m.userData.fxGroups.push(fx);
+      try{ fx.traverse(o=>{ if(o.isPoints) forceTopLayer(o,2000); }); }catch(e){ console.warn("Failed to apply top layer:", e); }
+    }
   }
-
-  if(markerFxMode === "hover" || markerFxMode === "loading"){
-    return; // nothing additive
-  }
-
-  const fx = buildHelixFX();
-  _setVisibleByMode(fx);
-  m.add(fx);
-  m.userData.fxGroup = fx;
-    try{ fx.traverse(o=>{ if(o.isPoints) forceTopLayer(o,2000); }); }catch(e){}
 }
 
 function updateMarkerFx(dt){
   const list = _getVerifierMarkers();
   if(!list.length) return;
 
-  const dir = (markerFxCfg.dir === "ccw") ? -1 : 1;
-  const sp  = (markerFxCfg.speed || 1.0);
-
   for(const m of list){
-    const fx = m?.userData?.fxGroup;
-    if(!fx) continue;
+    const fxGroups = m?.userData?.fxGroups;
+    if(!fxGroups || !fxGroups.length) continue;
 
-    fx.userData.t += dt * sp;
-    const t = fx.userData.t;
+    for(const fx of fxGroups){
+      const config = fx.userData.config;
+      if(!config) continue;
 
-    // rotate whole group gently
-    fx.rotation.y = dir * t * 0.85;
+      const dir = (config.direction === "ccw") ? -1 : 1;
+      const sp = config.speed || 1.0;
 
-    fx.traverse(o=>{
-      if(!o.isPoints) return;
+      fx.userData.t += dt * sp;
+      const t = fx.userData.t;
 
-      // update colors live
-      if(o.userData.kind==="helix") o.material.color.set(_fxColor(markerFxCfg.helixColor));
-      if(o.userData.kind==="ring")  o.material.color.set(_fxColor(markerFxCfg.ringColor));
-      if(o.userData.kind==="halo" || o.userData.kind==="birdshape") o.material.color.set(_fxColor(markerFxCfg.birdColor));
+      fx.rotation.y = dir * t * 0.85;
 
-      // murmuration-like jitter
-      const geo = o.geometry;
-      const pos = geo.getAttribute("position");
-      const base= geo.getAttribute("base");
-      const ph  = geo.getAttribute("phase");
-      if(!pos || !base || !ph) return;
+      fx.traverse(o=>{
+        if(!o.isPoints) return;
 
-      const jit = markerFxCfg.jitter;
-      const flock = markerFxCfg.flock;
+        // Update color dynamically based on mode
+        const currentColor = getMarkerColor(config, fx.userData.candidate);
+        o.material.color.set(_fxColor(currentColor));
 
-      for(let i=0;i<pos.count;i++){
-        const bx = base.getX(i), by = base.getY(i), bz = base.getZ(i);
-        const p = ph.getX(i);
+        // Murmuration-like jitter
+        const geo = o.geometry;
+        const pos = geo.getAttribute("position");
+        const base = geo.getAttribute("base");
+        const ph = geo.getAttribute("phase");
+        if(!pos || !base || !ph) return;
 
-        // flow field
-        const fv = _flowVec(bx, by, bz, t + p);
-        const w = (0.65 + 0.35*Math.sin(t*1.3 + p));
+        const jit = config.jitter;
+        const flock = config.flock;
 
-        // "flockiness" nudges toward a few moving centroids
-        const cx = Math.sin(t*0.6)*8;
-        const cy = Math.cos(t*0.7)*6;
-        const cz = Math.sin(t*0.5)*7;
+        for(let i=0;i<pos.count;i++){
+          const bx = base.getX(i), by = base.getY(i), bz = base.getZ(i);
+          const p = ph.getX(i);
 
-        const nx = bx + fv.x*jit*w + (cx - bx)*flock*0.02;
-        const ny = by + fv.y*jit*w + (cy - by)*flock*0.02;
-        const nz = bz + fv.z*jit*w + (cz - bz)*flock*0.02;
+          const fv = _flowVec(bx, by, bz, t + p);
+          const w = (0.65 + 0.35*Math.sin(t*1.3 + p));
 
-        pos.setXYZ(i, nx, ny, nz);
-      }
-      pos.needsUpdate = true;
-    });
+          const cx = Math.sin(t*0.6)*8;
+          const cy = Math.cos(t*0.7)*6;
+          const cz = Math.sin(t*0.5)*7;
 
-    // ensure correct components visible for current mode
-    _setVisibleByMode(fx);
+          const nx = bx + fv.x*jit*w + (cx - bx)*flock*0.02;
+          const ny = by + fv.y*jit*w + (cy - by)*flock*0.02;
+          const nz = bz + fv.z*jit*w + (cz - bz)*flock*0.02;
+
+          pos.setXYZ(i, nx, ny, nz);
+        }
+        pos.needsUpdate = true;
+      });
+    }
   }
 }
 
-function hookMarkerFxUI(){
-  const sel = document.getElementById("markerFxSel");
-  const cH = document.getElementById("fxHelixColor");
-  const cR = document.getElementById("fxRingColor");
-  const cB = document.getElementById("fxBirdColor");
-  const sp = document.getElementById("fxSpeed");
-  const dr = document.getElementById("fxDir");
-  const topY = document.getElementById("fxTopY");
-  const botY = document.getElementById("fxBotY");
-  const rad  = document.getElementById("fxRadius");
-  const trn  = document.getElementById("fxTurns");
-  const jit  = document.getElementById("fxJitter");
-  const flk  = document.getElementById("fxFlock");
+// --- Label Management ---
+function addLabel(type){
+  const config = {
+    id: "label-" + (++labelIdCounter),
+    type: type,
+    text: "Label Text",
+    fontSize: 12,
+    color: "#ffffff",
+    backgroundColor: "#000000",
+    opacity: 0.8,
+    offsetY: 60
+  };
+  activeLabels.push(config);
+  renderLabelsList();
+}
 
-  function reapply(){
-    for(const m of _getVerifierMarkers()) applyMarkerFxToMarker(m);
+function deleteLabel(id){
+  activeLabels = activeLabels.filter(l => l.id !== id);
+  renderLabelsList();
+}
+
+function renderLabelsList(){
+  const container = document.getElementById("activeLabelsList");
+  if(!container) return;
+  
+  let html = "";
+  for(const l of activeLabels){
+    html += `<div class="labelInstance" data-label-id="${l.id}">
+  <div class="labelHeader">
+    <span class="labelName">${l.type}</span>
+    <button onclick="deleteLabel('${l.id}')">×</button>
+  </div>
+</div>`;
   }
+  
+  container.innerHTML = html;
+}
 
-  if(sel){
-    sel.value = markerFxMode;
-    sel.onchange = ()=>{
-      markerFxMode = sel.value;
-      reapply();
+function createDropdownBlurHandler(selector){
+  return () => {
+    setTimeout(() => { selector.style.display = "none"; }, DROPDOWN_BLUR_DELAY_MS);
+  };
+}
+
+function hookModularMarkerUI(){
+  const addBtn = document.getElementById("addMarkerBtn");
+  const typeSelector = document.getElementById("markerTypeSelector");
+
+  if(addBtn && typeSelector){
+    addBtn.onclick = () => {
+      if(typeSelector.style.display === "none"){
+        typeSelector.style.display = "inline-block";
+        typeSelector.focus();
+      } else {
+        typeSelector.style.display = "none";
+      }
     };
+    
+    typeSelector.onchange = () => {
+      const type = typeSelector.value;
+      if(type){
+        addMarker(type);
+        typeSelector.value = "";
+        typeSelector.style.display = "none";
+      }
+    };
+    
+    typeSelector.onblur = createDropdownBlurHandler(typeSelector);
   }
-  if(cH) cH.oninput = ()=> markerFxCfg.helixColor = cH.value;
-  if(cR) cR.oninput = ()=> markerFxCfg.ringColor  = cR.value;
-  if(cB) cB.oninput = ()=> markerFxCfg.birdColor  = cB.value;
 
-  if(sp) sp.oninput = ()=> markerFxCfg.speed = parseFloat(sp.value || "1");
-  if(dr) dr.onchange = ()=> markerFxCfg.dir = dr.value;
+  renderMarkersList();
+}
 
-  if(topY) topY.oninput = ()=>{ markerFxCfg.topY = parseFloat(topY.value||"55"); reapply(); };
-  if(botY) botY.oninput = ()=>{ markerFxCfg.botY = parseFloat(botY.value||"-55"); reapply(); };
-  if(rad)  rad.oninput  = ()=>{ markerFxCfg.radius = parseFloat(rad.value||"18"); reapply(); };
-  if(trn)  trn.oninput  = ()=>{ markerFxCfg.turns  = parseFloat(trn.value||"5"); reapply(); };
-  if(jit)  jit.oninput  = ()=> markerFxCfg.jitter = parseFloat(jit.value||"2.2");
-  if(flk)  flk.oninput  = ()=> markerFxCfg.flock  = parseFloat(flk.value||"0.35");
+function hookModularLabelUI(){
+  const addBtn = document.getElementById("addLabelBtn");
+  const typeSelector = document.getElementById("labelTypeSelector");
+
+  if(addBtn && typeSelector){
+    addBtn.onclick = () => {
+      if(typeSelector.style.display === "none"){
+        typeSelector.style.display = "inline-block";
+        typeSelector.focus();
+      } else {
+        typeSelector.style.display = "none";
+      }
+    };
+    
+    typeSelector.onchange = () => {
+      const type = typeSelector.value;
+      if(type){
+        addLabel(type);
+        typeSelector.value = "";
+        typeSelector.style.display = "none";
+      }
+    };
+    
+    typeSelector.onblur = createDropdownBlurHandler(typeSelector);
+  }
+
+  renderLabelsList();
 }
 async function init(){
   setStatus(`Fetching ${JSON_PATH}…`);
@@ -4597,7 +4992,8 @@ async function init(){
 
   // Overlay system init
   hookOverlayUI();
-  hookMarkerFxUI();
+  hookModularMarkerUI();
+  hookModularLabelUI();
 
 
     hookSkyGroundUI();
@@ -4665,10 +5061,9 @@ function animate(){
     if (!ring || !ring.userData?.isLoadingCircle) return;
 
     // Modes:
-    // - hover: hide loading rings entirely
     // - loading: show + animate (verifier default)
-    // - helix: hide loading rings (helix provides its own motion cue)
-    if (markerFxMode === "hover" || markerFxMode === "helix"){
+    // - custom markers: hide loading rings (custom markers provide their own motion cues)
+    if (activeMarkers.length > 0){
       ring.visible = false;
       return;
     }
@@ -5127,68 +5522,13 @@ init().then(()=>animate()).catch(err=>{
 }
 #uiOverlay select, #uiOverlay input[type="range"]{ accent-color:#fff; }
 
-/* Edge reopen buttons (visible only when dock collapsed) */
-.edgeReopen{
-  position:fixed;
-  top:50%;
-  transform:translateY(-50%);
-  width:30px;height:54px;
-  display:flex;
-  align-items:center;justify-content:center;
-  background:rgba(0,0,0,.60);
-  border:1px solid rgba(255,255,255,.22);
-  border-radius:12px;
-  color:#fff;
-  cursor:pointer;
-  user-select:none;
-  z-index:100000;
-  backdrop-filter: blur(8px);
-  font-weight:900;
-  opacity:0;
-  pointer-events:none;
-  transition: opacity .12s ease;
-}
-body.verifier-collapsed #edgeReopenLeft{ opacity:1; pointer-events:auto; }
-body.overlay-collapsed  #edgeReopenRight{ opacity:1; pointer-events:auto; }
-#edgeReopenLeft{ left:8px; }
-#edgeReopenRight{ right:8px; }
 
-
-/* === CLEAN EDGE REOPEN === */
-.edgeReopen{
-  position:fixed;
-  top:50%;
-  transform:translateY(-50%);
-  width:34px;
-  height:64px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:rgba(0,0,0,.65);
-  border:1px solid rgba(255,255,255,.25);
-  border-radius:12px;
-  color:#fff;
-  cursor:pointer;
-  z-index:999999;
-  backdrop-filter: blur(8px);
-  font-weight:900;
-  opacity:0;
-  pointer-events:none;
-}
-body.verifier-collapsed #edgeReopenLeft{opacity:1;pointer-events:auto;}
-body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
-#edgeReopenLeft{left:8px;}
-#edgeReopenRight{right:8px;}
 
 </style>
 
 
-
-<div id="edgeReopenLeft" class="edgeReopen" title="Open verifier">▶</div>
-<div id="edgeReopenRight" class="edgeReopen" title="Open overlays">◀</div>
-
-<button id="edgeReopenLeft" class="edgeReopen">▶</button>
-<button id="edgeReopenRight" class="edgeReopen">◀</button>
+<button id="edgeReopenLeft" class="edgeReopen" title="Open verifier" aria-label="Open verifier">▶</button>
+<button id="edgeReopenRight" class="edgeReopen" title="Open overlays" aria-label="Open overlays">◀</button>
 
 </body>
 </html>
