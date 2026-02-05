@@ -2670,7 +2670,17 @@ let overlayState = {
   singleColor: "#00ffd0",
   minSat: 0.16,
   minVal: 0.10,
-  rules: []
+  rules: [],
+  // Sky/Ground gradient settings
+  sgEnable: true,
+  sgSkyOn: true,
+  sgGroundOn: true,
+  sgSkyColor: "#9bd7ff",
+  sgGroundColor: "#f2e8d5",
+  sgSkyAlpha: 0.35,
+  sgGroundAlpha: 0.18,
+  sgInvert: false,
+  sgFeather: 0.03
 };
 
 const PRESET_KEY = "todi_overlay_presets_v1";
@@ -2812,6 +2822,15 @@ function applyOverlaySettings(obj){
   const minSatNum = document.getElementById('minSatNum');
   const minVal = document.getElementById('minVal');
   const minValNum = document.getElementById('minValNum');
+  const sgEnable = document.getElementById('sgEnable');
+  const sgSkyOn = document.getElementById('sgSkyOn');
+  const sgGroundOn = document.getElementById('sgGroundOn');
+  const sgSkyColor = document.getElementById('sgSkyColor');
+  const sgGroundColor = document.getElementById('sgGroundColor');
+  const sgSkyAlpha = document.getElementById('sgSkyAlpha');
+  const sgGroundAlpha = document.getElementById('sgGroundAlpha');
+  const sgInvert = document.getElementById('sgInvert');
+  const sgFeather = document.getElementById('sgFeather');
 
   if (modeSel) modeSel.value = String(overlayState.mode);
   if (toggleOverlay) toggleOverlay.checked = !!overlayState.showOverlay;
@@ -2823,6 +2842,17 @@ function applyOverlaySettings(obj){
   if (singleColor) singleColor.value = overlayState.singleColor || "#00ffd0";
   if (minSat) minSat.value = String(overlayState.minSat);
   if (minVal) minVal.value = String(overlayState.minVal);
+  
+  // Apply sky/ground gradient settings
+  if (sgEnable) sgEnable.checked = overlayState.sgEnable !== false;
+  if (sgSkyOn) sgSkyOn.checked = overlayState.sgSkyOn !== false;
+  if (sgGroundOn) sgGroundOn.checked = overlayState.sgGroundOn !== false;
+  if (sgSkyColor) sgSkyColor.value = overlayState.sgSkyColor || "#9bd7ff";
+  if (sgGroundColor) sgGroundColor.value = overlayState.sgGroundColor || "#f2e8d5";
+  if (sgSkyAlpha) sgSkyAlpha.value = String(overlayState.sgSkyAlpha ?? 0.35);
+  if (sgGroundAlpha) sgGroundAlpha.value = String(overlayState.sgGroundAlpha ?? 0.18);
+  if (sgInvert) sgInvert.checked = !!overlayState.sgInvert;
+  if (sgFeather) sgFeather.value = String(overlayState.sgFeather ?? 0.03);
 
   // apply to pano sphere
   try{
@@ -2836,6 +2866,22 @@ function applyOverlaySettings(obj){
   try{
     document.body.style.background = overlayState.bgColor || "#000";
     if (renderer && renderer.setClearColor) renderer.setClearColor(new THREE.Color(overlayState.bgColor || "#000"), 1.0);
+  }catch{}
+  
+  // Apply sky/ground gradient settings to uniforms
+  try{
+    if (sgMesh && sgMesh.material && sgMesh.material.uniforms) {
+      const u = sgMesh.material.uniforms;
+      u.enabled.value = overlayState.sgEnable ? 1.0 : 0.0;
+      u.skyOn.value = overlayState.sgSkyOn ? 1.0 : 0.0;
+      u.groundOn.value = overlayState.sgGroundOn ? 1.0 : 0.0;
+      u.invertMask.value = overlayState.sgInvert ? 1.0 : 0.0;
+      u.skyColor.value.set(overlayState.sgSkyColor || "#9bd7ff");
+      u.groundColor.value.set(overlayState.sgGroundColor || "#f2e8d5");
+      u.skyAlpha.value = overlayState.sgSkyAlpha ?? 0.35;
+      u.groundAlpha.value = overlayState.sgGroundAlpha ?? 0.18;
+      u.feather.value = overlayState.sgFeather ?? 0.03;
+    }
   }catch{}
 
   refreshModeUI_Overlay();
@@ -4838,6 +4884,20 @@ function hookSkyGroundUI(){
     u.groundAlpha.value = clamp01(sgGroundAlpha.value);
 
     u.feather.value = Math.max(0, Math.min(0.2, Number(sgFeather.value) || 0.03));
+    
+    // Update overlayState so these settings are exported
+    overlayState.sgEnable = sgEnable.checked;
+    overlayState.sgSkyOn = sgSkyOn.checked;
+    overlayState.sgGroundOn = sgGroundOn.checked;
+    overlayState.sgSkyColor = sgSkyColor.value;
+    overlayState.sgGroundColor = sgGroundColor.value;
+    overlayState.sgSkyAlpha = clamp01(sgSkyAlpha.value);
+    overlayState.sgGroundAlpha = clamp01(sgGroundAlpha.value);
+    overlayState.sgInvert = sgInvert.checked;
+    overlayState.sgFeather = Math.max(0, Math.min(0.2, Number(sgFeather.value) || 0.03));
+    
+    // Sync settings box for export
+    syncSettingsBox();
   }
 
   ["input","change"].forEach(evt=>{
