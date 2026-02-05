@@ -1393,7 +1393,22 @@ function loadColorConfig(){
     const raw = localStorage.getItem('markerColorConfig');
     if (raw){
       const saved = JSON.parse(raw);
-      Object.assign(markerColorConfig, saved);
+      // Validate and merge only known properties
+      if (saved.mode && ['persistent', 'category', 'visibility'].includes(saved.mode)) {
+        markerColorConfig.mode = saved.mode;
+      }
+      if (saved.byCategory && typeof saved.byCategory === 'object') {
+        Object.assign(markerColorConfig.byCategory, saved.byCategory);
+      }
+      if (Array.isArray(saved.byVisibility)) {
+        markerColorConfig.byVisibility = saved.byVisibility;
+      }
+      if (typeof saved.fxInheritColor === 'boolean') {
+        markerColorConfig.fxInheritColor = saved.fxInheritColor;
+      }
+      if (saved.helix) markerColorConfig.helix = saved.helix;
+      if (saved.ring) markerColorConfig.ring = saved.ring;
+      if (saved.bird) markerColorConfig.bird = saved.bird;
     }
   }catch(e){ console.warn('Failed to load color config:', e); }
 }
@@ -4165,7 +4180,7 @@ function buildCategoryColorList(){
     row.style.marginTop = '6px';
     
     const label = document.createElement('label');
-    label.textContent = cat.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+    label.textContent = cat.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
     label.style.flex = '1';
     
     const input = document.createElement('input');
@@ -4228,7 +4243,11 @@ function refreshMarkerColors(){
   
   // Reapply marker FX if needed
   currentMarkers.forEach(m => {
-    try { applyMarkerFxToMarker(m); } catch(e) {}
+    try { 
+      applyMarkerFxToMarker(m); 
+    } catch(e) {
+      // Silently ignore FX errors - some markers may not support all FX modes
+    }
   });
 }
 
