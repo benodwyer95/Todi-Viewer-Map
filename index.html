@@ -2457,13 +2457,14 @@ function addMarker(source, cand, idx){
   hit.renderOrder = 10001;
   root.add(hit);
 
-  const ring = makeLoadingCircleMarker(size, colorHex);
-  ring.userData.markerVisual = true;
-  root.userData.markerVisual = ring;
-  root.add(ring);
+  // REMOVED: const ring = makeLoadingCircleMarker(size, colorHex);
+  // REMOVED: ring.userData.markerVisual = true;
+  // REMOVED: root.userData.markerVisual = ring;
+  // REMOVED: root.add(ring);
 
-  makeCalloutAnimated(root, root.userData.name, isVisibleCandidate(cand), colorHex);
-markerGroup.add(root);
+  // REMOVED: makeCalloutAnimated(root, root.userData.name, isVisibleCandidate(cand), colorHex);
+  
+  markerGroup.add(root);
   return root;
 }
 
@@ -2539,7 +2540,6 @@ function rebuildMarkersAndList(){
   cands.forEach((c,i)=>{
     const m = addMarker(source, c, i);
     currentMarkers.push(m);
-    try{ applyMarkerFxToMarker(m); }catch{}
 
     const item=document.createElement('div');
     item.className='item';
@@ -2612,11 +2612,15 @@ function rebuildMarkersAndList(){
     listEl.appendChild(item);
   });
 
+  // Apply modular marker FX to all markers
+  applyAllMarkerFX();
+
   addDebugMarker();
   updateHeader();
   setStatus(`Loaded: ${source.id} • markers: ${markerGroup.children.length} (includes debug if on)`);
 
-  rebuildLabels();
+  // Apply labels
+  applyAllLabelFX();
   updateCalloutsVisibility();
 
   // if we had a previously selected candKey and it still exists, restore selection
@@ -4519,57 +4523,57 @@ function updateMarkerFx(dt){
   const sp  = (markerFxCfg.speed || 1.0);
 
   for(const m of list){
-    const fx = m?.userData?.fxGroup;
-    if(!fx) continue;
+    // NEW: Iterate through fxGroups array instead of single fxGroup
+    const fxGroups = m?.userData?.fxGroups;
+    if(!fxGroups || !Array.isArray(fxGroups)) continue;
+    
+    fxGroups.forEach(fx => {
+      if(!fx) return;
+      
+      fx.userData.t += dt * sp;
+      const t = fx.userData.t;
 
-    fx.userData.t += dt * sp;
-    const t = fx.userData.t;
+      // rotate whole group gently
+      fx.rotation.y = dir * t * 0.85;
 
-    // rotate whole group gently
-    fx.rotation.y = dir * t * 0.85;
+      fx.traverse(o=>{
+        if(!o.isPoints) return;
 
-    fx.traverse(o=>{
-      if(!o.isPoints) return;
+        // update colors live
+        if(o.userData.kind==="helix") o.material.color.set(_fxColor(markerFxCfg.helixColor));
+        if(o.userData.kind==="ring")  o.material.color.set(_fxColor(markerFxCfg.ringColor));
+        if(o.userData.kind==="halo" || o.userData.kind==="birdshape") o.material.color.set(_fxColor(markerFxCfg.birdColor));
 
-      // update colors live
-      if(o.userData.kind==="helix") o.material.color.set(_fxColor(markerFxCfg.helixColor));
-      if(o.userData.kind==="ring")  o.material.color.set(_fxColor(markerFxCfg.ringColor));
-      if(o.userData.kind==="halo" || o.userData.kind==="birdshape") o.material.color.set(_fxColor(markerFxCfg.birdColor));
+        // murmuration-like jitter
+        const geo = o.geometry;
+        const pos = geo.getAttribute("position");
+        const base= geo.getAttribute("base");
+        const ph  = geo.getAttribute("phase");
+        if(!pos || !base || !ph) return;
 
-      // murmuration-like jitter
-      const geo = o.geometry;
-      const pos = geo.getAttribute("position");
-      const base= geo.getAttribute("base");
-      const ph  = geo.getAttribute("phase");
-      if(!pos || !base || !ph) return;
+        const jit = markerFxCfg.jitter;
+        const flock = markerFxCfg.flock;
 
-      const jit = markerFxCfg.jitter;
-      const flock = markerFxCfg.flock;
+        for(let i=0;i<pos.count;i++){
+          const bx = base.getX(i), by = base.getY(i), bz = base.getZ(i);
+          const p = ph.getX(i);
 
-      for(let i=0;i<pos.count;i++){
-        const bx = base.getX(i), by = base.getY(i), bz = base.getZ(i);
-        const p = ph.getX(i);
+          const fv = _flowVec(bx, by, bz, t + p);
+          const w = (0.65 + 0.35*Math.sin(t*1.3 + p));
 
-        // flow field
-        const fv = _flowVec(bx, by, bz, t + p);
-        const w = (0.65 + 0.35*Math.sin(t*1.3 + p));
+          const cx = Math.sin(t*0.6)*8;
+          const cy = Math.cos(t*0.7)*6;
+          const cz = Math.sin(t*0.5)*7;
 
-        // "flockiness" nudges toward a few moving centroids
-        const cx = Math.sin(t*0.6)*8;
-        const cy = Math.cos(t*0.7)*6;
-        const cz = Math.sin(t*0.5)*7;
+          const nx = bx + fv.x*jit*w + (cx - bx)*flock*0.02;
+          const ny = by + fv.y*jit*w + (cy - by)*flock*0.02;
+          const nz = bz + fv.z*jit*w + (cz - bz)*flock*0.02;
 
-        const nx = bx + fv.x*jit*w + (cx - bx)*flock*0.02;
-        const ny = by + fv.y*jit*w + (cy - by)*flock*0.02;
-        const nz = bz + fv.z*jit*w + (cz - bz)*flock*0.02;
-
-        pos.setXYZ(i, nx, ny, nz);
-      }
-      pos.needsUpdate = true;
+          pos.setXYZ(i, nx, ny, nz);
+        }
+        pos.needsUpdate = true;
+      });
     });
-
-    // ensure correct components visible for current mode
-    _setVisibleByMode(fx);
   }
 }
 
@@ -4588,7 +4592,12 @@ const markerTypeDefaults = {
     direction: "cw",
     colorMode: "single",
     color: "#7efcff",
-    categoryColors: {},
+    categoryColors: {
+      Landmark: "#ff6b6b",
+      Leisure: "#4ecdc4",
+      Place: "#f38181",
+      Amenity: "#aa96da"
+    },
     visibilityColors: { high: "#00ff00", medium: "#ffff00", low: "#ff0000" },
     radius: 18,
     jitter: 2.2,
@@ -4603,7 +4612,12 @@ const markerTypeDefaults = {
     direction: "ccw",
     colorMode: "single",
     color: "#ffffff",
-    categoryColors: {},
+    categoryColors: {
+      Landmark: "#ff6b6b",
+      Leisure: "#4ecdc4",
+      Place: "#f38181",
+      Amenity: "#aa96da"
+    },
     visibilityColors: { high: "#00ff00", medium: "#ffff00", low: "#ff0000" },
     radius: 15,
     jitter: 1.8,
@@ -4617,7 +4631,13 @@ const markerTypeDefaults = {
     direction: "cw",
     colorMode: "single",
     color: "#b6ff6a",
-    categoryColors: {},
+    categoryColors: {
+      Landmark: "#ff6b6b",
+      Leisure: "#4ecdc4",
+      Place: "#f38181",
+      Amenity: "#aa96da"
+    },
+    visibilityColors: { high: "#00ff00", medium: "#ffff00", low: "#ff0000" },
     radius: 20,
     thickness: 2
   },
@@ -4629,7 +4649,13 @@ const markerTypeDefaults = {
     direction: "cw",
     colorMode: "single",
     color: "#ffffff",
-    categoryColors: {},
+    categoryColors: {
+      Landmark: "#ff6b6b",
+      Leisure: "#4ecdc4",
+      Place: "#f38181",
+      Amenity: "#aa96da"
+    },
+    visibilityColors: { high: "#00ff00", medium: "#ffff00", low: "#ff0000" },
     radius: 12,
     jitter: 2.5,
     flockiness: 0.6
@@ -4642,6 +4668,13 @@ const markerTypeDefaults = {
     direction: "cw",
     colorMode: "single",
     color: "#00c8ff",
+    categoryColors: {
+      Landmark: "#ff6b6b",
+      Leisure: "#4ecdc4",
+      Place: "#f38181",
+      Amenity: "#aa96da"
+    },
+    visibilityColors: { high: "#00ff00", medium: "#ffff00", low: "#ff0000" },
     radius: 18
   }
 };
@@ -4817,10 +4850,10 @@ function renderMarkerFXControls(marker) {
     
     <!-- Category Colors -->
     <div class="colorCategory" style="${marker.colorMode !== 'category' ? 'display:none' : ''}">
-      <div class="ctrlRow"><label>Peak</label><input type="color" data-id="${marker.id}" data-prop="categoryColors.peak" value="${marker.categoryColors.peak || '#4ecdc4'}"></div>
-      <div class="ctrlRow"><label>Tower</label><input type="color" data-id="${marker.id}" data-prop="categoryColors.tower" value="${marker.categoryColors.tower || '#f38181'}"></div>
-      <div class="ctrlRow"><label>Church</label><input type="color" data-id="${marker.id}" data-prop="categoryColors.church" value="${marker.categoryColors.church || '#aa96da'}"></div>
-      <div class="ctrlRow"><label>Landmark</label><input type="color" data-id="${marker.id}" data-prop="categoryColors.landmark" value="${marker.categoryColors.landmark || '#ff6b6b'}"></div>
+      <div class="ctrlRow"><label>Landmark</label><input type="color" data-id="${marker.id}" data-prop="categoryColors.Landmark" value="${marker.categoryColors.Landmark || '#ff6b6b'}"></div>
+      <div class="ctrlRow"><label>Leisure</label><input type="color" data-id="${marker.id}" data-prop="categoryColors.Leisure" value="${marker.categoryColors.Leisure || '#4ecdc4'}"></div>
+      <div class="ctrlRow"><label>Place</label><input type="color" data-id="${marker.id}" data-prop="categoryColors.Place" value="${marker.categoryColors.Place || '#f38181'}"></div>
+      <div class="ctrlRow"><label>Amenity</label><input type="color" data-id="${marker.id}" data-prop="categoryColors.Amenity" value="${marker.categoryColors.Amenity || '#aa96da'}"></div>
     </div>
     
     <!-- Visibility Colors -->
@@ -5299,45 +5332,51 @@ function applyLabelConfigToMarkers(config) {
       m.userData.colorHex || 0x00c8ff
     );
 
-    // Apply config styling
-    if (callout && callout.userData) {
-      const ud = callout.userData;
-      
-      // Update animation params from config
-      ud.rise = config.riseWorld || 40;
-      ud.sqW = config.squareWorld || 6;
-      ud.lblW = config.labelWorld || 18;
-      ud.speed = 1 / (config.animSeconds || 1.8);
-      
-      // Update label styling
-      if (ud.label) {
-        // Rebuild label with new config
-        const oldLabel = ud.label;
-        const newLabel = makeConfiguredLabelSprite(
-          getLabelText(config.content, cand),
-          config.labelWorld || 18,
-          config.textColor || "#ffffff",
-          config.backgroundColor || "rgba(0,0,0,0.6)",
-          config.borderColor || "rgba(255,255,255,0.3)",
-          config.font || "helvetica"
-        );
-        
-        // Replace in callout
-        const parent = oldLabel.parent;
-        if (parent) {
-          parent.remove(oldLabel);
-          disposeSprite(oldLabel);
-          parent.add(newLabel);
-          newLabel.position.copy(oldLabel.position);
-          ud.label = newLabel;
-        }
-      }
+    // FIX: Actually add the callout to the marker
+    if (callout) {
+      m.add(callout);
+      m.userData.callout = callout;
 
-      // Set initial visibility based on config
-      if (config.showOnHover) {
-        ud.target = 0; // Start hidden, show on hover
-      } else if (config.type === 'fixed') {
-        ud.target = 1; // Always visible
+      // Apply config styling
+      if (callout.userData) {
+        const ud = callout.userData;
+        
+        // Update animation params from config
+        ud.rise = config.riseWorld || 40;
+        ud.sqW = config.squareWorld || 6;
+        ud.lblW = config.labelWorld || 18;
+        ud.speed = 1 / (config.animSeconds || 1.8);
+        
+        // Update label styling
+        if (ud.label) {
+          // Rebuild label with new config
+          const oldLabel = ud.label;
+          const newLabel = makeConfiguredLabelSprite(
+            getLabelText(config.content, cand),
+            config.labelWorld || 18,
+            config.textColor || "#ffffff",
+            config.backgroundColor || "rgba(0,0,0,0.6)",
+            config.borderColor || "rgba(255,255,255,0.3)",
+            config.font || "helvetica"
+          );
+          
+          // Replace in callout
+          const parent = oldLabel.parent;
+          if (parent) {
+            parent.remove(oldLabel);
+            disposeSprite(oldLabel);
+            parent.add(newLabel);
+            newLabel.position.copy(oldLabel.position);
+            ud.label = newLabel;
+          }
+        }
+
+        // Set initial visibility based on config
+        if (config.showOnHover) {
+          ud.target = 0; // Start hidden, show on hover
+        } else if (config.type === 'fixed') {
+          ud.target = 1; // Always visible
+        }
       }
     }
   });
@@ -5454,6 +5493,12 @@ async function init(){
   hookMarkerFxUI();
   initModularMarkerSystem();
   initModularLabelSystem();
+
+  // Initialize default loading marker so it appears in the list
+  addMarkerFX('loading');
+
+  // Initialize default label
+  addLabelFX('hover');
 
 
     hookSkyGroundUI();
