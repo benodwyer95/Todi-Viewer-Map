@@ -309,7 +309,7 @@ hr.ovSep{border:none;border-top:1px solid rgba(255,255,255,.12);margin:10px 0}
 
   /* --- Mouse magnifier reticle (overlay DOM) --- */
   #reticleWrap{
-    position:fixed;z-index:200;pointer-events:none;
+    position:fixed;z-index:10000;pointer-events:none;
     width:160px;height:160px;display:none;
     transform:translate(-80px,-80px);
   }
@@ -4559,9 +4559,6 @@ function updateMarkerFx(dt){
   const list = _getVerifierMarkers();
   if(!list.length) return;
 
-  const dir = (markerFxCfg.dir === "ccw") ? -1 : 1;
-  const sp  = (markerFxCfg.speed || 1.0);
-
   for(const m of list){
     // Iterate through fxGroups array (modular system stores multiple FX per marker)
     const fxGroups = m?.userData?.fxGroups;
@@ -4570,7 +4567,19 @@ function updateMarkerFx(dt){
     fxGroups.forEach(fx => {
       if(!fx) return;
       
-      fx.userData.t += dt * sp;
+      // Use per-marker config if available, otherwise fall back to global
+      const cfg = fx.userData.markerConfig || {
+        speed: markerFxCfg.speed || 1.0,
+        direction: markerFxCfg.dir,
+        jitter: markerFxCfg.jitter,
+        flockiness: markerFxCfg.flock,
+        color: markerFxCfg.helixColor
+      };
+      
+      const dir = (cfg.direction === "ccw") ? -1 : 1;
+      const sp  = cfg.speed || 1.0;
+      
+      fx.userData.t = (fx.userData.t || 0) + dt * sp;
       const t = fx.userData.t;
 
       // rotate whole group gently
@@ -4579,10 +4588,11 @@ function updateMarkerFx(dt){
       fx.traverse(o=>{
         if(!o.isPoints) return;
 
-        // update colors live
-        if(o.userData.kind==="helix") o.material.color.set(_fxColor(markerFxCfg.helixColor));
-        if(o.userData.kind==="ring")  o.material.color.set(_fxColor(markerFxCfg.ringColor));
-        if(o.userData.kind==="halo" || o.userData.kind==="birdshape") o.material.color.set(_fxColor(markerFxCfg.birdColor));
+        // update colors live - use per-marker color
+        const color = cfg.color || markerFxCfg.helixColor;
+        if(o.userData.kind==="helix") o.material.color.set(_fxColor(color));
+        if(o.userData.kind==="ring")  o.material.color.set(_fxColor(color));
+        if(o.userData.kind==="halo" || o.userData.kind==="birdshape") o.material.color.set(_fxColor(color));
 
         // murmuration-like jitter
         const geo = o.geometry;
@@ -4591,8 +4601,8 @@ function updateMarkerFx(dt){
         const ph  = geo.getAttribute("phase");
         if(!pos || !base || !ph) return;
 
-        const jit = markerFxCfg.jitter;
-        const flock = markerFxCfg.flock;
+        const jit = cfg.jitter;
+        const flock = cfg.flockiness;
 
         for(let i=0;i<pos.count;i++){
           const bx = base.getX(i), by = base.getY(i), bz = base.getZ(i);
@@ -5044,6 +5054,19 @@ function buildMarkerFXFromConfig(config, targetMarker) {
   
   // Build FX using existing function
   const fx = buildHelixFX();
+  
+  // Store per-marker config in fx.userData for use in animation loop
+  if (fx) {
+    fx.userData.markerConfig = {
+      speed: config.speed,
+      direction: config.direction,
+      jitter: config.jitter || 2.2,
+      flockiness: config.flockiness || 0.35,
+      color: resolvedColor,
+      colorMode: config.colorMode,
+      type: config.type
+    };
+  }
   
   // Apply visibility based on type
   if (fx) {
