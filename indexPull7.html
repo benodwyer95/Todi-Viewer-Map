@@ -752,7 +752,14 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
   </div>
 </div>
 
-
+<!-- Verifier Controls Section -->
+<div class="fxSection">
+  <div class="fxSectionHeader" onclick="this.nextElementSibling.classList.toggle('collapsed'); this.querySelector('.fxToggle').textContent = this.nextElementSibling.classList.contains('collapsed') ? '▶' : '▼';">
+    <span style="font-weight:700;font-size:13px;">Verifier Controls</span>
+    <button class="fxToggle" type="button" style="border:none;background:transparent;color:#fff;font-size:14px;cursor:pointer;padding:2px 6px;">▼</button>
+  </div>
+  <div class="fxSectionBody">
+    
     <div id="row2">
       <span class="pill"><b>Type</b> <span id="srcType">—</span></span>
       <span class="pill"><b>ID</b> <span id="srcId">—</span></span>
@@ -762,7 +769,7 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
       <span class="pill"><b>Sel</b> <span id="selId">—</span></span>
       <span class="pill"><b>Markers</b> <span id="srcMk">—</span></span>
     </div>
-
+    
     <!-- Placement / QA controls -->
     <div id="row2">
       <span class="pill"><b>Adjust mode</b>
@@ -811,7 +818,7 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
       <button id="resetAdj" class="btnSmall">Reset (mode)</button>
     </div>
 
-    <!-- Z controls (global or per-point via adjust mode) -->
+    <!-- Z controls -->
     <div id="row2">
       <button id="zDown" class="btnSmall">⬇ Z -</button>
       <button id="zUp"   class="btnSmall">⬆ Z +</button>
@@ -834,7 +841,28 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
       </span>
     </div>
 
-    <!-- Filtering -->
+    <!-- Export / Import -->
+    <div id="row2">
+      <button id="exportOffsets" class="btnSmall">Export offsets</button>
+      <label class="btnSmall" style="padding:0;border:none;background:transparent">
+        <input id="importOffsets" type="file" accept=".json" style="width:260px">
+      </label>
+      <span class="muted" style="font-size:11px">
+        Exports/imports: global yaw+Z per pano + per-point yaw/pitch/Z per pano.
+      </span>
+    </div>
+
+  </div>
+</div>
+
+<!-- Filtering Section -->
+<div class="fxSection">
+  <div class="fxSectionHeader" onclick="this.nextElementSibling.classList.toggle('collapsed'); this.querySelector('.fxToggle').textContent = this.nextElementSibling.classList.contains('collapsed') ? '▶' : '▼';">
+    <span style="font-weight:700;font-size:13px;">Filtering</span>
+    <button class="fxToggle" type="button" style="border:none;background:transparent;color:#fff;font-size:14px;cursor:pointer;padding:2px 6px;">▼</button>
+  </div>
+  <div class="fxSectionBody">
+    
     <div id="row2">
       <span class="pill"><b>Visibility</b>
         <select id="visFilter" style="padding:6px 8px">
@@ -879,35 +907,24 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
       </span>
     </div>
 
-    <!-- Visual options -->
+  </div>
+</div>
+
+<!-- Visual Options Section -->
+<div class="fxSection">
+  <div class="fxSectionHeader" onclick="this.nextElementSibling.classList.toggle('collapsed'); this.querySelector('.fxToggle').textContent = this.nextElementSibling.classList.contains('collapsed') ? '▶' : '▼';">
+    <span style="font-weight:700;font-size:13px;">Visual Options</span>
+    <button class="fxToggle" type="button" style="border:none;background:transparent;color:#fff;font-size:14px;cursor:pointer;padding:2px 6px;">▼</button>
+  </div>
+  <div class="fxSectionBody">
+    
     <div id="row2">
-      <span class="pill"><b>Marker size</b><span class="muted">world</span>
-        <input id="mWorld" type="number" value="18" min="4" max="80" step="1" style="width:80px;padding:6px 8px">
+      <span class="pill"><b>Particle Size</b><span class="muted">Marker FX only</span>
+        <input id="mWorld" type="number" value="18" min="4" max="80" step="1" style="width:80px;padding:6px 8px" title="Size of particle effects in Marker FX">
       </span>
 
       <span class="pill"><b>Exposure</b>
-        <input id="exposure" type="number" value="1.0" min="0.6" max="1.6" step="0.05" style="width:80px;padding:6px 8px">
-      </span>
-
-      <span class="pill">
-        <label style="border:none;background:transparent;padding:0">
-          <input id="showLabels" type="checkbox" style="accent-color:#fff">
-          Show labels
-        </label>
-      </span>
-
-      <span class="pill">
-        <label style="border:none;background:transparent;padding:0">
-          <input id="callouts" type="checkbox" checked style="accent-color:#fff">
-          Callout preview
-        </label>
-      </span>
-
-      <span class="pill">
-        <label style="border:none;background:transparent;padding:0">
-          <input id="allCallouts" type="checkbox" style="accent-color:#fff">
-          All callouts
-        </label>
+        <input id="exposure" type="number" value="1.0" min="0.6" max="1.6" step="0.05" style="width:80px;padding:6px 8px" title="Pano image brightness only">
       </span>
 
       <span class="pill">
@@ -918,64 +935,8 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
       </span>
     </div>
 
-    <!-- Callout tuning -->
-    <div id="row2">
-      <span class="pill"><b>Rise</b><span class="muted">world</span>
-        <input id="riseWorld" type="number" value="40" min="5" max="140" step="1" style="width:80px;padding:6px 8px">
-      </span>
-      <span class="pill"><b>Square</b><span class="muted">world</span>
-        <input id="sqWorld" type="number" value="6" min="2" max="18" step="1" style="width:80px;padding:6px 8px">
-      </span>
-      <span class="pill"><b>Label</b><span class="muted">world</span>
-        <input id="lblWorld" type="number" value="18" min="6" max="60" step="1" style="width:80px;padding:6px 8px">
-      </span>
-      <span class="pill"><b>Font</b><span class="muted">labels</span>
-        <select id="fontSel" style="width:160px;padding:6px 8px">
-          <option value="helvetica" selected>Helvetica</option>
-          <option value="inter">Inter</option>
-          <option value="manrope">Manrope</option>
-          <option value="ibmplex">IBM Plex Sans</option>
-          <option value="spacegrotesk">Space Grotesk</option>
-          <option value="system">System UI</option>
-        </select>
-      </span>
-
-      <span class="pill"><b>Anim sec</b><span class="muted">0→1</span>
-        <input id="animSeconds" type="number" value="1.80" min="0.20" max="10.00" step="0.05" style="width:80px;padding:6px 8px">
-      </span>
-      <span class="pill">
-        <label style="border:none;background:transparent;padding:0">
-          <input id="loopCallout" type="checkbox" style="accent-color:#fff">
-          Loop callout
-        </label>
-      </span>
-
-      <span class="muted" style="font-size:11px">
-        (Preview matches your end animation: square → line → square → HELVETICA CAPS 11.)
-
-      <span class="pill"><b>Anim</b><span class="muted">sec</span>
-        <input id="animSeconds2" type="number" value="1.8" min="0.4" max="10" step="0.1" style="width:80px;padding:6px 8px">
-      </span>
-      <span class="pill">
-        <label style="border:none;background:transparent;padding:0">
-          <input id="loopCallout2" type="checkbox" style="accent-color:#fff">
-          Loop callout
-        </label>
-      </span>
-
-      </span>
-    </div>
-
-    <!-- Export / Import -->
-    <div id="row2">
-      <button id="exportOffsets" class="btnSmall">Export offsets</button>
-      <label class="btnSmall" style="padding:0;border:none;background:transparent">
-        <input id="importOffsets" type="file" accept=".json" style="width:260px">
-      </label>
-      <span class="muted" style="font-size:11px">
-        Exports/imports: global yaw+Z per pano + per-point yaw/pitch/Z per pano.
-      </span>
-    </div>
+  </div>
+</div>
 
     <div id="list"></div>
   </div>
@@ -1372,16 +1333,7 @@ const landmarkFilterSel = document.getElementById('landmarkFilter');
 const distMaxIn = document.getElementById('distMax');
 const distMaxLabel = document.getElementById('distMaxLabel');
 
-const showLabelsIn = document.getElementById('showLabels');
-const calloutsIn   = document.getElementById('callouts');
-const allCalloutsIn= document.getElementById('allCallouts');
 const debugDotIn   = document.getElementById('debugDot');
-
-const riseWorldIn  = document.getElementById('riseWorld');
-const sqWorldIn    = document.getElementById('sqWorld');
-const lblWorldIn   = document.getElementById('lblWorld');
-
-const fontSel      = document.getElementById('fontSel');
 
 const FONT_STACKS = {
   helvetica: '"Helvetica Neue", Helvetica, Arial, sans-serif',
@@ -1393,8 +1345,6 @@ const FONT_STACKS = {
 };
 let currentLabelFontStack = FONT_STACKS.helvetica;
 
-const animSecondsIn = document.getElementById('animSeconds');
-const loopCalloutIn = document.getElementById('loopCallout');
 const exportOffsetsBtn = document.getElementById('exportOffsets');
 const importOffsetsIn  = document.getElementById('importOffsets');
 
@@ -1841,24 +1791,34 @@ function rebuildLabels(){
 }
 
 function updateCalloutsVisibility(){
-  // Visibility is driven by animated callouts.
-  // We only decide targets here (selected vs all).
-  const enabled = !!calloutsIn.checked;
-  const showAll = !!allCalloutsIn.checked;
-
+  // Now driven by Label FX configs, not checkboxes
+  const hasActiveLabels = activeLabels.length > 0;
+  
   currentMarkers.forEach(m=>{
     const c = m?.userData?.callout;
     if (!c) return;
     const ud = c.userData;
-    if (!enabled) ud.target = 0;
-    else if (showAll) ud.target = 1;
-    else ud.target = (m === selected) ? 1 : 0;
-
-    // loop (ping-pong) the selected callout if enabled
-    if (enabled && !showAll && loopCalloutIn?.checked && (m === selected)){
-      if (Math.abs(ud.t - ud.target) < 0.0005){
-        ud.target = 1 - ud.target;
-      }
+    
+    // If no active labels, hide all callouts
+    if (!hasActiveLabels) {
+      ud.target = 0;
+      return;
+    }
+    
+    // Find matching label config
+    const matchingLabel = activeLabels.find(l => {
+      // Match based on label type and marker state
+      if (l.showOnHover) return m === hovered;
+      if (l.type === 'fixed') return true;
+      if (l.type === 'clickLine') return m === selected;
+      return false;
+    });
+    
+    ud.target = matchingLabel ? 1 : 0;
+    
+    // Handle looping if configured
+    if (matchingLabel?.loop && Math.abs(ud.t - ud.target) < 0.0005) {
+      ud.target = 1 - ud.target;
     }
   });
 }
@@ -2196,9 +2156,9 @@ function updateAllPillFonts(){
 }
 
 function makeCalloutAnimated(root, name, isVisible=true, typeHex=0x00c8ff){
-  const rise = parseFloat(riseWorldIn.value) || 40;
-  const sqW  = parseFloat(sqWorldIn.value) || 6;
-  const lblW = parseFloat(lblWorldIn.value) || 18;
+  const rise = 40; // Default value, will be overridden by Label FX config
+  const sqW  = 6;  // Default value, will be overridden by Label FX config
+  const lblW = 18; // Default value, will be overridden by Label FX config
 
   // gaps: square -> line start, line end -> square, square -> label
   const gap1 = Math.max(1.5, sqW * 0.35);
@@ -2285,7 +2245,7 @@ function makeCalloutAnimated(root, name, isVisible=true, typeHex=0x00c8ff){
     sq1, sq2, line, label, xSpr,
     t: 0,
     target: 0,
-    speed: (1 / Math.max(0.05, (parseFloat(animSecondsIn?.value)||1.8))) ,
+    speed: 1 / 1.8, // Default animation speed, will be overridden by Label FX config
     lastStrokeHex: 0x000000
   };
 
@@ -3941,29 +3901,12 @@ minVis.addEventListener('change', rebuildFromFilters);
 topN.addEventListener('change', rebuildFromFilters);
 mWorld.addEventListener('change', rebuildFromFilters);
 debugDotIn.addEventListener('change', rebuildFromFilters);
-riseWorldIn.addEventListener('change', rebuildFromFilters);
-sqWorldIn.addEventListener('change', rebuildFromFilters);
-lblWorldIn.addEventListener('change', rebuildFromFilters);
-animSecondsIn?.addEventListener('input', ()=>{});
-animSecondsIn?.addEventListener('change', ()=>{});
-loopCalloutIn?.addEventListener('change', ()=>{});
-riseWorldIn.addEventListener('input', rebuildFromFilters);
-sqWorldIn.addEventListener('input', rebuildFromFilters);
-lblWorldIn.addEventListener('input', rebuildFromFilters);
-fontSel?.addEventListener('change', ()=>{
-  currentLabelFontStack = FONT_STACKS[fontSel.value] || FONT_STACKS.helvetica;
-  rebuildFromFilters();
-});
 
 distMaxIn.addEventListener('input', ()=>{
   distMaxLabel.textContent = `≤ ${distMaxIn.value}m`;
   rebuildFromFilters();
 });
 distMaxLabel.textContent = `≤ ${distMaxIn.value}m`;
-
-showLabelsIn.addEventListener('change', rebuildLabels);
-calloutsIn.addEventListener('change', updateCalloutsVisibility);
-allCalloutsIn.addEventListener('change', updateCalloutsVisibility);
 
 function applyExposure(){
   const v=parseFloat(exposureIn.value);
@@ -4943,7 +4886,7 @@ function buildMarkerFXFromConfig(config, targetMarker) {
   markerFxCfg.birdColor = config.color;
   
   // Build FX using existing function
-  const fx = _buildFX();
+  const fx = buildHelixFX();
   
   // Apply visibility based on type
   if (fx) {
@@ -5017,7 +4960,7 @@ const labelTypeDefaults = {
   },
   clickLine: {
     name: "Click → Animated Line",
-    format: "badge",
+    format: "pill", // Changed from "badge" to match other label types for consistency
     position: "rightOfLine",
     content: "nameAndType",
     lineColor: "#00ff00",
@@ -5029,21 +4972,35 @@ const labelTypeDefaults = {
     fontSize: 13,
     backgroundColor: "rgba(0,100,0,0.7)",
     textColor: "#ffffff",
-    borderColor: "rgba(0,255,0,0.5)"
+    borderColor: "rgba(0,255,0,0.5)",
+    // Callout animation params (migrated from old system)
+    riseWorld: 40,
+    squareWorld: 6,
+    labelWorld: 18,
+    font: "helvetica",
+    animSeconds: 1.8,
+    loop: false
   },
   fixed: {
     name: "Fixed Display",
-    format: "text",
+    format: "pill",
     position: "center",
     content: "name",
     opacity: 1.0,
     fontSize: 14,
     textColor: "#ffffff",
+    backgroundColor: "rgba(0,0,0,0.6)",
+    borderColor: "rgba(255,255,255,0.3)",
     showShadow: true,
     shadowColor: "rgba(0,0,0,0.8)",
     fadeWithDistance: true,
     fadeStart: 200,
-    fadeEnd: 800
+    fadeEnd: 800,
+    // Callout animation params
+    riseWorld: 40,
+    squareWorld: 6,
+    labelWorld: 18,
+    font: "helvetica"
   }
 };
 
@@ -5163,6 +5120,7 @@ function updateLabelFXProperty(id, prop, value) {
 function renderLabelFXControls(label) {
   const hasLine = label.type === 'clickLine';
   const hasFade = label.type === 'hover' || (label.type === 'fixed' && label.fadeWithDistance);
+  const hasCalloutAnim = label.type !== 'hover'; // hover doesn't animate
   
   return `
     <!-- Format -->
@@ -5182,10 +5140,7 @@ function renderLabelFXControls(label) {
         <option value="center" ${label.position === 'center' ? 'selected' : ''}>Center</option>
         <option value="above" ${label.position === 'above' ? 'selected' : ''}>Above</option>
         <option value="below" ${label.position === 'below' ? 'selected' : ''}>Below</option>
-        <option value="left" ${label.position === 'left' ? 'selected' : ''}>Left</option>
-        <option value="right" ${label.position === 'right' ? 'selected' : ''}>Right</option>
         ${hasLine ? `<option value="rightOfLine" ${label.position === 'rightOfLine' ? 'selected' : ''}>Right of Line</option>` : ''}
-        ${hasLine ? `<option value="aboveLine" ${label.position === 'aboveLine' ? 'selected' : ''}>Above Line</option>` : ''}
       </select>
     </div>
     
@@ -5201,49 +5156,81 @@ function renderLabelFXControls(label) {
         <option value="full" ${label.content === 'full' ? 'selected' : ''}>Full Info</option>
       </select>
     </div>
+
+    ${hasCalloutAnim ? `
+    <!-- Callout Animation Controls -->
+    <hr style="border:none;border-top:1px solid rgba(255,255,255,.12);margin:12px 0;">
+    <div style="font-weight:700;margin-bottom:8px;">Callout Animation</div>
     
-    <!-- Font Size -->
+    <div class="ctrlRow">
+      <label>Rise (world)</label>
+      <input type="number" data-id="${label.id}" data-prop="riseWorld" value="${label.riseWorld || 40}" step="1" min="5" max="140">
+    </div>
+    
+    <div class="ctrlRow">
+      <label>Square (world)</label>
+      <input type="number" data-id="${label.id}" data-prop="squareWorld" value="${label.squareWorld || 6}" step="1" min="2" max="18">
+    </div>
+    
+    <div class="ctrlRow">
+      <label>Label (world)</label>
+      <input type="number" data-id="${label.id}" data-prop="labelWorld" value="${label.labelWorld || 18}" step="1" min="6" max="60">
+    </div>
+    
+    <div class="ctrlRow">
+      <label>Font</label>
+      <select data-id="${label.id}" data-prop="font">
+        <option value="helvetica" ${(label.font || 'helvetica') === 'helvetica' ? 'selected' : ''}>Helvetica</option>
+        <option value="inter" ${label.font === 'inter' ? 'selected' : ''}>Inter</option>
+        <option value="manrope" ${label.font === 'manrope' ? 'selected' : ''}>Manrope</option>
+        <option value="ibmplex" ${label.font === 'ibmplex' ? 'selected' : ''}>IBM Plex Sans</option>
+        <option value="spacegrotesk" ${label.font === 'spacegrotesk' ? 'selected' : ''}>Space Grotesk</option>
+        <option value="system" ${label.font === 'system' ? 'selected' : ''}>System UI</option>
+      </select>
+    </div>
+    
+    <div class="ctrlRow">
+      <label>Anim (sec)</label>
+      <input type="number" data-id="${label.id}" data-prop="animSeconds" value="${label.animSeconds || 1.8}" step="0.1" min="0.2" max="10">
+    </div>
+    
+    <div class="ctrlRow">
+      <label>Loop</label>
+      <input type="checkbox" data-id="${label.id}" data-prop="loop" ${label.loop ? 'checked' : ''}>
+    </div>
+    ` : ''}
+    
+    <!-- Text Styling -->
+    <hr style="border:none;border-top:1px solid rgba(255,255,255,.12);margin:12px 0;">
+    <div style="font-weight:700;margin-bottom:8px;">Text Styling</div>
+    
     <div class="ctrlRow">
       <label>Font Size</label>
       <input type="number" data-id="${label.id}" data-prop="fontSize" value="${label.fontSize}" step="1" min="8" max="24">
     </div>
     
-    <!-- Opacity -->
-    <div class="ctrlRow">
-      <label>Opacity</label>
-      <input type="number" data-id="${label.id}" data-prop="opacity" value="${label.opacity}" step="0.05" min="0" max="1">
-    </div>
-    
-    <!-- Text Color -->
     <div class="ctrlRow">
       <label>Text Color</label>
       <input type="color" data-id="${label.id}" data-prop="textColor" value="${label.textColor}">
     </div>
     
     ${label.format !== 'text' ? `
-    <!-- Background Color -->
     <div class="ctrlRow">
       <label>Background</label>
       <input type="text" data-id="${label.id}" data-prop="backgroundColor" value="${label.backgroundColor}" placeholder="rgba(0,0,0,0.8)" style="font-size:11px;">
     </div>
     
-    <!-- Border Color -->
     <div class="ctrlRow">
       <label>Border</label>
       <input type="text" data-id="${label.id}" data-prop="borderColor" value="${label.borderColor}" placeholder="rgba(255,255,255,0.25)" style="font-size:11px;">
     </div>
     ` : ''}
-    
-    ${label.type === 'fixed' && label.showShadow ? `
-    <!-- Shadow Color -->
-    <div class="ctrlRow">
-      <label>Shadow</label>
-      <input type="text" data-id="${label.id}" data-prop="shadowColor" value="${label.shadowColor}" placeholder="rgba(0,0,0,0.8)" style="font-size:11px;">
-    </div>
-    ` : ''}
-    
+
     ${hasLine ? `
     <!-- Line Properties -->
+    <hr style="border:none;border-top:1px solid rgba(255,255,255,.12);margin:12px 0;">
+    <div style="font-weight:700;margin-bottom:8px;">Line Properties</div>
+    
     <div class="ctrlRow">
       <label>Line Color</label>
       <input type="color" data-id="${label.id}" data-prop="lineColor" value="${label.lineColor}">
@@ -5252,18 +5239,13 @@ function renderLabelFXControls(label) {
       <label>Line Width</label>
       <input type="number" data-id="${label.id}" data-prop="lineWidth" value="${label.lineWidth}" step="0.5" min="0.5" max="10">
     </div>
-    <div class="ctrlRow">
-      <label>Line Opacity</label>
-      <input type="number" data-id="${label.id}" data-prop="lineOpacity" value="${label.lineOpacity}" step="0.05" min="0" max="1">
-    </div>
-    <div class="ctrlRow">
-      <label>Animation Speed</label>
-      <input type="number" data-id="${label.id}" data-prop="animationSpeed" value="${label.animationSpeed}" step="0.1" min="0.1" max="5">
-    </div>
     ` : ''}
-    
+
     ${hasFade ? `
     <!-- Fade Properties -->
+    <hr style="border:none;border-top:1px solid rgba(255,255,255,.12);margin:12px 0;">
+    <div style="font-weight:700;margin-bottom:8px;">Distance Fade</div>
+    
     <div class="ctrlRow">
       <label>Fade Start (m)</label>
       <input type="number" data-id="${label.id}" data-prop="fadeStart" value="${label.fadeStart || label.fadeDistance || 100}" step="10" min="0">
@@ -5278,16 +5260,111 @@ function renderLabelFXControls(label) {
 
 // Apply all active labels to scene (placeholder - actual implementation depends on rendering system)
 function applyAllLabelFX() {
-  // This would integrate with the existing label/tip system in the codebase
-  console.log('Applying label configurations:', activeLabels);
+  // Clear all existing callouts
+  currentMarkers.forEach(m => {
+    if (m.userData?.callout) {
+      m.remove(m.userData.callout);
+      m.userData.callout = null;
+    }
+  });
+
+  // Apply each active label config
+  activeLabels.forEach(config => {
+    applyLabelConfigToMarkers(config);
+  });
+}
+
+function applyLabelConfigToMarkers(config) {
+  const markers = _getVerifierMarkers();
   
-  // The actual implementation would:
-  // 1. Get all markers/points in the scene
-  // 2. For each active label config:
-  //    - Create or update HTML/CSS2D labels
-  //    - Apply styling from config
-  //    - Set up event listeners (hover, click)
-  //    - Handle animations and fading
+  markers.forEach(m => {
+    const cand = m.userData?.cand;
+    if (!cand) return;
+
+    // Build callout with config parameters
+    const callout = makeCalloutAnimated(
+      m,
+      getLabelText(config.content, cand),
+      isVisibleCandidate(cand),
+      m.userData.colorHex || 0x00c8ff
+    );
+
+    // Apply config styling
+    if (callout && callout.userData) {
+      const ud = callout.userData;
+      
+      // Update animation params from config
+      ud.rise = config.riseWorld || 40;
+      ud.sqW = config.squareWorld || 6;
+      ud.lblW = config.labelWorld || 18;
+      ud.speed = 1 / (config.animSeconds || 1.8);
+      
+      // Update label styling
+      if (ud.label) {
+        // Rebuild label with new config
+        const oldLabel = ud.label;
+        const newLabel = makeConfiguredLabelSprite(
+          getLabelText(config.content, cand),
+          config.labelWorld || 18,
+          config.textColor || "#ffffff",
+          config.backgroundColor || "rgba(0,0,0,0.6)",
+          config.borderColor || "rgba(255,255,255,0.3)",
+          config.font || "helvetica"
+        );
+        
+        // Replace in callout
+        const parent = oldLabel.parent;
+        if (parent) {
+          parent.remove(oldLabel);
+          disposeSprite(oldLabel);
+          parent.add(newLabel);
+          newLabel.position.copy(oldLabel.position);
+          ud.label = newLabel;
+        }
+      }
+
+      // Set initial visibility based on config
+      if (config.showOnHover) {
+        ud.target = 0; // Start hidden, show on hover
+      } else if (config.type === 'fixed') {
+        ud.target = 1; // Always visible
+      }
+    }
+  });
+}
+
+function getLabelText(contentType, cand) {
+  switch(contentType) {
+    case 'name': return candidateName(cand);
+    case 'type': return safeStr(cand?.dst_type || '');
+    case 'nameAndType': return `${candidateName(cand)} (${safeStr(cand?.dst_type)})`;
+    case 'visibility': return `${fmt(getCandidateVisPct(cand), 0)}% visible`;
+    case 'distance': return `${fmt(getCandidateDistanceM(cand), 1)}m`;
+    case 'full': return `${candidateName(cand)} • ${safeStr(cand?.dst_type)} • ${fmt(getCandidateDistanceM(cand), 1)}m`;
+    default: return candidateName(cand);
+  }
+}
+
+function makeConfiguredLabelSprite(text, worldSize, textColor, bgColor, borderColor, font) {
+  // Use existing makePillLabelSprite but with config colors
+  const fontStack = FONT_STACKS[font] || FONT_STACKS.helvetica;
+  
+  // Temporarily update global font stack for rendering
+  const oldFont = currentLabelFontStack;
+  currentLabelFontStack = fontStack;
+  
+  // Parse hex from borderColor if needed
+  let strokeHex = 0x000000;
+  if (borderColor && borderColor.startsWith('#')) {
+    strokeHex = parseInt(borderColor.slice(1), 16);
+  }
+  
+  const sprite = makePillLabelSprite(text, worldSize, strokeHex);
+  
+  // Restore old font
+  currentLabelFontStack = oldFont;
+  
+  return sprite;
 }
 
 // Initialize modular label system
