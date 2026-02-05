@@ -5334,7 +5334,9 @@ function renderLabelFXList() {
         // Ensure at least one item is selected
         if (label.content.length === 0) {
           label.content = ['name'];
-          e.target.checked = contentValue === 'name';
+          // Re-render will update all checkbox states correctly
+          renderLabelFXList();
+          return;
         }
         
         renderLabelFXList();
