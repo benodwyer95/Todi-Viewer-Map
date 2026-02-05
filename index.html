@@ -2616,7 +2616,7 @@ function rebuildMarkersAndList(){
   cands.forEach((c,i)=>{
     const m = addMarker(source, c, i);
     currentMarkers.push(m);
-    try{ applyMarkersToScene(); }catch{}
+    try{ applyMarkersToScene(); }catch(e){ console.warn("Failed to apply markers to scene:", e); }
 
     const item=document.createElement('div');
     item.className='item';
@@ -4451,8 +4451,8 @@ function addMarker(type){
     color: "#7efcff",
     categoryColors: { landmark: "#ff6b6b", peak: "#4ecdc4", building: "#95e1d3", tower: "#f38181", church: "#aa96da", default: "#ffffff" },
     visibilityColors: { high: "#00ff00", medium: "#ffff00", low: "#ff0000" },
-    topY: 50,
-    bottomY: 0,
+    topY: 55,
+    bottomY: -55,
     speed: 1.0,
     direction: "cw",
     radius: 18,
@@ -4815,7 +4815,7 @@ function applyMarkersToScene(){
       const fx = buildMarkerFX(config, m.userData.candidate);
       m.add(fx);
       m.userData.fxGroups.push(fx);
-      try{ fx.traverse(o=>{ if(o.isPoints) forceTopLayer(o,2000); }); }catch(e){}
+      try{ fx.traverse(o=>{ if(o.isPoints) forceTopLayer(o,2000); }); }catch(e){ console.warn("Failed to apply top layer:", e); }
     }
   }
 }
