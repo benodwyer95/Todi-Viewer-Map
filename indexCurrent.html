@@ -702,55 +702,8 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
   <div id="uiBody">
   <div style="margin:10px 0 12px 0; padding:10px; border:1px solid rgba(255,255,255,.12); border-radius:12px; background:rgba(255,255,255,.04)">
     
-<div class="fxSection">
-  <div class="fxSectionHeader" onclick="this.nextElementSibling.classList.toggle('collapsed'); this.querySelector('.fxToggle').textContent = this.nextElementSibling.classList.contains('collapsed') ? '▶' : '▼';">
-    <span style="font-weight:700;font-size:13px;">Marker FX</span>
-    <button class="fxToggle" type="button" style="border:none;background:transparent;color:#fff;font-size:14px;cursor:pointer;padding:2px 6px;">▼</button>
-  </div>
-  <div class="fxSectionBody">
-    <!-- Add Marker Button -->
-    <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
-      <button id="addMarkerBtn" type="button" style="flex:1;padding:10px;background:rgba(0,200,100,.3);border:1px solid rgba(0,255,100,.4);border-radius:8px;color:#fff;cursor:pointer;font-weight:700;">
-        <span>+ Add Marker</span>
-      </button>
-      <select id="markerTypeSelector" style="flex:1;display:none;" aria-label="Select marker type">
-        <option value="">Select type...</option>
-        <option value="helix">Helix (Starlings)</option>
-        <option value="bird">Bird Halo</option>
-        <option value="ground">Ground Ring</option>
-        <option value="birdshape">Bird Shape</option>
-        <option value="loading">Loading Rings</option>
-      </select>
-    </div>
-    
-    <!-- Active Markers List (dynamically populated) -->
-    <div id="activeMarkersList"></div>
-  </div>
-</div>
-
-<div class="fxSection">
-  <div class="fxSectionHeader" onclick="this.nextElementSibling.classList.toggle('collapsed'); this.querySelector('.fxToggle').textContent = this.nextElementSibling.classList.contains('collapsed') ? '▶' : '▼';">
-    <span style="font-weight:700;font-size:13px;">Label FX</span>
-    <button class="fxToggle" type="button" style="border:none;background:transparent;color:#fff;font-size:14px;cursor:pointer;padding:2px 6px;">▼</button>
-  </div>
-  <div class="fxSectionBody">
-    <!-- Add Label Button -->
-    <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
-      <button id="addLabelBtn" type="button" style="flex:1;padding:10px;background:rgba(0,150,255,.3);border:1px solid rgba(0,200,255,.4);border-radius:8px;color:#fff;cursor:pointer;font-weight:700;">
-        <span>+ Add Label Type</span>
-      </button>
-      <select id="labelTypeSelector" style="flex:1;display:none;">
-        <option value="">Select type...</option>
-        <option value="hover">Hover Tip</option>
-        <option value="clickLine">Click → Animated Line</option>
-        <option value="fixed">Fixed Display</option>
-      </select>
-    </div>
-    
-    <!-- Active Labels List (dynamically populated) -->
-    <div id="activeLabelsList"></div>
-  </div>
-</div>
+<!-- Locations List -->
+    <div id="list"></div>
 
 <!-- Verifier Controls Section -->
 <div class="fxSection">
@@ -938,7 +891,58 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
   </div>
 </div>
 
-    <div id="list"></div>
+<!-- Marker FX Section -->
+<div class="fxSection">
+  <div class="fxSectionHeader" onclick="this.nextElementSibling.classList.toggle('collapsed'); this.querySelector('.fxToggle').textContent = this.nextElementSibling.classList.contains('collapsed') ? '▶' : '▼';">
+    <span style="font-weight:700;font-size:13px;">Marker FX</span>
+    <button class="fxToggle" type="button" style="border:none;background:transparent;color:#fff;font-size:14px;cursor:pointer;padding:2px 6px;">▼</button>
+  </div>
+  <div class="fxSectionBody">
+    <!-- Add Marker Button -->
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
+      <button id="addMarkerBtn" type="button" style="flex:1;padding:10px;background:rgba(0,200,100,.3);border:1px solid rgba(0,255,100,.4);border-radius:8px;color:#fff;cursor:pointer;font-weight:700;">
+        <span>+ Add Marker</span>
+      </button>
+      <select id="markerTypeSelector" style="flex:1;display:none;" aria-label="Select marker type">
+        <option value="">Select type...</option>
+        <option value="helix">Helix (Starlings)</option>
+        <option value="bird">Bird Halo</option>
+        <option value="ground">Ground Ring</option>
+        <option value="birdshape">Bird Shape</option>
+        <option value="loading">Loading Rings</option>
+      </select>
+    </div>
+    
+    <!-- Active Markers List (dynamically populated) -->
+    <div id="activeMarkersList"></div>
+  </div>
+</div>
+
+<!-- Label FX Section -->
+<div class="fxSection">
+  <div class="fxSectionHeader" onclick="this.nextElementSibling.classList.toggle('collapsed'); this.querySelector('.fxToggle').textContent = this.nextElementSibling.classList.contains('collapsed') ? '▶' : '▼';">
+    <span style="font-weight:700;font-size:13px;">Label FX</span>
+    <button class="fxToggle" type="button" style="border:none;background:transparent;color:#fff;font-size:14px;cursor:pointer;padding:2px 6px;">▼</button>
+  </div>
+  <div class="fxSectionBody">
+    <!-- Add Label Button -->
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
+      <button id="addLabelBtn" type="button" style="flex:1;padding:10px;background:rgba(0,150,255,.3);border:1px solid rgba(0,200,255,.4);border-radius:8px;color:#fff;cursor:pointer;font-weight:700;">
+        <span>+ Add Label Type</span>
+      </button>
+      <select id="labelTypeSelector" style="flex:1;display:none;">
+        <option value="">Select type...</option>
+        <option value="hover">Hover Tip</option>
+        <option value="clickLine">Click → Animated Line</option>
+        <option value="fixed">Fixed Display</option>
+      </select>
+    </div>
+    
+    <!-- Active Labels List (dynamically populated) -->
+    <div id="activeLabelsList"></div>
+  </div>
+</div>
+
   </div>
 </div>
 
@@ -1347,6 +1351,12 @@ let currentLabelFontStack = FONT_STACKS.helvetica;
 
 const exportOffsetsBtn = document.getElementById('exportOffsets');
 const importOffsetsIn  = document.getElementById('importOffsets');
+
+// Callout/Label control elements (may not exist in HTML)
+const calloutsIn = document.getElementById('calloutsIn');
+const loopCalloutIn = document.getElementById('loopCalloutIn');
+const allCalloutsIn = document.getElementById('allCalloutsIn');
+const animSecondsIn = document.getElementById('animSecondsIn');
 
 const tip = document.getElementById('tip');
 const tipTitle = document.getElementById('tipTitle');
@@ -2276,8 +2286,8 @@ function updateCalloutAnims(){
   const dt = Math.min(0.05, (now - lastCalloutFrameT) / 1000);
   lastCalloutFrameT = now;
 
-  const enabled = !!calloutsIn.checked;
-  const showAll = !!allCalloutsIn.checked;
+  const enabled = !!calloutsIn?.checked;
+  const showAll = !!allCalloutsIn?.checked;
 
   currentMarkers.forEach(m=>{
     const call = m?.userData?.callout;
