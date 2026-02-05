@@ -4665,6 +4665,7 @@ const markerTypeDefaults = {
     colorMode: "single",
     color: "#b6ff6a",
     categoryColors: {},
+    visibilityColors: { high: "#00ff00", medium: "#ffff00", low: "#ff0000" },
     radius: 20,
     thickness: 2
   },
@@ -4677,6 +4678,7 @@ const markerTypeDefaults = {
     colorMode: "single",
     color: "#ffffff",
     categoryColors: {},
+    visibilityColors: { high: "#00ff00", medium: "#ffff00", low: "#ff0000" },
     radius: 12,
     jitter: 2.5,
     flockiness: 0.6
@@ -4689,6 +4691,8 @@ const markerTypeDefaults = {
     direction: "cw",
     colorMode: "single",
     color: "#00c8ff",
+    categoryColors: {},
+    visibilityColors: { high: "#00ff00", medium: "#ffff00", low: "#ff0000" },
     radius: 18
   }
 };
@@ -4820,6 +4824,10 @@ function renderMarkerFXControls(marker) {
   const hasParticles = ['helix', 'bird', 'birdshape'].includes(marker.type);
   const hasHelixProps = marker.type === 'helix';
   
+  // SAFETY: Ensure required properties exist
+  marker.categoryColors = marker.categoryColors || {};
+  marker.visibilityColors = marker.visibilityColors || { high: "#00ff00", medium: "#ffff00", low: "#ff0000" };
+  
   return `
     <!-- Universal Properties -->
     <div class="ctrlRow">
@@ -4943,7 +4951,7 @@ function buildMarkerFXFromConfig(config, targetMarker) {
   markerFxCfg.birdColor = config.color;
   
   // Build FX using existing function
-  const fx = _buildFX();
+  const fx = buildHelixFX();
   
   // Apply visibility based on type
   if (fx) {
