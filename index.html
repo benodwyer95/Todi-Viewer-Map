@@ -4646,9 +4646,9 @@ function getMarkerFxSettings() {
 function applyMarkerFxSettings(settings) {
   if (!settings) return;
   
-  // Apply mode
+  // Apply mode (migrate legacy "loading" to "hover")
   if (settings.mode) {
-    markerFxMode = settings.mode;
+    markerFxMode = settings.mode === "loading" ? "hover" : settings.mode;
     const sel = document.getElementById("markerFxSel");
     if (sel) sel.value = markerFxMode;
   }
@@ -4693,6 +4693,7 @@ function syncMarkerFxSettingsBox() {
   const box = document.getElementById('markerFxSettingsBox');
   if (box) box.value = JSON.stringify(getMarkerFxSettings(), null, 2);
 }
+window.syncMarkerFxSettingsBox = syncMarkerFxSettingsBox;
 
 function loadMarkerFxPresetStore() {
   try {
@@ -4879,7 +4880,7 @@ function hookLabelFxPresets() {
       applyLabelFxSettings(obj);
       alert("Label FX settings applied ✔");
     } catch (err) {
-      alert("Invalid JSON:\n" + (err?.message || err));
+      alert("Invalid JSON:\n" + String(err?.message || err));
     }
   };
   
@@ -4907,6 +4908,8 @@ function hookMarkerFxUI(){
   }
 
   if(sel){
+    // Migrate legacy "loading" mode to "hover"
+    if (markerFxMode === "loading") markerFxMode = "hover";
     sel.value = markerFxMode;
     sel.onchange = ()=>{
       markerFxMode = sel.value;
@@ -4974,7 +4977,7 @@ function hookMarkerFxUI(){
       applyMarkerFxSettings(obj);
       alert("Marker FX settings applied ✔");
     } catch (err) {
-      alert("Invalid JSON:\n" + (err?.message || err));
+      alert("Invalid JSON:\n" + String(err?.message || err));
     }
   };
   
