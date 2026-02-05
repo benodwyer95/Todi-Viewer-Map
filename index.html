@@ -1589,6 +1589,51 @@ function makeCrosshairMarkerSprite(worldSize=18, colorHex=0xffffff){
   return spr;
 }
 
+// Create simple X-shaped marker sprite
+function makeXMarkerSprite(worldSize=18, colorHex=0xffffff){
+  const c = document.createElement('canvas');
+  c.width=128; c.height=128;
+  const g=c.getContext('2d');
+  g.clearRect(0,0,128,128);
+
+  const color = `#${(colorHex>>>0).toString(16).padStart(6,'0')}`;
+
+  // Draw X - two diagonal lines crossing at center
+  g.strokeStyle = color;
+  g.lineWidth = 8;
+  g.lineJoin = 'round';
+  g.lineCap = 'round';
+  
+  // Diagonal from top-left to bottom-right
+  g.beginPath();
+  g.moveTo(32, 32);
+  g.lineTo(96, 96);
+  g.stroke();
+  
+  // Diagonal from top-right to bottom-left
+  g.beginPath();
+  g.moveTo(96, 32);
+  g.lineTo(32, 96);
+  g.stroke();
+
+  // Small center dot for precision
+  g.fillStyle = color;
+  g.beginPath();
+  g.arc(64, 64, 4, 0, Math.PI*2);
+  g.fill();
+
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+
+  const mat = new THREE.SpriteMaterial({ map: tex, transparent:true });
+  mat.depthTest = false;
+  mat.depthWrite = false;
+
+  const spr = new THREE.Sprite(mat);
+  spr.renderOrder = 9999;
+  spr.scale.set(worldSize, worldSize, 1);
+  return spr;
+}
 
 function makeLoadingCircleMarker(worldSize=18, colorHex=0x00c8ff){
   // Smooth pulsing/rotating ring that always faces the camera (Sprite)
@@ -4673,6 +4718,19 @@ const markerTypeDefaults = {
     },
     visibilityColors: { high: "#00ff00", medium: "#ffff00", low: "#ff0000" },
     radius: 18
+  },
+  x: {
+    name: "X Marker",
+    colorMode: "category",
+    color: "#ffffff",
+    categoryColors: {
+      landmark: "#ff6b6b",
+      leisure: "#4ecdc4",
+      place: "#f38181",
+      amenity: "#aa96da"
+    },
+    visibilityColors: { high: "#00ff00", medium: "#ffff00", low: "#ff0000" },
+    size: 18
   }
 };
 
@@ -4802,9 +4860,12 @@ function updateMarkerFXProperty(id, prop, value) {
 function renderMarkerFXControls(marker) {
   const hasParticles = ['helix', 'bird', 'birdshape'].includes(marker.type);
   const hasHelixProps = marker.type === 'helix';
+  const isXMarker = marker.type === 'x';
+  const hasAnimatedProps = !isXMarker && marker.type !== 'loading';
   
   return `
-    <!-- Universal Properties -->
+    ${!isXMarker ? `
+    <!-- Universal Properties (not for X marker) -->
     <div class="ctrlRow">
       <label>Top Y</label>
       <input type="number" data-id="${marker.id}" data-prop="topY" value="${marker.topY}" step="1">
@@ -4813,6 +4874,7 @@ function renderMarkerFXControls(marker) {
       <label>Bottom Y</label>
       <input type="number" data-id="${marker.id}" data-prop="bottomY" value="${marker.bottomY}" step="1">
     </div>
+    ${hasAnimatedProps ? `
     <div class="ctrlRow">
       <label>Speed</label>
       <input type="number" data-id="${marker.id}" data-prop="speed" value="${marker.speed}" step="0.1" min="0">
@@ -4824,10 +4886,18 @@ function renderMarkerFXControls(marker) {
         <option value="ccw" ${marker.direction === 'ccw' ? 'selected' : ''}>Counter-CW</option>
       </select>
     </div>
+    ` : ''}
     <div class="ctrlRow">
       <label>Radius</label>
       <input type="number" data-id="${marker.id}" data-prop="radius" value="${marker.radius}" step="1" min="1">
     </div>
+    ` : `
+    <!-- X Marker Size -->
+    <div class="ctrlRow">
+      <label>Size</label>
+      <input type="number" data-id="${marker.id}" data-prop="size" value="${marker.size || 18}" step="1" min="1">
+    </div>
+    `}
     
     <!-- Color Mode -->
     <div class="ctrlRow">
@@ -4847,10 +4917,10 @@ function renderMarkerFXControls(marker) {
     
     <!-- Category Colors -->
     <div class="colorCategory" style="${marker.colorMode !== 'category' ? 'display:none' : ''}">
-      <div class="ctrlRow"><label>Landmark</label><input type="color" data-id="${marker.id}" data-prop="categoryColors.Landmark" value="${marker.categoryColors.Landmark || '#ff6b6b'}"></div>
-      <div class="ctrlRow"><label>Leisure</label><input type="color" data-id="${marker.id}" data-prop="categoryColors.Leisure" value="${marker.categoryColors.Leisure || '#4ecdc4'}"></div>
-      <div class="ctrlRow"><label>Place</label><input type="color" data-id="${marker.id}" data-prop="categoryColors.Place" value="${marker.categoryColors.Place || '#f38181'}"></div>
-      <div class="ctrlRow"><label>Amenity</label><input type="color" data-id="${marker.id}" data-prop="categoryColors.Amenity" value="${marker.categoryColors.Amenity || '#aa96da'}"></div>
+      <div class="ctrlRow"><label>Landmark</label><input type="color" data-id="${marker.id}" data-prop="categoryColors.landmark" value="${marker.categoryColors.landmark || marker.categoryColors.Landmark || '#ff6b6b'}"></div>
+      <div class="ctrlRow"><label>Leisure</label><input type="color" data-id="${marker.id}" data-prop="categoryColors.leisure" value="${marker.categoryColors.leisure || marker.categoryColors.Leisure || '#4ecdc4'}"></div>
+      <div class="ctrlRow"><label>Place</label><input type="color" data-id="${marker.id}" data-prop="categoryColors.place" value="${marker.categoryColors.place || marker.categoryColors.Place || '#f38181'}"></div>
+      <div class="ctrlRow"><label>Amenity</label><input type="color" data-id="${marker.id}" data-prop="categoryColors.amenity" value="${marker.categoryColors.amenity || marker.categoryColors.Amenity || '#aa96da'}"></div>
     </div>
     
     <!-- Visibility Colors -->
@@ -4906,11 +4976,58 @@ function applyAllMarkerFX() {
   });
 }
 
+// Helper function to resolve color for a marker based on its config and candidate data
+function resolveMarkerColor(config, targetMarker) {
+  const cand = targetMarker?.userData?.cand;
+  if (!cand) return config.color || '#ffffff';
+  
+  // Normalize dst_type to lowercase for matching
+  const normalizeDstType = (type) => {
+    if (!type) return '';
+    return String(type).toLowerCase().trim();
+  };
+  
+  const dstType = normalizeDstType(cand.dst_type);
+  
+  if (config.colorMode === 'category') {
+    // Try to match category color (case-insensitive)
+    const categoryColors = config.categoryColors || {};
+    for (const key in categoryColors) {
+      if (normalizeDstType(key) === dstType) {
+        return categoryColors[key];
+      }
+    }
+    // Fallback if no match found
+    return config.color || '#ffffff';
+  } else if (config.colorMode === 'visibility') {
+    // Color based on vis_pct
+    const visPct = Number(cand.vis_pct ?? cand.visibility ?? 0);
+    const visColors = config.visibilityColors || {};
+    if (visPct >= 80) return visColors.high || '#00ff00';
+    if (visPct >= 40) return visColors.medium || '#ffff00';
+    return visColors.low || '#ff0000';
+  } else {
+    // Single color mode
+    return config.color || '#ffffff';
+  }
+}
+
 // Build FX based on marker config (adapts existing FX generation)
 function buildMarkerFXFromConfig(config, targetMarker) {
+  // Handle X marker type specially
+  if (config.type === 'x') {
+    const colorHex = parseInt(resolveMarkerColor(config, targetMarker).replace('#', ''), 16);
+    const size = config.size || 18;
+    const sprite = makeXMarkerSprite(size, colorHex);
+    return sprite;
+  }
+  
   // Store current markerFxCfg and markerFxMode to restore later
   const oldCfg = JSON.parse(JSON.stringify(markerFxCfg));
   const oldMode = markerFxMode;
+  
+  // Resolve color based on config mode
+  const resolvedColor = resolveMarkerColor(config, targetMarker);
   
   // Set config from marker instance
   markerFxCfg.topY = config.topY;
@@ -4921,9 +5038,9 @@ function buildMarkerFXFromConfig(config, targetMarker) {
   markerFxCfg.jitter = config.jitter || 2.2;
   markerFxCfg.flock = config.flockiness || 0.35;
   markerFxCfg.turns = config.turns || 5.0;
-  markerFxCfg.helixColor = config.color;
-  markerFxCfg.ringColor = config.color;
-  markerFxCfg.birdColor = config.color;
+  markerFxCfg.helixColor = resolvedColor;
+  markerFxCfg.ringColor = resolvedColor;
+  markerFxCfg.birdColor = resolvedColor;
   
   // Build FX using existing function
   const fx = buildHelixFX();
@@ -5491,8 +5608,8 @@ async function init(){
   initModularMarkerSystem();
   initModularLabelSystem();
 
-  // Initialize default loading marker so it appears in the list
-  addMarkerFX('loading');
+  // Initialize default X marker so it appears in the list
+  addMarkerFX('x');
 
   // Initialize default label
   addLabelFX('hover');
