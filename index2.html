@@ -2184,26 +2184,30 @@ function makePillLabelSprite(text, worldSize=18, strokeHex=0x000000, config=null
   return spr;
 }
 
-function updatePillSprite(sprite, text, worldSize, strokeHex){
+function updatePillSprite(sprite, text, worldSize, strokeHex, config=null){
   // dispose old
   if (sprite.material?.map) sprite.material.map.dispose();
   if (sprite.material) sprite.material.dispose();
 
-  const fresh = makePillLabelSprite(text, worldSize, strokeHex);
+  // CRITICAL: Pass config to maintain styling through updates
+  const fresh = makePillLabelSprite(text, worldSize, strokeHex, config);
   sprite.material = fresh.material;
   sprite.scale.copy(fresh.scale);
   sprite.userData.baseScale = fresh.userData.baseScale.clone();
   sprite.userData._pillText = fresh.userData._pillText;
   sprite.userData._pillWorldSize = fresh.userData._pillWorldSize;
+  // Store config for future updates
+  if (config) sprite.userData._pillConfig = config;
 }
 
 function updatePillFont(sprite){
   if (!sprite?.userData) return;
   const txt = sprite.userData._pillText;
-  const ws  = sprite.userData._pillWorld;
+  const ws  = sprite.userData._pillWorldSize;
   const st  = sprite.userData._pillStroke;
+  const cfg = sprite.userData._pillConfig; // Use stored config
   if (!txt || !ws) return;
-  updatePillSprite(sprite, txt, ws, st || 0x000000);
+  updatePillSprite(sprite, txt, ws, st || 0x000000, cfg);
 }
 
 function updateAllPillFonts(){
@@ -2418,26 +2422,7 @@ function updateCalloutAnims(){
         ud.xSpr.material.opacity = 0.95 * k2;
       }
       
-      // top square follows line end + gap2 (only if sq2 exists)
-      if (ud.sq2) {
-        ud.sq2.position.set(0, endY + ud.gap2, 0);
-        const bs = ud.sq2.userData?.baseScale;
-        const s = Math.max(0.0001, k3);
-        if (bs) ud.sq2.scale.copy(bs).multiplyScalar(s);
-        else ud.sq2.scale.setScalar(s);
-      }
-      
-      // label above top square with small gap
-      const topCenterY = endY + ud.gap2;
-      const topEdgeY = topCenterY + (ud.sqW*0.5);
-      const baseH = (ud.label.userData?.baseScale ? ud.label.userData.baseScale.y : ud.label.scale.y);
-      const labelHalfH = baseH * 0.5;
-      ud.label.position.set(0, topEdgeY + ud.gap3 + labelHalfH, 0);
-      
       // Line color transition
-      const strokePhase = clamp((t - 0.82)/0.18, 0, 1);
-      const sp = easeOutCubic(strokePhase);
-      
       const ltr = (ud.lineColorHex >> 16) & 255;
       const ltg = (ud.lineColorHex >> 8) & 255;
       const ltb = ud.lineColorHex & 255;
@@ -2446,12 +2431,28 @@ function updateCalloutAnims(){
       const lrb = Math.round(lerp(0, ltb, sp));
       const lineStrokeHex = (lrr<<16) | (lrg<<8) | lrb;
       ud.line.material.color.setHex(lineStrokeHex);
-    } else {
-      // No line - label appears at fixed height
-      const baseH = (ud.label.userData?.baseScale ? ud.label.userData.baseScale.y : ud.label.scale.y);
-      const labelHalfH = baseH * 0.5;
-      ud.label.position.set(0, ud.gap1 + labelHalfH, 0);
     }
+    
+    // CRITICAL: Line height (rise) is PRIMARY VERTICAL AUTHORITY
+    // All positioning uses rise, even when line is hidden
+    const usable = Math.max(0, ud.rise - ud.gap1 - ud.gap2);
+    const endY = ud.line ? (ud.gap1 + usable * k2) : (ud.rise - ud.gap2); // Animated or full height
+    
+    // Display shape follows line end (or computed height if no line)
+    if (ud.sq2) {
+      ud.sq2.position.set(0, endY + ud.gap2, 0);
+      const bs = ud.sq2.userData?.baseScale;
+      const s = Math.max(0.0001, k3);
+      if (bs) ud.sq2.scale.copy(bs).multiplyScalar(s);
+      else ud.sq2.scale.setScalar(s);
+    }
+    
+    // Label always positioned above display shape (or at computed height)
+    const topCenterY = endY + ud.gap2;
+    const topEdgeY = topCenterY + (ud.sqW*0.5);
+    const baseH = (ud.label.userData?.baseScale ? ud.label.userData.baseScale.y : ud.label.scale.y);
+    const labelHalfH = baseH * 0.5;
+    ud.label.position.set(0, topEdgeY + ud.gap3 + labelHalfH, 0);
     
     ud.label.material.opacity = k4;
 
@@ -2475,7 +2476,8 @@ function updateCalloutAnims(){
     const strokeHex = (rr<<16) | (rg<<8) | rb;
 
     if (strokeHex !== ud.lastStrokeHex){
-      updatePillSprite(ud.label, ud.name, ud.lblW, strokeHex);
+      // Pass config to maintain styling
+      updatePillSprite(ud.label, ud.name, ud.lblW, strokeHex, ud.config);
       ud.lastStrokeHex = strokeHex;
     }
   });
