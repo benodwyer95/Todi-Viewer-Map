@@ -1952,11 +1952,7 @@ function doHover(clientX, clientY){
   if (root !== hovered){
     setHovered(root, clientX, clientY);
   } else {
-    if (hovered){
-      const ud=hovered.userData;
-      showTooltip(clientX, clientY, ud.name,
-        `${safeStr(ud.cand?.dst_type)} • rel ${fmt(ud.baseRel,1)}° • elev ${fmt(ud.baseElev,2)}° • final yaw ${fmt(ud.yawDeg,1)}° • final pitch ${fmt(ud.pitchDeg,2)}°`);
-    }
+    // Tooltip position update removed - using new 3D hover tip system instead
   }
 }
 
@@ -2610,7 +2606,7 @@ function rebuildMarkersAndList(){
   currentMarkers = [];
   hovered = null;
   selected = null;
-  hideTooltip();
+  // hideTooltip(); // Removed - legacy tooltip system has been replaced
   selIdEl.textContent='—';
 
   const source = currentSource();
