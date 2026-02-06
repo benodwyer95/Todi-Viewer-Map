@@ -243,7 +243,7 @@ hr.ovSep{border:none;border-top:1px solid rgba(255,255,255,.12);margin:10px 0}
 
 
   html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:Arial,Helvetica,sans-serif}
-  #app{position:fixed;inset:0}
+  #app{position:fixed;inset:0;z-index:1}
   canvas{display:block}
 
   #ui{
@@ -298,6 +298,7 @@ hr.ovSep{border:none;border-top:1px solid rgba(255,255,255,.12);margin:10px 0}
   .tag{padding:2px 6px;border:1px solid rgba(255,255,255,.16);border-radius:999px;opacity:.9}
   #status{font-size:11px;opacity:.85;margin-top:8px;line-height:1.25}
 
+  /* LEGACY TOOLTIP - Replaced by new hover tip mode
   #tip{
     position:fixed;z-index:20;pointer-events:none;transform:translate(10px,10px);
     padding:8px 10px;background:rgba(0,0,0,.75);
@@ -306,6 +307,7 @@ hr.ovSep{border:none;border-top:1px solid rgba(255,255,255,.12);margin:10px 0}
   }
   #tip .t1{font-weight:800;margin-bottom:2px}
   #tip .t2{font-size:11px;opacity:.85}
+  */
 
   /* --- Mouse magnifier reticle (overlay DOM) --- */
   #reticleWrap{
@@ -665,16 +667,7 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
   </div>
   <div id="rightDockBody" class="dockBody"></div>
 </div>
-<!-- ================= Right Dock (Verifier / Overlay) ================= -->
-
-<!-- removed duplicate rightDock -->
-
-    <div id="dockPanelOverlay" class="dockPanel"></div>
-  </div>
-</div>
-
-</div>
-
+<!-- ================= End Docks ================= -->
 
 <div id="app"></div>
 
@@ -932,9 +925,8 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
       </button>
       <select id="labelTypeSelector" style="flex:1;display:none;" aria-label="Select label type">
         <option value="">Select type...</option>
+        <option value="label">Label</option>
         <option value="hover">Hover Tip</option>
-        <option value="clickLine">Click → Animated Line</option>
-        <option value="fixed">Fixed Display</option>
       </select>
     </div>
     
@@ -946,10 +938,14 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
   </div>
 </div>
 
+</div>
+
+<!-- LEGACY TOOLTIP ELEMENT - Replaced by new hover tip mode
 <div id="tip">
   <div class="t1" id="tipTitle">—</div>
   <div class="t2" id="tipMeta">—</div>
 </div>
+-->
 
 <!-- Reticle overlay -->
 <div id="reticleWrap">
@@ -1352,11 +1348,11 @@ let currentLabelFontStack = FONT_STACKS.helvetica;
 const exportOffsetsBtn = document.getElementById('exportOffsets');
 const importOffsetsIn  = document.getElementById('importOffsets');
 
-// Callout/Label control elements (may not exist in HTML)
-const calloutsIn = document.getElementById('calloutsIn');
-const loopCalloutIn = document.getElementById('loopCalloutIn');
-const allCalloutsIn = document.getElementById('allCalloutsIn');
-const animSecondsIn = document.getElementById('animSecondsIn');
+// Legacy callout control elements - removed, now using Label FX system
+// const calloutsIn = document.getElementById('calloutsIn');
+// const loopCalloutIn = document.getElementById('loopCalloutIn');
+// const allCalloutsIn = document.getElementById('allCalloutsIn');
+// const animSecondsIn = document.getElementById('animSecondsIn');
 
 const tip = document.getElementById('tip');
 const tipTitle = document.getElementById('tipTitle');
@@ -1371,6 +1367,9 @@ function setStatus(msg){ statusEl.textContent = msg; }
 const ovOn = document.getElementById('ovOn');
 const ovType = document.getElementById('ovType');
 const ovOpacity = document.getElementById('ovOpacity');
+
+// LEGACY TOOLTIP FUNCTIONS - Replaced by new hover mode
+/*
 function showTooltip(x,y,title,meta){
   tip.style.display='block';
   tip.style.left = x+'px';
@@ -1379,6 +1378,7 @@ function showTooltip(x,y,title,meta){
   tipMeta.textContent  = meta || '';
 }
 function hideTooltip(){ tip.style.display='none'; }
+*/
 
 // --------------------
 // Three: 2 scenes (pano + overlay markers)
@@ -1711,6 +1711,97 @@ function makeSquareSprite(worldSize=6){
   const spr = new THREE.Sprite(mat);
   spr.renderOrder = 10005;
   spr.scale.set(worldSize, worldSize, 1);
+  spr.userData.baseScale = spr.scale.clone();
+  return spr;
+}
+
+// Enhanced shape sprite maker supporting multiple shape types
+function makeDisplayShapeSprite(worldSize=6, config=null){
+  const shapeType = config?.displayShapeType || 'square';
+  const fillColor = config?.displayShapeFillColor || 'rgba(0,0,0,0.95)';
+  const strokeColor = config?.displayShapeStrokeColor || 'rgba(255,255,255,0.8)';
+  const strokeWidth = config?.displayShapeStrokeWidth || 0;
+  
+  const c = document.createElement('canvas');
+  c.width=64; c.height=64;
+  const g=c.getContext('2d');
+  g.clearRect(0,0,64,64);
+  
+  const cx = 32, cy = 32, size = 20;
+  
+  g.fillStyle = fillColor;
+  if (strokeWidth > 0) {
+    g.strokeStyle = strokeColor;
+    g.lineWidth = strokeWidth;
+  }
+  
+  switch(shapeType) {
+    case 'circle':
+      g.beginPath();
+      g.arc(cx, cy, size/2, 0, Math.PI * 2);
+      g.fill();
+      if (strokeWidth > 0) g.stroke();
+      break;
+      
+    case 'diamond':
+      g.beginPath();
+      g.moveTo(cx, cy - size/2);
+      g.lineTo(cx + size/2, cy);
+      g.lineTo(cx, cy + size/2);
+      g.lineTo(cx - size/2, cy);
+      g.closePath();
+      g.fill();
+      if (strokeWidth > 0) g.stroke();
+      break;
+      
+    case 'triangle':
+      g.beginPath();
+      g.moveTo(cx, cy - size/2);
+      g.lineTo(cx + size/2, cy + size/2);
+      g.lineTo(cx - size/2, cy + size/2);
+      g.closePath();
+      g.fill();
+      if (strokeWidth > 0) g.stroke();
+      break;
+      
+    case 'asterisk':
+      g.strokeStyle = fillColor; // Use fill color for lines
+      g.lineWidth = Math.max(2, strokeWidth || 3);
+      g.lineCap = 'round';
+      g.beginPath();
+      // Vertical line
+      g.moveTo(cx, cy - size/2);
+      g.lineTo(cx, cy + size/2);
+      // Horizontal line
+      g.moveTo(cx - size/2, cy);
+      g.lineTo(cx + size/2, cy);
+      // Diagonal \
+      g.moveTo(cx - size/2*0.7, cy - size/2*0.7);
+      g.lineTo(cx + size/2*0.7, cy + size/2*0.7);
+      // Diagonal /
+      g.moveTo(cx + size/2*0.7, cy - size/2*0.7);
+      g.lineTo(cx - size/2*0.7, cy + size/2*0.7);
+      g.stroke();
+      break;
+      
+    case 'square':
+    default:
+      g.fillRect(cx - size/2, cy - size/2, size, size);
+      if (strokeWidth > 0) {
+        g.strokeRect(cx - size/2, cy - size/2, size, size);
+      }
+      break;
+  }
+
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  const mat = new THREE.SpriteMaterial({ map: tex, transparent:true });
+  mat.depthTest=false; mat.depthWrite=false;
+
+  const spr = new THREE.Sprite(mat);
+  spr.renderOrder = 10005;
+  spr.scale.set(worldSize, worldSize, 1);
+  spr.userData.baseScale = spr.scale.clone();
   return spr;
 }
 
@@ -1846,35 +1937,31 @@ function rebuildLabels(){
 }
 
 function updateCalloutsVisibility(){
-  // Now driven by Label FX configs, not checkboxes
-  const hasActiveLabels = activeLabels.length > 0;
+  // Now driven by Label FX configs with 2 modes: label and hover
+  const labelConfig = activeLabels.find(l => l.type === 'label');
+  const hoverConfig = activeLabels.find(l => l.type === 'hover');
   
   currentMarkers.forEach(m=>{
     const c = m?.userData?.callout;
     if (!c) return;
     const ud = c.userData;
     
-    // If no active labels, hide all callouts
-    if (!hasActiveLabels) {
-      ud.target = 0;
+    // Label mode: show on selected marker only
+    if (selected === m && labelConfig) {
+      ud.target = 1;
+      ud.config = labelConfig; // Store config for animation
       return;
     }
     
-    // Find matching label config
-    const matchingLabel = activeLabels.find(l => {
-      // Match based on label type and marker state
-      if (l.showOnHover) return m === hovered;
-      if (l.type === 'fixed') return true;
-      if (l.type === 'clickLine') return m === selected;
-      return false;
-    });
-    
-    ud.target = matchingLabel ? 1 : 0;
-    
-    // Handle looping if configured
-    if (matchingLabel?.loop && Math.abs(ud.t - ud.target) < 0.0005) {
-      ud.target = 1 - ud.target;
+    // Hover mode: show on hovered marker only (can coexist with label on different marker)
+    if (hovered === m && hoverConfig) {
+      ud.target = 1;
+      ud.config = hoverConfig; // Store config for animation
+      return;
     }
+    
+    // Hide all others
+    ud.target = 0;
   });
 }
 
@@ -1908,17 +1995,12 @@ function setSelected(m){
 function setHovered(m, x, y){
   hovered = m;
   if (!m){
-    hideTooltip();
+    // No longer using legacy tooltip
     rebuildLabels();
     updateCalloutsVisibility();
     return;
   }
-  const ud=m.userData;
-  showTooltip(
-    x, y,
-    ud.name,
-    `${safeStr(ud.cand?.dst_type)} • rel ${fmt(ud.baseRel,1)}° • elev ${fmt(ud.baseElev,2)}° • final yaw ${fmt(ud.yawDeg,1)}° • final pitch ${fmt(ud.pitchDeg,2)}°`
-  );
+  // No longer using legacy tooltip - hover tip will be shown via 3D label system
   rebuildLabels();
   updateCalloutsVisibility();
 }
@@ -1954,11 +2036,7 @@ function doHover(clientX, clientY){
   if (root !== hovered){
     setHovered(root, clientX, clientY);
   } else {
-    if (hovered){
-      const ud=hovered.userData;
-      showTooltip(clientX, clientY, ud.name,
-        `${safeStr(ud.cand?.dst_type)} • rel ${fmt(ud.baseRel,1)}° • elev ${fmt(ud.baseElev,2)}° • final yaw ${fmt(ud.yawDeg,1)}° • final pitch ${fmt(ud.pitchDeg,2)}°`);
-    }
+    // Tooltip position update removed - using new 3D hover tip system instead
   }
 }
 
@@ -2094,13 +2172,15 @@ function roundRect(ctx, x, y, w, h, r){
 }
 
 // Black translucent fill + stroke that animates from black -> type color
-function makePillLabelSprite(text, worldSize=18, strokeHex=0x000000){
+function makePillLabelSprite(text, worldSize=18, strokeHex=0x000000, config=null){
   const txt = safeStr(text);
 
   // ---- styling knobs ----
-  const fontPx = 28;
-  const padX = 18;
-  const padY = 12;
+  // Scale fontSize (world size units) to fontPx (canvas pixel units)
+  // 2.33 ratio maintains visual consistency with original 12pt = 28px default
+  const fontPx = config?.fontSize ? config.fontSize * 2.33 : 28;
+  const padX = config?.paddingX ?? 18;
+  const padY = config?.paddingY ?? 12;
 
   // Render at higher pixel density so the outline doesn't look blocky after texture filtering.
   // (The sprite is then scaled in world units.)
@@ -2109,7 +2189,8 @@ function makePillLabelSprite(text, worldSize=18, strokeHex=0x000000){
   const g = c.getContext('2d', { alpha:true });
 
   // measure text at 1x
-  g.font = `900 ${fontPx}px ${currentLabelFontStack}`;
+  const fontStack = config?.font ? (FONT_STACKS[config.font] || FONT_STACKS.helvetica) : currentLabelFontStack;
+  g.font = `900 ${fontPx}px ${fontStack}`;
   const tw = Math.ceil(g.measureText(txt).width);
   const w1 = tw + padX*2;
   const h1 = fontPx + padY*2;
@@ -2122,15 +2203,26 @@ function makePillLabelSprite(text, worldSize=18, strokeHex=0x000000){
   g.setTransform(dpr, 0, 0, dpr, 0, 0);
   g.clearRect(0,0,w1,h1);
 
-  const radius = h1/2;          // true pill
+  // Determine radius based on pill shape
+  let radius;
+  const pillShape = config?.pillShape || 'rounded';
+  if (pillShape === 'rounded') {
+    radius = h1/2; // true pill (fully rounded ends)
+  } else if (pillShape === 'soft-rounded') {
+    radius = 10;
+  } else { // square
+    radius = 0;
+  }
+  
   const inset  = 3;             // keep stroke away from texture edge to prevent clipping
   const x = inset;
   const y = inset;
   const w = w1 - inset*2;
   const h = h1 - inset*2;
 
-  // Fill: transparent-ish black (requested)
-  g.fillStyle = 'rgba(0,0,0,0.55)';
+  // Fill: use config background color or default
+  const bgColor = config?.pillBackgroundColor || 'rgba(0,0,0,0.55)';
+  g.fillStyle = bgColor;
   g.beginPath();
   roundRect(g, x, y, w, h, radius);
   g.fill();
@@ -2139,7 +2231,8 @@ function makePillLabelSprite(text, worldSize=18, strokeHex=0x000000){
   const r = (strokeHex >> 16) & 255;
   const gg = (strokeHex >> 8) & 255;
   const b = (strokeHex) & 255;
-  g.strokeStyle = `rgba(${r},${gg},${b},0.98)`;
+  const borderColor = config?.pillBorderColor || `rgba(${r},${gg},${b},0.98)`;
+  g.strokeStyle = borderColor;
   g.lineWidth = 2.5;
   g.lineJoin = 'round';
   g.lineCap  = 'round';
@@ -2147,11 +2240,12 @@ function makePillLabelSprite(text, worldSize=18, strokeHex=0x000000){
   roundRect(g, x, y, w, h, radius);
   g.stroke();
 
-  // Text: white (requested)
-  g.font = `900 ${fontPx}px ${currentLabelFontStack}`;
+  // Text: use config text color or default
+  const textColor = config?.pillTextColor || '#ffffff';
+  g.font = `900 ${fontPx}px ${fontStack}`;
   g.textBaseline = 'middle';
   g.textAlign = 'left';
-  g.fillStyle = '#ffffff';
+  g.fillStyle = textColor;
   g.fillText(txt, padX, h1/2);
 
   const tex = new THREE.CanvasTexture(c);
@@ -2181,26 +2275,30 @@ function makePillLabelSprite(text, worldSize=18, strokeHex=0x000000){
   return spr;
 }
 
-function updatePillSprite(sprite, text, worldSize, strokeHex){
+function updatePillSprite(sprite, text, worldSize, strokeHex, config=null){
   // dispose old
   if (sprite.material?.map) sprite.material.map.dispose();
   if (sprite.material) sprite.material.dispose();
 
-  const fresh = makePillLabelSprite(text, worldSize, strokeHex);
+  // CRITICAL: Pass config to maintain styling through updates
+  const fresh = makePillLabelSprite(text, worldSize, strokeHex, config);
   sprite.material = fresh.material;
   sprite.scale.copy(fresh.scale);
   sprite.userData.baseScale = fresh.userData.baseScale.clone();
   sprite.userData._pillText = fresh.userData._pillText;
   sprite.userData._pillWorldSize = fresh.userData._pillWorldSize;
+  // Store config for future updates
+  if (config) sprite.userData._pillConfig = config;
 }
 
 function updatePillFont(sprite){
   if (!sprite?.userData) return;
   const txt = sprite.userData._pillText;
-  const ws  = sprite.userData._pillWorld;
+  const ws  = sprite.userData._pillWorldSize;
   const st  = sprite.userData._pillStroke;
+  const cfg = sprite.userData._pillConfig; // Use stored config
   if (!txt || !ws) return;
-  updatePillSprite(sprite, txt, ws, st || 0x000000);
+  updatePillSprite(sprite, txt, ws, st || 0x000000, cfg);
 }
 
 function updateAllPillFonts(){
@@ -2210,10 +2308,13 @@ function updateAllPillFonts(){
   });
 }
 
-function makeCalloutAnimated(root, name, isVisible=true, typeHex=0x00c8ff, lineColorHex=null){
-  const rise = 40; // Default value, will be overridden by Label FX config
-  const sqW  = 6;  // Default value, will be overridden by Label FX config
-  const lblW = 18; // Default value, will be overridden by Label FX config
+function makeCalloutAnimated(root, name, isVisible=true, typeHex=0x00c8ff, lineColorHex=null, config=null){
+  // Use config if provided, otherwise use defaults
+  const rise = config?.lineHeight || 40;
+  const sqW  = config?.displayShapeSize || 6;
+  const lblW = 18; // Label world size (can be config-driven in future)
+  const showLine = config?.showLine !== false; // default true
+  const showDisplayShape = config?.showDisplayShape !== false; // default true
 
   // gaps: square -> line start, line end -> square, square -> label
   const gap1 = Math.max(1.5, sqW * 0.35);
@@ -2224,52 +2325,58 @@ function makeCalloutAnimated(root, name, isVisible=true, typeHex=0x00c8ff, lineC
   call.renderOrder = 10000;
   call.userData.isCallout = true;
 
-  // bottom square
+  // Bottom square serves as anchor point for positioning calculations (always hidden)
   const sq1 = makeSquareSprite(sqW);
   sq1.position.set(0,0,0);
+  sq1.visible = false; // Always hidden, just anchor
   call.add(sq1);
 
   // line (animate end Y). Start at gap1 so there's an air gap above square.
-  const pts = [new THREE.Vector3(0, gap1, 0), new THREE.Vector3(0, gap1, 0)];
-  const geo = new THREE.BufferGeometry().setFromPoints(pts);
+  let line = null;
+  if (showLine) {
+    const pts = [new THREE.Vector3(0, gap1, 0), new THREE.Vector3(0, gap1, 0)];
+    const geo = new THREE.BufferGeometry().setFromPoints(pts);
 
-  let line;
-  const actualLineColor = lineColorHex !== null ? lineColorHex : typeHex;
-  if (isVisible){
-    const mat = new THREE.LineBasicMaterial({ color: actualLineColor, transparent:true, opacity:0.0 });
-    mat.depthTest = false;
-    line = new THREE.Line(geo, mat);
-  } else {
-    const mat = new THREE.LineDashedMaterial({
-      color: actualLineColor,
-      transparent:true,
-      opacity:0.0,
-      dashSize: Math.max(3, rise * 0.18),
-      gapSize:  Math.max(2, rise * 0.12)
-    });
-    mat.depthTest = false;
-    line = new THREE.Line(geo, mat);
-    line.computeLineDistances();
+    const actualLineColor = lineColorHex !== null ? lineColorHex : typeHex;
+    if (isVisible){
+      const mat = new THREE.LineBasicMaterial({ color: actualLineColor, transparent:true, opacity:0.0 });
+      mat.depthTest = false;
+      line = new THREE.Line(geo, mat);
+    } else {
+      const mat = new THREE.LineDashedMaterial({
+        color: actualLineColor,
+        transparent:true,
+        opacity:0.0,
+        dashSize: Math.max(3, rise * 0.18),
+        gapSize:  Math.max(2, rise * 0.12)
+      });
+      mat.depthTest = false;
+      line = new THREE.Line(geo, mat);
+      line.computeLineDistances();
+    }
+    line.renderOrder = 10001;
+    call.add(line);
   }
-  line.renderOrder = 10001;
-  call.add(line);
 
   // X marker at halfway for NOT visible (fades with the line)
   let xSpr = null;
-  if (!isVisible){
+  if (!isVisible && showLine){
     xSpr = makeXSprite(Math.max(5, sqW*0.95));
     xSpr.position.set(0, rise*0.5, 0);
     xSpr.material.opacity = 0.0;
     call.add(xSpr);
   }
 
-  // top square (moves with line end)
-  const sq2 = makeSquareSprite(sqW);
-  sq2.position.set(0, gap1 + gap2, 0);
-  call.add(sq2);
+  // top display shape (moves with line end) - use enhanced shape function
+  let sq2 = null;
+  if (showDisplayShape) {
+    sq2 = makeDisplayShapeSprite(sqW, config);
+    sq2.position.set(0, gap1 + gap2, 0);
+    call.add(sq2);
+  }
 
   // pill label (appears last)
-  const label = makePillLabelSprite(name, lblW, 0x000000);
+  const label = makePillLabelSprite(name, lblW, 0x000000, config);
   const labelHalfH = (label.userData?.baseScale ? (label.userData.baseScale.y*0.5) : (label.scale.y*0.5));
   label.position.set(0, (gap1 + gap2) + (sqW*0.5) + gap3 + labelHalfH, 0);
   label.material.opacity = 0.0;
@@ -2277,9 +2384,12 @@ function makeCalloutAnimated(root, name, isVisible=true, typeHex=0x00c8ff, lineC
 
   // init hidden
   const bs1 = sq1.userData?.baseScale;
-  const bs2 = sq2.userData?.baseScale;
   if (bs1) sq1.scale.copy(bs1).multiplyScalar(0.0001); else sq1.scale.setScalar(0.0001);
-  if (bs2) sq2.scale.copy(bs2).multiplyScalar(0.0001); else sq2.scale.setScalar(0.0001);
+  
+  if (sq2) {
+    const bs2 = sq2.userData?.baseScale;
+    if (bs2) sq2.scale.copy(bs2).multiplyScalar(0.0001); else sq2.scale.setScalar(0.0001);
+  }
 
   // always on top
   call.traverse(o=>{
@@ -2302,8 +2412,9 @@ function makeCalloutAnimated(root, name, isVisible=true, typeHex=0x00c8ff, lineC
     sq1, sq2, line, label, xSpr,
     t: 0,
     target: 0,
-    speed: 1 / 1.8, // Default animation speed, will be overridden by Label FX config
-    lastStrokeHex: 0x000000
+    speed: config?.animSeconds ? (1 / config.animSeconds) : (1 / 1.8),
+    lastStrokeHex: 0x000000,
+    config: config // Store config for updates
   };
 
   root.userData.callout = call;
@@ -2333,28 +2444,18 @@ function updateCalloutAnims(){
   const dt = Math.min(0.05, (now - lastCalloutFrameT) / 1000);
   lastCalloutFrameT = now;
 
-  const enabled = !!calloutsIn?.checked;
-  const showAll = !!allCalloutsIn?.checked;
+  // Note: ud.target is set by updateCalloutsVisibility() based on Label FX configs
+  // We just animate from current t to target
 
   currentMarkers.forEach(m=>{
     const call = m?.userData?.callout;
     if (!call) return;
     const ud = call.userData;
 
-    // decide whether this callout should be "up"
-    if (!enabled) ud.target = 0;
-    else if (showAll) ud.target = 1;
-    else ud.target = (m === selected) ? 1 : 0;
-
-    // loop (ping-pong) the selected callout if enabled
-    if (enabled && !showAll && loopCalloutIn?.checked && (m === selected)){
-      if (Math.abs(ud.t - ud.target) < 0.0005){
-        ud.target = 1 - ud.target;
-      }
-    }
-
-    // allow live edit of animation seconds
-    ud.speed = (1 / Math.max(0.05, (parseFloat(animSecondsIn?.value)||1.8)));
+    // Use config-specific animation speed if available
+    const config = ud.config;
+    const animSeconds = config?.animSeconds || 1.8;
+    ud.speed = (1 / Math.max(0.05, animSeconds));
 
     // advance t toward target
     if (ud.t !== ud.target){
@@ -2382,69 +2483,41 @@ function updateCalloutAnims(){
     const k3 = easeOutCubic(t3);
     const k4 = easeOutCubic(t4);
 
-    // bottom square
+    // bottom square (hidden anchor)
     {
-      const bs = ud.sq1.userData?.baseScale;
+      const bs = ud.sq1?.userData?.baseScale;
       const s = Math.max(0.0001, k1);
-      if (bs) ud.sq1.scale.copy(bs).multiplyScalar(s);
-      else ud.sq1.scale.setScalar(s);
-    }
-// line end Y, leaving gaps
-    const usable = Math.max(0, ud.rise - ud.gap1 - ud.gap2);
-    const endY = ud.gap1 + usable * k2;
-
-    const pos = ud.line.geometry.attributes.position;
-    pos.setXYZ(0, 0, ud.gap1, 0);
-    pos.setXYZ(1, 0, endY, 0);
-    pos.needsUpdate = true;
-
-    ud.line.material.opacity = 0.95 * k2;
-    if (ud.line.isLine && ud.line.material.isLineDashedMaterial){
-      ud.line.computeLineDistances();
+      if (ud.sq1) {
+        if (bs) ud.sq1.scale.copy(bs).multiplyScalar(s);
+        else ud.sq1.scale.setScalar(s);
+      }
     }
 
-    // optional X marker
-    if (ud.xSpr && ud.xSpr.material){
-      ud.xSpr.material.opacity = 0.95 * k2;
-    }
-
-    // top square follows line end + gap2
-    ud.sq2.position.set(0, endY + ud.gap2, 0);
-    {
-      const bs = ud.sq2.userData?.baseScale;
-      const s = Math.max(0.0001, k3);
-      if (bs) ud.sq2.scale.copy(bs).multiplyScalar(s);
-      else ud.sq2.scale.setScalar(s);
-    }
-// label above top square with small gap
-    const topCenterY = endY + ud.gap2;
-    const topEdgeY = topCenterY + (ud.sqW*0.5);
-    const baseH = (ud.label.userData?.baseScale ? ud.label.userData.baseScale.y : ud.label.scale.y);
-    const labelHalfH = baseH * 0.5;
-    ud.label.position.set(0, topEdgeY + ud.gap3 + labelHalfH, 0);
-    ud.label.material.opacity = k4;
-
-    // slight scale-in while keeping aspect
-    const baseScale = 0.90 + 0.10 * k4;
-    const bs = ud.label.userData?.baseScale;
-    if (bs){
-      ud.label.scale.set(bs.x * baseScale, bs.y * baseScale, 1);
-    }
-
-    // stroke color transition near the end: black -> typeHex
+    // Stroke phase calculation (needed for both line and label color transitions)
     const strokePhase = clamp((t - 0.82)/0.18, 0, 1);
     const sp = easeOutCubic(strokePhase);
 
-    const tr = (ud.typeHex >> 16) & 255;
-    const tg = (ud.typeHex >> 8) & 255;
-    const tb = ud.typeHex & 255;
-    const rr = Math.round(lerp(0, tr, sp));
-    const rg = Math.round(lerp(0, tg, sp));
-    const rb = Math.round(lerp(0, tb, sp));
-    const strokeHex = (rr<<16) | (rg<<8) | rb;
+    // line end Y, leaving gaps (only if line exists)
+    if (ud.line) {
+      const usable = Math.max(0, ud.rise - ud.gap1 - ud.gap2);
+      const endY = ud.gap1 + usable * k2;
 
-    // line uses lineColorHex (which may differ from typeHex based on label config)
-    if (ud.line?.material?.color) {
+      const pos = ud.line.geometry.attributes.position;
+      pos.setXYZ(0, 0, ud.gap1, 0);
+      pos.setXYZ(1, 0, endY, 0);
+      pos.needsUpdate = true;
+
+      ud.line.material.opacity = 0.95 * k2;
+      if (ud.line.isLine && ud.line.material.isLineDashedMaterial){
+        ud.line.computeLineDistances();
+      }
+      
+      // optional X marker
+      if (ud.xSpr && ud.xSpr.material){
+        ud.xSpr.material.opacity = 0.95 * k2;
+      }
+      
+      // Line color transition
       const ltr = (ud.lineColorHex >> 16) & 255;
       const ltg = (ud.lineColorHex >> 8) & 255;
       const ltb = ud.lineColorHex & 255;
@@ -2454,9 +2527,49 @@ function updateCalloutAnims(){
       const lineStrokeHex = (lrr<<16) | (lrg<<8) | lrb;
       ud.line.material.color.setHex(lineStrokeHex);
     }
+    
+    // CRITICAL: Line height (rise) is PRIMARY VERTICAL AUTHORITY
+    // All positioning uses rise, even when line is hidden
+    const usable = Math.max(0, ud.rise - ud.gap1 - ud.gap2);
+    const endY = ud.line ? (ud.gap1 + usable * k2) : (ud.rise - ud.gap2); // Animated or full height
+    
+    // Display shape follows line end (or computed height if no line)
+    if (ud.sq2) {
+      ud.sq2.position.set(0, endY + ud.gap2, 0);
+      const bs = ud.sq2.userData?.baseScale;
+      const s = Math.max(0.0001, k3);
+      if (bs) ud.sq2.scale.copy(bs).multiplyScalar(s);
+      else ud.sq2.scale.setScalar(s);
+    }
+    
+    // Label always positioned above display shape (or at computed height)
+    const topCenterY = endY + ud.gap2;
+    const topEdgeY = topCenterY + (ud.sqW*0.5);
+    const baseH = (ud.label.userData?.baseScale ? ud.label.userData.baseScale.y : ud.label.scale.y);
+    const labelHalfH = baseH * 0.5;
+    ud.label.position.set(0, topEdgeY + ud.gap3 + labelHalfH, 0);
+    
+    ud.label.material.opacity = k4;
+
+    // slight scale-in while keeping aspect
+    const baseScale = 0.90 + 0.10 * k4;
+    const bs = ud.label.userData?.baseScale;
+    if (bs){
+      ud.label.scale.set(bs.x * baseScale, bs.y * baseScale, 1);
+    }
+
+    // Label stroke color transition: black -> typeHex (using sp calculated above)
+    const tr = (ud.typeHex >> 16) & 255;
+    const tg = (ud.typeHex >> 8) & 255;
+    const tb = ud.typeHex & 255;
+    const rr = Math.round(lerp(0, tr, sp));
+    const rg = Math.round(lerp(0, tg, sp));
+    const rb = Math.round(lerp(0, tb, sp));
+    const strokeHex = (rr<<16) | (rg<<8) | rb;
 
     if (strokeHex !== ud.lastStrokeHex){
-      updatePillSprite(ud.label, ud.name, ud.lblW, strokeHex);
+      // Pass config to maintain styling
+      updatePillSprite(ud.label, ud.name, ud.lblW, strokeHex, ud.config);
       ud.lastStrokeHex = strokeHex;
     }
   });
@@ -2550,8 +2663,14 @@ function addDebugMarker(){
   ring.userData.markerVisual = true;
   root.userData.markerVisual = ring;
   root.add(ring);
-makeCalloutAnimated(root, root.userData.name, true, root.userData.colorHex);
-markerGroup.add(root);
+  
+  // Create callout with default config
+  const labelConfig = activeLabels.find(l => l.type === 'label');
+  const hoverConfig = activeLabels.find(l => l.type === 'hover');
+  const useConfig = labelConfig || hoverConfig;
+  makeCalloutAnimated(root, root.userData.name, true, root.userData.colorHex, null, useConfig);
+  
+  markerGroup.add(root);
   return root;
 }
 
@@ -2564,7 +2683,7 @@ function rebuildMarkersAndList(){
   currentMarkers = [];
   hovered = null;
   selected = null;
-  hideTooltip();
+  // hideTooltip(); // Removed - legacy tooltip system has been replaced
   selIdEl.textContent='—';
 
   const source = currentSource();
@@ -5075,6 +5194,65 @@ function resolveLabelLineColor(config, targetMarker) {
   }
 }
 
+// Generic function to resolve color for any label element based on config
+function resolveColorForElement(config, cand, element) {
+  // element: "line" | "displayShape" | "pillBackground" | "pillBorder" | "text"
+  
+  // Determine which color mode to use based on element
+  let colorMode = 'single';
+  let baseColor = '#ffffff';
+  
+  if (element === 'line') {
+    colorMode = config.lineColorMode || 'single';
+    baseColor = config.lineColor || '#00ff00';
+  } else if (element === 'displayShape') {
+    colorMode = config.displayShapeColorMode || 'single';
+    baseColor = config.displayShapeColor || '#ffffff';
+  } else if (element === 'pillBackground') {
+    colorMode = config.pillColorMode || 'single';
+    baseColor = config.pillBackgroundColor || 'rgba(0,0,0,0.75)';
+  } else if (element === 'pillBorder') {
+    colorMode = config.pillColorMode || 'single';
+    baseColor = config.pillBorderColor || 'rgba(255,255,255,0.18)';
+  } else if (element === 'text') {
+    colorMode = 'single'; // Text usually doesn't follow color modes
+    baseColor = config.pillTextColor || '#ffffff';
+  }
+  
+  // Apply color mode logic
+  if (colorMode === 'category') {
+    const normalizeDstType = (type) => {
+      if (!type) return '';
+      return String(type).toLowerCase().trim();
+    };
+    
+    const dstType = normalizeDstType(cand?.dst_type);
+    
+    // Use categoryColors from config if available, otherwise use defaults
+    const categoryColors = config.categoryColors || {
+      'landmark': '#ff6b6b',
+      'leisure': '#4ecdc4',
+      'place': '#f38181',
+      'amenity': '#aa96da'
+    };
+    
+    for (const key in categoryColors) {
+      if (normalizeDstType(key) === dstType) {
+        return categoryColors[key];
+      }
+    }
+    return baseColor;
+  } else if (colorMode === 'visibility') {
+    const visPct = Number(cand?.vis_pct ?? cand?.visibility ?? 0);
+    if (visPct >= 80) return '#00ff00'; // green
+    if (visPct >= 40) return '#ffff00'; // yellow
+    return '#ff0000'; // red
+  }
+  
+  // Single color mode (default)
+  return baseColor;
+}
+
 // Build FX based on marker config (adapts existing FX generation)
 function buildMarkerFXFromConfig(config, targetMarker) {
   // Handle X marker type specially
@@ -5177,68 +5355,66 @@ let labelIdCounter = 0;
 
 // Label type definitions with default properties
 const labelTypeDefaults = {
-  hover: {
-    name: "Hover Tip",
-    format: "pill",
-    position: "above",
-    content: ["name"],
-    opacity: 0.95,
-    fontSize: 12,
-    backgroundColor: "rgba(0,0,0,0.75)",
-    textColor: "#ffffff",
-    borderColor: "rgba(255,255,255,0.18)",
-    backdropFilter: "blur(6px)",
-    cornerRadius: 10,
-    showOnHover: true,
-    fadeDistance: 100,
-    maxDistance: 500
-  },
-  clickLine: {
-    name: "Click → Animated Line",
-    format: "pill", // Changed from "badge" to match other label types for consistency
-    position: "rightOfLine",
-    content: ["name", "type"],
+  label: {
+    name: "Label",
+    showLine: true,
+    lineHeight: 40,
     lineColor: "#00ff00",
     lineColorMode: "category",
     lineOpacity: 0.8,
     lineWidth: 2,
-    animationSpeed: 1.5,
-    labelOffset: 20,
-    opacity: 0.9,
-    fontSize: 13,
-    backgroundColor: "rgba(0,100,0,0.7)",
-    textColor: "#ffffff",
-    borderColor: "rgba(0,255,0,0.5)",
-    cornerRadius: 999,
-    // Callout animation params (migrated from old system)
-    riseWorld: 40,
-    squareWorld: 6,
-    labelWorld: 18,
+    
+    showDisplayShape: true,
+    displayShapeType: "square", // circle | square | diamond | triangle | asterisk
+    displayShapeSize: 6,
+    displayShapeFillColor: "rgba(0,0,0,0.95)",
+    displayShapeStrokeColor: "rgba(255,255,255,0.8)",
+    displayShapeStrokeWidth: 0,
+    displayShapeColorMode: "single", // single | category | visibility
+    
+    content: ["name"],
+    pillShape: "rounded",
+    pillBackgroundColor: "rgba(0,0,0,0.75)",
+    pillBorderColor: "rgba(255,255,255,0.18)",
+    pillTextColor: "#ffffff",
+    pillColorMode: "single",
+    
     font: "helvetica",
+    fontSize: 12,
+    paddingX: 18,
+    paddingY: 12,
+    
+    categoryColors: {
+      "landmark": "#ff0000",
+      "leisure": "#00ff00",
+      "amenity": "#0000ff",
+      "place": "#ffff00"
+    },
+    
+    // Animation params
     animSeconds: 1.8,
     loop: false
   },
-  fixed: {
-    name: "Fixed Display",
-    format: "pill",
-    position: "center",
+  hover: {
+    name: "Hover Tip",
     content: ["name"],
-    opacity: 1.0,
-    fontSize: 14,
-    textColor: "#ffffff",
-    backgroundColor: "rgba(0,0,0,0.6)",
-    borderColor: "rgba(255,255,255,0.3)",
-    cornerRadius: 999,
-    showShadow: true,
-    shadowColor: "rgba(0,0,0,0.8)",
-    fadeWithDistance: true,
-    fadeStart: 200,
-    fadeEnd: 800,
-    // Callout animation params
-    riseWorld: 40,
-    squareWorld: 6,
-    labelWorld: 18,
-    font: "helvetica"
+    pillShape: "rounded",
+    pillBackgroundColor: "rgba(0,0,0,0.75)",
+    pillBorderColor: "rgba(255,255,255,0.18)",
+    pillTextColor: "#ffffff",
+    pillColorMode: "single",
+    
+    font: "helvetica",
+    fontSize: 12,
+    paddingX: 10,
+    paddingY: 8,
+    
+    showOnHover: true,
+    fadeDistance: 100,
+    maxDistance: 500,
+    
+    // Hover can have line height too (even if line is hidden)
+    lineHeight: 20
   }
 };
 
@@ -5379,17 +5555,34 @@ function updateLabelFXProperty(id, prop, value) {
   const label = activeLabels.find(l => l.id === id);
   if (!label) return;
   
-  // Handle boolean values
-  if (value === 'true' || value === 'false') {
-    label[prop] = value === 'true';
-  } else if (!isNaN(value) && value !== '') {
-    label[prop] = parseFloat(value);
+  // Handle nested properties (e.g., categoryColors.landmark)
+  if (prop.includes('.')) {
+    const parts = prop.split('.');
+    let obj = label;
+    for (let i = 0; i < parts.length - 1; i++) {
+      // Create intermediate object if it doesn't exist, but only if current value isn't already a non-object
+      if (!obj[parts[i]] || obj[parts[i]] === null || typeof obj[parts[i]] !== 'object') {
+        obj[parts[i]] = {};
+      }
+      obj = obj[parts[i]];
+    }
+    obj[parts[parts.length - 1]] = value;
   } else {
-    label[prop] = value;
+    // Handle boolean values
+    if (value === 'true' || value === 'false') {
+      label[prop] = value === 'true';
+    } else if (typeof value === 'boolean') {
+      label[prop] = value;
+    } else if (!isNaN(value) && value !== '') {
+      label[prop] = parseFloat(value);
+    } else {
+      label[prop] = value;
+    }
   }
   
   // Re-render if certain properties change
-  if (prop === 'format' || prop === 'content' || prop === 'type') {
+  if (prop === 'format' || prop === 'content' || prop === 'type' || 
+      prop === 'lineColorMode' || prop === 'displayShapeColorMode' || prop === 'pillColorMode') {
     renderLabelFXList();
   }
   
@@ -5398,179 +5591,358 @@ function updateLabelFXProperty(id, prop, value) {
 
 // Render individual label controls
 function renderLabelFXControls(label) {
-  const hasLine = label.type === 'clickLine';
-  const hasFade = label.type === 'hover' || (label.type === 'fixed' && label.fadeWithDistance);
-  const hasCalloutAnim = label.type !== 'hover'; // hover doesn't animate
+  const isLabelMode = label.type === 'label';
+  const isHoverMode = label.type === 'hover';
   
-  return `
-    <!-- Format -->
-    <div class="ctrlRow">
-      <label>Format</label>
-      <select data-id="${label.id}" data-prop="format">
-        <option value="pill" ${label.format === 'pill' ? 'selected' : ''}>Pill</option>
-        <option value="badge" ${label.format === 'badge' ? 'selected' : ''}>Badge</option>
-        <option value="text" ${label.format === 'text' ? 'selected' : ''}>Plain Text</option>
-      </select>
-    </div>
-    
-    ${label.format !== 'text' ? `
-    <div class="ctrlRow">
-      <label>Corner Radius</label>
-      <input type="number" data-id="${label.id}" data-prop="cornerRadius" value="${label.cornerRadius ?? (label.format === 'pill' ? 999 : 8)}" step="1" min="0" max="999">
-    </div>
-    ` : ''}
-    
-    <!-- Position -->
-    <div class="ctrlRow">
-      <label>Position</label>
-      <select data-id="${label.id}" data-prop="position">
-        <option value="center" ${label.position === 'center' ? 'selected' : ''}>Center</option>
-        <option value="above" ${label.position === 'above' ? 'selected' : ''}>Above</option>
-        <option value="below" ${label.position === 'below' ? 'selected' : ''}>Below</option>
-        ${hasLine ? `<option value="rightOfLine" ${label.position === 'rightOfLine' ? 'selected' : ''}>Right of Line</option>` : ''}
-      </select>
-    </div>
-    
-    <!-- Content -->
-    <div class="ctrlRow" style="flex-direction: column; align-items: flex-start;">
-      <label style="margin-bottom: 6px;">Content (select multiple)</label>
-      <div style="display: flex; flex-direction: column; gap: 4px; width: 100%;">
-        <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
-          <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="name" 
-            ${(Array.isArray(label.content) ? label.content : [label.content]).includes('name') ? 'checked' : ''}>
-          <span>Name</span>
-        </label>
-        <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
-          <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="type" 
-            ${(Array.isArray(label.content) ? label.content : [label.content]).includes('type') ? 'checked' : ''}>
-          <span>Type</span>
-        </label>
-        <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
-          <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="distance" 
-            ${(Array.isArray(label.content) ? label.content : [label.content]).includes('distance') ? 'checked' : ''}>
-          <span>Distance</span>
-        </label>
-        <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
-          <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="visibility" 
-            ${(Array.isArray(label.content) ? label.content : [label.content]).includes('visibility') ? 'checked' : ''}>
-          <span>Visibility</span>
-        </label>
-        <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
-          <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="id" 
-            ${(Array.isArray(label.content) ? label.content : [label.content]).includes('id') ? 'checked' : ''}>
-          <span>ID</span>
+  // Check if any element uses category mode (to show category colors section)
+  const usesCategoryColors = isLabelMode && (
+    label.lineColorMode === 'category' ||
+    label.displayShapeColorMode === 'category' ||
+    label.pillColorMode === 'category'
+  );
+  
+  if (isLabelMode) {
+    return `
+      <!-- Line Controls -->
+      <div class="ctrlRow" style="align-items:center;">
+        <label style="flex:1;">
+          <input type="checkbox" data-id="${label.id}" data-prop="showLine" ${label.showLine ? 'checked' : ''}>
+          <span>Show Line</span>
         </label>
       </div>
-    </div>
-
-    ${hasCalloutAnim ? `
-    <!-- Callout Animation Controls -->
-    <hr style="border:none;border-top:1px solid rgba(255,255,255,.12);margin:12px 0;">
-    <div style="font-weight:700;margin-bottom:8px;">Callout Animation</div>
-    
-    <div class="ctrlRow">
-      <label>Rise (world)</label>
-      <input type="number" data-id="${label.id}" data-prop="riseWorld" value="${label.riseWorld || 40}" step="1" min="5" max="140">
-    </div>
-    
-    <div class="ctrlRow">
-      <label>Square (world)</label>
-      <input type="number" data-id="${label.id}" data-prop="squareWorld" value="${label.squareWorld || 6}" step="1" min="2" max="18">
-    </div>
-    
-    <div class="ctrlRow">
-      <label>Label (world)</label>
-      <input type="number" data-id="${label.id}" data-prop="labelWorld" value="${label.labelWorld || 18}" step="1" min="6" max="60">
-    </div>
-    
-    <div class="ctrlRow">
-      <label>Font</label>
-      <select data-id="${label.id}" data-prop="font">
-        <option value="helvetica" ${(label.font || 'helvetica') === 'helvetica' ? 'selected' : ''}>Helvetica</option>
-        <option value="inter" ${label.font === 'inter' ? 'selected' : ''}>Inter</option>
-        <option value="manrope" ${label.font === 'manrope' ? 'selected' : ''}>Manrope</option>
-        <option value="ibmplex" ${label.font === 'ibmplex' ? 'selected' : ''}>IBM Plex Sans</option>
-        <option value="spacegrotesk" ${label.font === 'spacegrotesk' ? 'selected' : ''}>Space Grotesk</option>
-        <option value="system" ${label.font === 'system' ? 'selected' : ''}>System UI</option>
-      </select>
-    </div>
-    
-    <div class="ctrlRow">
-      <label>Anim (sec)</label>
-      <input type="number" data-id="${label.id}" data-prop="animSeconds" value="${label.animSeconds || 1.8}" step="0.1" min="0.2" max="10">
-    </div>
-    
-    <div class="ctrlRow">
-      <label>Loop</label>
-      <input type="checkbox" data-id="${label.id}" data-prop="loop" ${label.loop ? 'checked' : ''}>
-    </div>
-    ` : ''}
-    
-    <!-- Text Styling -->
-    <hr style="border:none;border-top:1px solid rgba(255,255,255,.12);margin:12px 0;">
-    <div style="font-weight:700;margin-bottom:8px;">Text Styling</div>
-    
-    <div class="ctrlRow">
-      <label>Font Size</label>
-      <input type="number" data-id="${label.id}" data-prop="fontSize" value="${label.fontSize}" step="1" min="8" max="24">
-    </div>
-    
-    <div class="ctrlRow">
-      <label>Text Color</label>
-      <input type="color" data-id="${label.id}" data-prop="textColor" value="${label.textColor}">
-    </div>
-    
-    ${label.format !== 'text' ? `
-    <div class="ctrlRow">
-      <label>Background</label>
-      <input type="text" data-id="${label.id}" data-prop="backgroundColor" value="${label.backgroundColor}" placeholder="rgba(0,0,0,0.8)" style="font-size:11px;">
-    </div>
-    
-    <div class="ctrlRow">
-      <label>Border</label>
-      <input type="text" data-id="${label.id}" data-prop="borderColor" value="${label.borderColor}" placeholder="rgba(255,255,255,0.25)" style="font-size:11px;">
-    </div>
-    ` : ''}
-
-    ${hasLine ? `
-    <!-- Line Properties -->
-    <hr style="border:none;border-top:1px solid rgba(255,255,255,.12);margin:12px 0;">
-    <div style="font-weight:700;margin-bottom:8px;">Line Properties</div>
-    
-    <div class="ctrlRow">
-      <label>Color Mode</label>
-      <select data-id="${label.id}" data-prop="lineColorMode">
-        <option value="single" ${(label.lineColorMode || 'single') === 'single' ? 'selected' : ''}>Single Color</option>
-        <option value="category" ${label.lineColorMode === 'category' ? 'selected' : ''}>By Type</option>
-        <option value="visibility" ${label.lineColorMode === 'visibility' ? 'selected' : ''}>By Visibility</option>
-      </select>
-    </div>
-    
-    <div class="ctrlRow">
-      <label>Line Color</label>
-      <input type="color" data-id="${label.id}" data-prop="lineColor" value="${label.lineColor}">
-    </div>
-    <div class="ctrlRow">
-      <label>Line Width</label>
-      <input type="number" data-id="${label.id}" data-prop="lineWidth" value="${label.lineWidth}" step="0.5" min="0.5" max="10">
-    </div>
-    ` : ''}
-
-    ${hasFade ? `
-    <!-- Fade Properties -->
-    <hr style="border:none;border-top:1px solid rgba(255,255,255,.12);margin:12px 0;">
-    <div style="font-weight:700;margin-bottom:8px;">Distance Fade</div>
-    
-    <div class="ctrlRow">
-      <label>Fade Start (m)</label>
-      <input type="number" data-id="${label.id}" data-prop="fadeStart" value="${label.fadeStart || label.fadeDistance || 100}" step="10" min="0">
-    </div>
-    <div class="ctrlRow">
-      <label>Fade End (m)</label>
-      <input type="number" data-id="${label.id}" data-prop="fadeEnd" value="${label.fadeEnd || label.maxDistance || 500}" step="10" min="0">
-    </div>
-    ` : ''}
-  `;
+      
+      ${label.showLine ? `
+      <div class="ctrlRow">
+        <label>Line Height (world)</label>
+        <input type="number" data-id="${label.id}" data-prop="lineHeight" value="${label.lineHeight || 40}" step="1" min="5" max="140">
+      </div>
+      
+      <div class="ctrlRow">
+        <label>Line Color Mode</label>
+        <select data-id="${label.id}" data-prop="lineColorMode">
+          <option value="single" ${(label.lineColorMode || 'single') === 'single' ? 'selected' : ''}>Single Color</option>
+          <option value="category" ${label.lineColorMode === 'category' ? 'selected' : ''}>Category</option>
+          <option value="visibility" ${label.lineColorMode === 'visibility' ? 'selected' : ''}>Visibility %</option>
+        </select>
+      </div>
+      
+      ${label.lineColorMode === 'single' ? `
+      <div class="ctrlRow">
+        <label>Line Color</label>
+        <input type="color" data-id="${label.id}" data-prop="lineColor" value="${label.lineColor || '#00ff00'}">
+      </div>
+      ` : ''}
+      
+      <div class="ctrlRow">
+        <label>Line Width</label>
+        <input type="number" data-id="${label.id}" data-prop="lineWidth" value="${label.lineWidth || 2}" step="0.5" min="0.5" max="10">
+      </div>
+      ` : ''}
+      
+      <!-- Display Shape Controls -->
+      <hr style="border:none;border-top:1px solid rgba(255,255,255,.12);margin:12px 0;">
+      <div class="ctrlRow" style="align-items:center;">
+        <label style="flex:1;">
+          <input type="checkbox" data-id="${label.id}" data-prop="showDisplayShape" ${label.showDisplayShape ? 'checked' : ''}>
+          <span>Show Display Shape</span>
+        </label>
+      </div>
+      
+      ${label.showDisplayShape ? `
+      <div class="ctrlRow">
+        <label>Display Shape Size</label>
+        <input type="number" data-id="${label.id}" data-prop="displayShapeSize" value="${label.displayShapeSize || 6}" step="1" min="2" max="18">
+      </div>
+      
+      <div class="ctrlRow">
+        <label>Shape Color Mode</label>
+        <select data-id="${label.id}" data-prop="displayShapeColorMode">
+          <option value="single" ${(label.displayShapeColorMode || 'single') === 'single' ? 'selected' : ''}>Single Color</option>
+          <option value="category" ${label.displayShapeColorMode === 'category' ? 'selected' : ''}>Category</option>
+          <option value="visibility" ${label.displayShapeColorMode === 'visibility' ? 'selected' : ''}>Visibility %</option>
+        </select>
+      </div>
+      
+      ${label.displayShapeColorMode === 'single' ? `
+      <div class="ctrlRow">
+        <label>Shape Color</label>
+        <input type="color" data-id="${label.id}" data-prop="displayShapeColor" value="${label.displayShapeColor || '#ffffff'}">
+      </div>
+      ` : ''}
+      ` : ''}
+      
+      <!-- Pill Label Controls -->
+      <hr style="border:none;border-top:1px solid rgba(255,255,255,.12);margin:12px 0;">
+      <div style="font-weight:700;margin-bottom:8px;">Pill Label</div>
+      
+      <div class="ctrlRow">
+        <label>Pill Shape</label>
+        <select data-id="${label.id}" data-prop="pillShape">
+          <option value="rounded" ${(label.pillShape || 'rounded') === 'rounded' ? 'selected' : ''}>Rounded</option>
+          <option value="soft-rounded" ${label.pillShape === 'soft-rounded' ? 'selected' : ''}>Soft-rounded</option>
+          <option value="square" ${label.pillShape === 'square' ? 'selected' : ''}>Square</option>
+        </select>
+      </div>
+      
+      <!-- Content Checkboxes -->
+      <div class="ctrlRow" style="flex-direction: column; align-items: flex-start;">
+        <label style="margin-bottom: 6px;">Content (select multiple)</label>
+        <div style="display: flex; flex-direction: column; gap: 4px; width: 100%;">
+          <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
+            <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="name" 
+              ${(Array.isArray(label.content) ? label.content : [label.content]).includes('name') ? 'checked' : ''}>
+            <span>Name</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
+            <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="distance" 
+              ${(Array.isArray(label.content) ? label.content : [label.content]).includes('distance') ? 'checked' : ''}>
+            <span>Distance</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
+            <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="bearing" 
+              ${(Array.isArray(label.content) ? label.content : [label.content]).includes('bearing') ? 'checked' : ''}>
+            <span>Bearing</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
+            <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="category" 
+              ${(Array.isArray(label.content) ? label.content : [label.content]).includes('category') ? 'checked' : ''}>
+            <span>Category</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
+            <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="subtype" 
+              ${(Array.isArray(label.content) ? label.content : [label.content]).includes('subtype') ? 'checked' : ''}>
+            <span>Subtype</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
+            <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="visibility" 
+              ${(Array.isArray(label.content) ? label.content : [label.content]).includes('visibility') ? 'checked' : ''}>
+            <span>Visibility %</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
+            <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="elevation" 
+              ${(Array.isArray(label.content) ? label.content : [label.content]).includes('elevation') ? 'checked' : ''}>
+            <span>Elevation</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
+            <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="id" 
+              ${(Array.isArray(label.content) ? label.content : [label.content]).includes('id') ? 'checked' : ''}>
+            <span>Identifier</span>
+          </label>
+        </div>
+      </div>
+      
+      <div class="ctrlRow">
+        <label>Pill Color Mode</label>
+        <select data-id="${label.id}" data-prop="pillColorMode">
+          <option value="single" ${(label.pillColorMode || 'single') === 'single' ? 'selected' : ''}>Single Color</option>
+          <option value="category" ${label.pillColorMode === 'category' ? 'selected' : ''}>Category</option>
+          <option value="visibility" ${label.pillColorMode === 'visibility' ? 'selected' : ''}>Visibility %</option>
+        </select>
+      </div>
+      
+      ${label.pillColorMode === 'single' ? `
+      <div class="ctrlRow">
+        <label>Pill Background</label>
+        <input type="text" data-id="${label.id}" data-prop="pillBackgroundColor" value="${label.pillBackgroundColor || 'rgba(0,0,0,0.75)'}" placeholder="rgba(0,0,0,0.75)" style="font-size:11px;">
+      </div>
+      
+      <div class="ctrlRow">
+        <label>Pill Border</label>
+        <input type="text" data-id="${label.id}" data-prop="pillBorderColor" value="${label.pillBorderColor || 'rgba(255,255,255,0.18)'}" placeholder="rgba(255,255,255,0.18)" style="font-size:11px;">
+      </div>
+      ` : ''}
+      
+      <div class="ctrlRow">
+        <label>Text Color</label>
+        <input type="color" data-id="${label.id}" data-prop="pillTextColor" value="${label.pillTextColor || '#ffffff'}">
+      </div>
+      
+      <div class="ctrlRow">
+        <label>Font Size</label>
+        <input type="number" data-id="${label.id}" data-prop="fontSize" value="${label.fontSize || 12}" step="1" min="8" max="24">
+      </div>
+      
+      <div class="ctrlRow">
+        <label>Font</label>
+        <select data-id="${label.id}" data-prop="font">
+          <option value="helvetica" ${(label.font || 'helvetica') === 'helvetica' ? 'selected' : ''}>Helvetica</option>
+          <option value="inter" ${label.font === 'inter' ? 'selected' : ''}>Inter</option>
+          <option value="manrope" ${label.font === 'manrope' ? 'selected' : ''}>Manrope</option>
+          <option value="ibmplex" ${label.font === 'ibmplex' ? 'selected' : ''}>IBM Plex Sans</option>
+          <option value="spacegrotesk" ${label.font === 'spacegrotesk' ? 'selected' : ''}>Space Grotesk</option>
+          <option value="system" ${label.font === 'system' ? 'selected' : ''}>System UI</option>
+        </select>
+      </div>
+      
+      <div class="ctrlRow">
+        <label>Padding X</label>
+        <input type="number" data-id="${label.id}" data-prop="paddingX" value="${label.paddingX || 18}" step="1" min="0" max="40">
+      </div>
+      
+      <div class="ctrlRow">
+        <label>Padding Y</label>
+        <input type="number" data-id="${label.id}" data-prop="paddingY" value="${label.paddingY || 12}" step="1" min="0" max="40">
+      </div>
+      
+      ${usesCategoryColors ? `
+      <!-- Category Colors -->
+      <hr style="border:none;border-top:1px solid rgba(255,255,255,.12);margin:12px 0;">
+      <div style="font-weight:700;margin-bottom:8px;">Category Colors</div>
+      
+      <div class="ctrlRow">
+        <label>Landmark</label>
+        <input type="color" data-id="${label.id}" data-prop="categoryColors.landmark" value="${label.categoryColors?.landmark || '#ff0000'}">
+      </div>
+      
+      <div class="ctrlRow">
+        <label>Leisure</label>
+        <input type="color" data-id="${label.id}" data-prop="categoryColors.leisure" value="${label.categoryColors?.leisure || '#00ff00'}">
+      </div>
+      
+      <div class="ctrlRow">
+        <label>Amenity</label>
+        <input type="color" data-id="${label.id}" data-prop="categoryColors.amenity" value="${label.categoryColors?.amenity || '#0000ff'}">
+      </div>
+      
+      <div class="ctrlRow">
+        <label>Place</label>
+        <input type="color" data-id="${label.id}" data-prop="categoryColors.place" value="${label.categoryColors?.place || '#ffff00'}">
+      </div>
+      ` : ''}
+      
+      <!-- Animation -->
+      <hr style="border:none;border-top:1px solid rgba(255,255,255,.12);margin:12px 0;">
+      <div style="font-weight:700;margin-bottom:8px;">Animation</div>
+      
+      <div class="ctrlRow">
+        <label>Duration (sec)</label>
+        <input type="number" data-id="${label.id}" data-prop="animSeconds" value="${label.animSeconds || 1.8}" step="0.1" min="0.2" max="10">
+      </div>
+      
+      <div class="ctrlRow">
+        <label>Loop</label>
+        <input type="checkbox" data-id="${label.id}" data-prop="loop" ${label.loop ? 'checked' : ''}>
+      </div>
+    `;
+  } else if (isHoverMode) {
+    return `
+      <!-- Pill Label Controls -->
+      <div style="font-weight:700;margin-bottom:8px;">Hover Tip</div>
+      
+      <div class="ctrlRow">
+        <label>Pill Shape</label>
+        <select data-id="${label.id}" data-prop="pillShape">
+          <option value="rounded" ${(label.pillShape || 'rounded') === 'rounded' ? 'selected' : ''}>Rounded</option>
+          <option value="soft-rounded" ${label.pillShape === 'soft-rounded' ? 'selected' : ''}>Soft-rounded</option>
+          <option value="square" ${label.pillShape === 'square' ? 'selected' : ''}>Square</option>
+        </select>
+      </div>
+      
+      <!-- Content Checkboxes -->
+      <div class="ctrlRow" style="flex-direction: column; align-items: flex-start;">
+        <label style="margin-bottom: 6px;">Content (select multiple)</label>
+        <div style="display: flex; flex-direction: column; gap: 4px; width: 100%;">
+          <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
+            <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="name" 
+              ${(Array.isArray(label.content) ? label.content : [label.content]).includes('name') ? 'checked' : ''}>
+            <span>Name</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
+            <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="distance" 
+              ${(Array.isArray(label.content) ? label.content : [label.content]).includes('distance') ? 'checked' : ''}>
+            <span>Distance</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
+            <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="bearing" 
+              ${(Array.isArray(label.content) ? label.content : [label.content]).includes('bearing') ? 'checked' : ''}>
+            <span>Bearing</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
+            <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="category" 
+              ${(Array.isArray(label.content) ? label.content : [label.content]).includes('category') ? 'checked' : ''}>
+            <span>Category</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
+            <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="subtype" 
+              ${(Array.isArray(label.content) ? label.content : [label.content]).includes('subtype') ? 'checked' : ''}>
+            <span>Subtype</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
+            <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="visibility" 
+              ${(Array.isArray(label.content) ? label.content : [label.content]).includes('visibility') ? 'checked' : ''}>
+            <span>Visibility %</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
+            <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="elevation" 
+              ${(Array.isArray(label.content) ? label.content : [label.content]).includes('elevation') ? 'checked' : ''}>
+            <span>Elevation</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
+            <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="id" 
+              ${(Array.isArray(label.content) ? label.content : [label.content]).includes('id') ? 'checked' : ''}>
+            <span>Identifier</span>
+          </label>
+        </div>
+      </div>
+      
+      <div class="ctrlRow">
+        <label>Pill Background</label>
+        <input type="text" data-id="${label.id}" data-prop="pillBackgroundColor" value="${label.pillBackgroundColor || 'rgba(0,0,0,0.75)'}" placeholder="rgba(0,0,0,0.75)" style="font-size:11px;">
+      </div>
+      
+      <div class="ctrlRow">
+        <label>Pill Border</label>
+        <input type="text" data-id="${label.id}" data-prop="pillBorderColor" value="${label.pillBorderColor || 'rgba(255,255,255,0.18)'}" placeholder="rgba(255,255,255,0.18)" style="font-size:11px;">
+      </div>
+      
+      <div class="ctrlRow">
+        <label>Text Color</label>
+        <input type="color" data-id="${label.id}" data-prop="pillTextColor" value="${label.pillTextColor || '#ffffff'}">
+      </div>
+      
+      <div class="ctrlRow">
+        <label>Font Size</label>
+        <input type="number" data-id="${label.id}" data-prop="fontSize" value="${label.fontSize || 12}" step="1" min="8" max="24">
+      </div>
+      
+      <div class="ctrlRow">
+        <label>Font</label>
+        <select data-id="${label.id}" data-prop="font">
+          <option value="helvetica" ${(label.font || 'helvetica') === 'helvetica' ? 'selected' : ''}>Helvetica</option>
+          <option value="inter" ${label.font === 'inter' ? 'selected' : ''}>Inter</option>
+          <option value="manrope" ${label.font === 'manrope' ? 'selected' : ''}>Manrope</option>
+          <option value="ibmplex" ${label.font === 'ibmplex' ? 'selected' : ''}>IBM Plex Sans</option>
+          <option value="spacegrotesk" ${label.font === 'spacegrotesk' ? 'selected' : ''}>Space Grotesk</option>
+          <option value="system" ${label.font === 'system' ? 'selected' : ''}>System UI</option>
+        </select>
+      </div>
+      
+      <div class="ctrlRow">
+        <label>Padding X</label>
+        <input type="number" data-id="${label.id}" data-prop="paddingX" value="${label.paddingX || 10}" step="1" min="0" max="40">
+      </div>
+      
+      <div class="ctrlRow">
+        <label>Padding Y</label>
+        <input type="number" data-id="${label.id}" data-prop="paddingY" value="${label.paddingY || 8}" step="1" min="0" max="40">
+      </div>
+      
+      <!-- Fade Properties -->
+      <hr style="border:none;border-top:1px solid rgba(255,255,255,.12);margin:12px 0;">
+      <div style="font-weight:700;margin-bottom:8px;">Distance Fade</div>
+      
+      <div class="ctrlRow">
+        <label>Fade Start (m)</label>
+        <input type="number" data-id="${label.id}" data-prop="fadeDistance" value="${label.fadeDistance || 100}" step="10" min="0">
+      </div>
+      <div class="ctrlRow">
+        <label>Fade End (m)</label>
+        <input type="number" data-id="${label.id}" data-prop="maxDistance" value="${label.maxDistance || 500}" step="10" min="0">
+      </div>
+    `;
+  }
+  
+  return '<!-- Unknown label type -->';
 }
 
 // Apply all active labels to scene (placeholder - actual implementation depends on rendering system)
@@ -5590,74 +5962,40 @@ function applyAllLabelFX() {
 }
 
 function applyLabelConfigToMarkers(config) {
+  // This function is called when Label FX configs change
+  // But we don't want to recreate all callouts here - they're created once per marker
+  // The actual showing/hiding is handled by updateCalloutsVisibility
+  // This function can be used to update global label text/colors if needed in the future
+  
+  // For now, just ensure all markers have callouts created
   const markers = _getVerifierMarkers();
   
   markers.forEach(m => {
     const cand = m.userData?.cand;
     if (!cand) return;
-
-    // Resolve line color based on config and candidate data
-    let lineColorHex = null;
-    if (config.type === 'clickLine') {
-      const lineColorStr = resolveLabelLineColor(config, m);
-      lineColorHex = parseInt(lineColorStr.replace('#', ''), 16);
-    }
-
-    // Build callout with config parameters
-    const callout = makeCalloutAnimated(
-      m,
-      getLabelText(config.content, cand),
-      isVisibleCandidate(cand),
-      m.userData.colorHex || 0x00c8ff,
-      lineColorHex
-    );
-
-    // Add callout to marker and store reference for later updates
-    if (callout) {
-      m.add(callout);
-      m.userData.callout = callout;
-
-      // Apply config styling
-      if (callout.userData) {
-        const ud = callout.userData;
-        
-        // Update animation params from config
-        ud.rise = config.riseWorld || 40;
-        ud.sqW = config.squareWorld || 6;
-        ud.lblW = config.labelWorld || 18;
-        ud.speed = 1 / (config.animSeconds || 1.8);
-        
-        // Update label styling
-        if (ud.label) {
-          // Rebuild label with new config
-          const oldLabel = ud.label;
-          const newLabel = makeConfiguredLabelSprite(
-            getLabelText(config.content, cand),
-            config.labelWorld || 18,
-            config.textColor || "#ffffff",
-            config.backgroundColor || "rgba(0,0,0,0.6)",
-            config.borderColor || "rgba(255,255,255,0.3)",
-            config.font || "helvetica"
-          );
-          
-          // Replace in callout
-          const parent = oldLabel.parent;
-          if (parent) {
-            parent.remove(oldLabel);
-            disposeSprite(oldLabel);
-            parent.add(newLabel);
-            newLabel.position.copy(oldLabel.position);
-            ud.label = newLabel;
-          }
-        }
-
-        // Set initial visibility based on config
-        if (config.showOnHover) {
-          ud.target = 0; // Start hidden, show on hover
-        } else if (config.type === 'fixed') {
-          ud.target = 1; // Always visible
-        }
+    
+    // If marker doesn't have a callout yet, create one with default config
+    if (!m.userData?.callout) {
+      const labelConfig = activeLabels.find(l => l.type === 'label');
+      const hoverConfig = activeLabels.find(l => l.type === 'hover');
+      const useConfig = labelConfig || hoverConfig;
+      
+      // Resolve line color
+      let lineColorHex = null;
+      if (useConfig && useConfig.type === 'label' && useConfig.showLine) {
+        const lineColorStr = resolveColorForElement(useConfig, cand, 'line');
+        lineColorHex = parseInt(lineColorStr.replace('#', ''), 16);
       }
+      
+      // Build callout with config parameters
+      const callout = makeCalloutAnimated(
+        m,
+        getLabelText(useConfig?.content || ['name'], cand),
+        isVisibleCandidate(cand),
+        m.userData.colorHex || 0x00c8ff,
+        lineColorHex,
+        useConfig
+      );
     }
   });
 }
@@ -5668,10 +6006,24 @@ function getLabelText(contentType, cand) {
     const parts = contentType.map(type => {
       switch(type) {
         case 'name': return candidateName(cand);
-        case 'type': return safeStr(cand?.dst_type || '');
+        case 'category': return safeStr(cand?.dst_type || '');
+        case 'subtype': return safeStr(cand?.amenity || cand?.leisure || cand?.place || '');
         case 'visibility': return `${fmt(getCandidateVisPct(cand), 0)}%`;
         case 'distance': return `${fmt(getCandidateDistanceM(cand), 1)}m`;
-        case 'id': return safeStr(cand?.id || '');
+        case 'bearing': {
+          const baseRel = cand?.base_rel_yaw;
+          return baseRel !== undefined ? `${fmt(baseRel, 1)}°` : '';
+        }
+        case 'elevation': {
+          const baseElev = cand?.base_elev;
+          return baseElev !== undefined ? `${fmt(baseElev, 2)}°` : '';
+        }
+        case 'id': {
+          // ID types: LMID (Landmark ID), osm_id (OpenStreetMap ID), dst_id (Destination ID)
+          // LMID uses all-caps per original dataset convention
+          const id = cand?.LMID || cand?.osm_id || cand?.dst_id || cand?.id;
+          return safeStr(id || '');
+        }
         default: return '';
       }
     }).filter(part => part); // Remove empty strings
@@ -5889,13 +6241,13 @@ function animate(){
     c.quaternion.copy(camera.quaternion);
   });
 
-  // keep hover labels glued
-  labelGroup.children.forEach(lbl=>{
-    const m = lbl.userData.marker;
-    if (!m) return;
-    const dir = m.position.clone().normalize();
-    lbl.position.copy(dir.multiplyScalar(MARKER_RADIUS - 10));
-  });
+  // LEGACY: Old label group system replaced by callout system attached to markers
+  // labelGroup.children.forEach(lbl=>{
+  //   const m = lbl.userData.marker;
+  //   if (!m) return;
+  //   const dir = m.position.clone().normalize();
+  //   lbl.position.copy(dir.multiplyScalar(MARKER_RADIUS - 10));
+  // });
 
   renderer.clear();
   renderer.render(scenePano, camera);
