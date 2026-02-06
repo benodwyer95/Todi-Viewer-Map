@@ -2493,6 +2493,10 @@ function updateCalloutAnims(){
       }
     }
 
+    // Stroke phase calculation (needed for both line and label color transitions)
+    const strokePhase = clamp((t - 0.82)/0.18, 0, 1);
+    const sp = easeOutCubic(strokePhase);
+
     // line end Y, leaving gaps (only if line exists)
     if (ud.line) {
       const usable = Math.max(0, ud.rise - ud.gap1 - ud.gap2);
@@ -2554,10 +2558,7 @@ function updateCalloutAnims(){
       ud.label.scale.set(bs.x * baseScale, bs.y * baseScale, 1);
     }
 
-    // stroke color transition near the end: black -> typeHex
-    const strokePhase = clamp((t - 0.82)/0.18, 0, 1);
-    const sp = easeOutCubic(strokePhase);
-
+    // Label stroke color transition: black -> typeHex (using sp calculated above)
     const tr = (ud.typeHex >> 16) & 255;
     const tg = (ud.typeHex >> 8) & 255;
     const tb = ud.typeHex & 255;
