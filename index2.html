@@ -2208,10 +2208,13 @@ function updateAllPillFonts(){
   });
 }
 
-function makeCalloutAnimated(root, name, isVisible=true, typeHex=0x00c8ff, lineColorHex=null){
-  const rise = 40; // Default value, will be overridden by Label FX config
-  const sqW  = 6;  // Default value, will be overridden by Label FX config
-  const lblW = 18; // Default value, will be overridden by Label FX config
+function makeCalloutAnimated(root, name, isVisible=true, typeHex=0x00c8ff, lineColorHex=null, config=null){
+  // Use config if provided, otherwise use defaults
+  const rise = config?.lineHeight || 40;
+  const sqW  = config?.displayShapeSize || 6;
+  const lblW = 18; // Label world size (can be config-driven in future)
+  const showLine = config?.showLine !== false; // default true
+  const showDisplayShape = config?.showDisplayShape !== false; // default true
 
   // gaps: square -> line start, line end -> square, square -> label
   const gap1 = Math.max(1.5, sqW * 0.35);
@@ -2222,49 +2225,55 @@ function makeCalloutAnimated(root, name, isVisible=true, typeHex=0x00c8ff, lineC
   call.renderOrder = 10000;
   call.userData.isCallout = true;
 
-  // bottom square
+  // bottom square (hidden - used as anchor point)
   const sq1 = makeSquareSprite(sqW);
   sq1.position.set(0,0,0);
+  sq1.visible = false; // Always hidden, just anchor
   call.add(sq1);
 
   // line (animate end Y). Start at gap1 so there's an air gap above square.
-  const pts = [new THREE.Vector3(0, gap1, 0), new THREE.Vector3(0, gap1, 0)];
-  const geo = new THREE.BufferGeometry().setFromPoints(pts);
+  let line = null;
+  if (showLine) {
+    const pts = [new THREE.Vector3(0, gap1, 0), new THREE.Vector3(0, gap1, 0)];
+    const geo = new THREE.BufferGeometry().setFromPoints(pts);
 
-  let line;
-  const actualLineColor = lineColorHex !== null ? lineColorHex : typeHex;
-  if (isVisible){
-    const mat = new THREE.LineBasicMaterial({ color: actualLineColor, transparent:true, opacity:0.0 });
-    mat.depthTest = false;
-    line = new THREE.Line(geo, mat);
-  } else {
-    const mat = new THREE.LineDashedMaterial({
-      color: actualLineColor,
-      transparent:true,
-      opacity:0.0,
-      dashSize: Math.max(3, rise * 0.18),
-      gapSize:  Math.max(2, rise * 0.12)
-    });
-    mat.depthTest = false;
-    line = new THREE.Line(geo, mat);
-    line.computeLineDistances();
+    const actualLineColor = lineColorHex !== null ? lineColorHex : typeHex;
+    if (isVisible){
+      const mat = new THREE.LineBasicMaterial({ color: actualLineColor, transparent:true, opacity:0.0 });
+      mat.depthTest = false;
+      line = new THREE.Line(geo, mat);
+    } else {
+      const mat = new THREE.LineDashedMaterial({
+        color: actualLineColor,
+        transparent:true,
+        opacity:0.0,
+        dashSize: Math.max(3, rise * 0.18),
+        gapSize:  Math.max(2, rise * 0.12)
+      });
+      mat.depthTest = false;
+      line = new THREE.Line(geo, mat);
+      line.computeLineDistances();
+    }
+    line.renderOrder = 10001;
+    call.add(line);
   }
-  line.renderOrder = 10001;
-  call.add(line);
 
   // X marker at halfway for NOT visible (fades with the line)
   let xSpr = null;
-  if (!isVisible){
+  if (!isVisible && showLine){
     xSpr = makeXSprite(Math.max(5, sqW*0.95));
     xSpr.position.set(0, rise*0.5, 0);
     xSpr.material.opacity = 0.0;
     call.add(xSpr);
   }
 
-  // top square (moves with line end)
-  const sq2 = makeSquareSprite(sqW);
-  sq2.position.set(0, gap1 + gap2, 0);
-  call.add(sq2);
+  // top square (display shape - moves with line end)
+  let sq2 = null;
+  if (showDisplayShape) {
+    sq2 = makeSquareSprite(sqW);
+    sq2.position.set(0, gap1 + gap2, 0);
+    call.add(sq2);
+  }
 
   // pill label (appears last)
   const label = makePillLabelSprite(name, lblW, 0x000000);
@@ -2275,9 +2284,12 @@ function makeCalloutAnimated(root, name, isVisible=true, typeHex=0x00c8ff, lineC
 
   // init hidden
   const bs1 = sq1.userData?.baseScale;
-  const bs2 = sq2.userData?.baseScale;
   if (bs1) sq1.scale.copy(bs1).multiplyScalar(0.0001); else sq1.scale.setScalar(0.0001);
-  if (bs2) sq2.scale.copy(bs2).multiplyScalar(0.0001); else sq2.scale.setScalar(0.0001);
+  
+  if (sq2) {
+    const bs2 = sq2.userData?.baseScale;
+    if (bs2) sq2.scale.copy(bs2).multiplyScalar(0.0001); else sq2.scale.setScalar(0.0001);
+  }
 
   // always on top
   call.traverse(o=>{
@@ -2300,8 +2312,9 @@ function makeCalloutAnimated(root, name, isVisible=true, typeHex=0x00c8ff, lineC
     sq1, sq2, line, label, xSpr,
     t: 0,
     target: 0,
-    speed: 1 / 1.8, // Default animation speed, will be overridden by Label FX config
-    lastStrokeHex: 0x000000
+    speed: config?.animSeconds ? (1 / config.animSeconds) : (1 / 1.8),
+    lastStrokeHex: 0x000000,
+    config: config // Store config for updates
   };
 
   root.userData.callout = call;
@@ -2380,46 +2393,71 @@ function updateCalloutAnims(){
     const k3 = easeOutCubic(t3);
     const k4 = easeOutCubic(t4);
 
-    // bottom square
+    // bottom square (hidden anchor)
     {
-      const bs = ud.sq1.userData?.baseScale;
+      const bs = ud.sq1?.userData?.baseScale;
       const s = Math.max(0.0001, k1);
-      if (bs) ud.sq1.scale.copy(bs).multiplyScalar(s);
-      else ud.sq1.scale.setScalar(s);
-    }
-// line end Y, leaving gaps
-    const usable = Math.max(0, ud.rise - ud.gap1 - ud.gap2);
-    const endY = ud.gap1 + usable * k2;
-
-    const pos = ud.line.geometry.attributes.position;
-    pos.setXYZ(0, 0, ud.gap1, 0);
-    pos.setXYZ(1, 0, endY, 0);
-    pos.needsUpdate = true;
-
-    ud.line.material.opacity = 0.95 * k2;
-    if (ud.line.isLine && ud.line.material.isLineDashedMaterial){
-      ud.line.computeLineDistances();
+      if (ud.sq1) {
+        if (bs) ud.sq1.scale.copy(bs).multiplyScalar(s);
+        else ud.sq1.scale.setScalar(s);
+      }
     }
 
-    // optional X marker
-    if (ud.xSpr && ud.xSpr.material){
-      ud.xSpr.material.opacity = 0.95 * k2;
-    }
+    // line end Y, leaving gaps (only if line exists)
+    if (ud.line) {
+      const usable = Math.max(0, ud.rise - ud.gap1 - ud.gap2);
+      const endY = ud.gap1 + usable * k2;
 
-    // top square follows line end + gap2
-    ud.sq2.position.set(0, endY + ud.gap2, 0);
-    {
-      const bs = ud.sq2.userData?.baseScale;
-      const s = Math.max(0.0001, k3);
-      if (bs) ud.sq2.scale.copy(bs).multiplyScalar(s);
-      else ud.sq2.scale.setScalar(s);
+      const pos = ud.line.geometry.attributes.position;
+      pos.setXYZ(0, 0, ud.gap1, 0);
+      pos.setXYZ(1, 0, endY, 0);
+      pos.needsUpdate = true;
+
+      ud.line.material.opacity = 0.95 * k2;
+      if (ud.line.isLine && ud.line.material.isLineDashedMaterial){
+        ud.line.computeLineDistances();
+      }
+      
+      // optional X marker
+      if (ud.xSpr && ud.xSpr.material){
+        ud.xSpr.material.opacity = 0.95 * k2;
+      }
+      
+      // top square follows line end + gap2 (only if sq2 exists)
+      if (ud.sq2) {
+        ud.sq2.position.set(0, endY + ud.gap2, 0);
+        const bs = ud.sq2.userData?.baseScale;
+        const s = Math.max(0.0001, k3);
+        if (bs) ud.sq2.scale.copy(bs).multiplyScalar(s);
+        else ud.sq2.scale.setScalar(s);
+      }
+      
+      // label above top square with small gap
+      const topCenterY = endY + ud.gap2;
+      const topEdgeY = topCenterY + (ud.sqW*0.5);
+      const baseH = (ud.label.userData?.baseScale ? ud.label.userData.baseScale.y : ud.label.scale.y);
+      const labelHalfH = baseH * 0.5;
+      ud.label.position.set(0, topEdgeY + ud.gap3 + labelHalfH, 0);
+      
+      // Line color transition
+      const strokePhase = clamp((t - 0.82)/0.18, 0, 1);
+      const sp = easeOutCubic(strokePhase);
+      
+      const ltr = (ud.lineColorHex >> 16) & 255;
+      const ltg = (ud.lineColorHex >> 8) & 255;
+      const ltb = ud.lineColorHex & 255;
+      const lrr = Math.round(lerp(0, ltr, sp));
+      const lrg = Math.round(lerp(0, ltg, sp));
+      const lrb = Math.round(lerp(0, ltb, sp));
+      const lineStrokeHex = (lrr<<16) | (lrg<<8) | lrb;
+      ud.line.material.color.setHex(lineStrokeHex);
+    } else {
+      // No line - label appears at fixed height
+      const baseH = (ud.label.userData?.baseScale ? ud.label.userData.baseScale.y : ud.label.scale.y);
+      const labelHalfH = baseH * 0.5;
+      ud.label.position.set(0, ud.gap1 + labelHalfH, 0);
     }
-// label above top square with small gap
-    const topCenterY = endY + ud.gap2;
-    const topEdgeY = topCenterY + (ud.sqW*0.5);
-    const baseH = (ud.label.userData?.baseScale ? ud.label.userData.baseScale.y : ud.label.scale.y);
-    const labelHalfH = baseH * 0.5;
-    ud.label.position.set(0, topEdgeY + ud.gap3 + labelHalfH, 0);
+    
     ud.label.material.opacity = k4;
 
     // slight scale-in while keeping aspect
@@ -2440,18 +2478,6 @@ function updateCalloutAnims(){
     const rg = Math.round(lerp(0, tg, sp));
     const rb = Math.round(lerp(0, tb, sp));
     const strokeHex = (rr<<16) | (rg<<8) | rb;
-
-    // line uses lineColorHex (which may differ from typeHex based on label config)
-    if (ud.line?.material?.color) {
-      const ltr = (ud.lineColorHex >> 16) & 255;
-      const ltg = (ud.lineColorHex >> 8) & 255;
-      const ltb = ud.lineColorHex & 255;
-      const lrr = Math.round(lerp(0, ltr, sp));
-      const lrg = Math.round(lerp(0, ltg, sp));
-      const lrb = Math.round(lerp(0, ltb, sp));
-      const lineStrokeHex = (lrr<<16) | (lrg<<8) | lrb;
-      ud.line.material.color.setHex(lineStrokeHex);
-    }
 
     if (strokeHex !== ud.lastStrokeHex){
       updatePillSprite(ud.label, ud.name, ud.lblW, strokeHex);
@@ -5773,98 +5799,42 @@ function applyAllLabelFX() {
 }
 
 function applyLabelConfigToMarkers(config) {
+  // This function is called when Label FX configs change
+  // But we don't want to recreate all callouts here - they're created once per marker
+  // The actual showing/hiding is handled by updateCalloutsVisibility
+  // This function can be used to update global label text/colors if needed in the future
+  
+  // For now, just ensure all markers have callouts created
   const markers = _getVerifierMarkers();
   
   markers.forEach(m => {
     const cand = m.userData?.cand;
     if (!cand) return;
-
-    // Resolve line color based on config and candidate data
-    let lineColorHex = null;
-    if (config.type === 'clickLine') {
-      const lineColorStr = resolveLabelLineColor(config, m);
-      lineColorHex = parseInt(lineColorStr.replace('#', ''), 16);
-    }
-
-    // Build callout with config parameters
-    const callout = makeCalloutAnimated(
-      m,
-      getLabelText(config.content, cand),
-      isVisibleCandidate(cand),
-      m.userData.colorHex || 0x00c8ff,
-      lineColorHex
-    );
-
-    // Add callout to marker and store reference for later updates
-    if (callout) {
-      m.add(callout);
-      m.userData.callout = callout;
-
-      // Apply config styling
-      if (callout.userData) {
-        const ud = callout.userData;
-        
-        // Update animation params from config
-        ud.rise = config.riseWorld || 40;
-        ud.sqW = config.squareWorld || 6;
-        ud.lblW = config.labelWorld || 18;
-        ud.speed = 1 / (config.animSeconds || 1.8);
-        
-        // Update label styling
-        if (ud.label) {
-          // Rebuild label with new config
-          const oldLabel = ud.label;
-          const newLabel = makeConfiguredLabelSprite(
-            getLabelText(config.content, cand),
-            config.labelWorld || 18,
-            config.textColor || "#ffffff",
-            config.backgroundColor || "rgba(0,0,0,0.6)",
-            config.borderColor || "rgba(255,255,255,0.3)",
-            config.font || "helvetica"
-          );
-          
-          // Replace in callout
-          const parent = oldLabel.parent;
-          if (parent) {
-            parent.remove(oldLabel);
-            disposeSprite(oldLabel);
-            parent.add(newLabel);
-            newLabel.position.copy(oldLabel.position);
-            ud.label = newLabel;
-          }
-        }
-
-        // Set initial visibility based on config
-        if (config.showOnHover) {
-          ud.target = 0; // Start hidden, show on hover
-        } else if (config.type === 'fixed') {
-          ud.target = 1; // Always visible
-        }
+    
+    // If marker doesn't have a callout yet, create one with default config
+    if (!m.userData?.callout) {
+      const labelConfig = activeLabels.find(l => l.type === 'label');
+      const hoverConfig = activeLabels.find(l => l.type === 'hover');
+      const useConfig = labelConfig || hoverConfig;
+      
+      // Resolve line color
+      let lineColorHex = null;
+      if (useConfig && useConfig.type === 'label' && useConfig.showLine) {
+        const lineColorStr = resolveColorForElement(useConfig, cand, 'line');
+        lineColorHex = parseInt(lineColorStr.replace('#', ''), 16);
       }
+      
+      // Build callout with config parameters
+      const callout = makeCalloutAnimated(
+        m,
+        getLabelText(useConfig?.content || ['name'], cand),
+        isVisibleCandidate(cand),
+        m.userData.colorHex || 0x00c8ff,
+        lineColorHex,
+        useConfig
+      );
     }
   });
-}
-
-// Resolve color based on config mode (category/visibility/single)
-function resolveColorForElement(config, candidate, element) {
-  // element: "line" | "displayShape" | "pillBackground" | "pillBorder" | "pillText"
-  
-  const colorMode = config[`${element}ColorMode`] || config.pillColorMode || "single";
-  
-  if (colorMode === "category") {
-    const dstType = candidate?.dst_type || "unknown";
-    return config.categoryColors?.[dstType] || config[`${element}Color`] || "#ffffff";
-  }
-  
-  if (colorMode === "visibility") {
-    const visPct = getCandidateVisPct(candidate) || 0;
-    if (visPct >= 80) return "#00ff00"; // green
-    if (visPct >= 40) return "#ffff00"; // yellow
-    return "#ff0000"; // red
-  }
-  
-  // "single" mode
-  return config[`${element}Color`] || "#ffffff";
 }
 
 function getLabelText(contentType, cand) {
