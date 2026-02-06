@@ -4999,6 +4999,10 @@ function renderMarkerFXList() {
   const container = document.getElementById('activeMarkersList');
   if (!container) return;
   
+  // Preserve scroll position to prevent auto-scroll bug (Issue #13)
+  const scrollParent = container.parentElement;
+  const scrollTop = scrollParent ? scrollParent.scrollTop : 0;
+  
   container.innerHTML = '';
   
   activeMarkers.forEach(marker => {
@@ -5016,6 +5020,11 @@ function renderMarkerFXList() {
     `;
     container.appendChild(markerDiv);
   });
+  
+  // Restore scroll position after rebuilding UI
+  if (scrollParent) {
+    scrollParent.scrollTop = scrollTop;
+  }
   
   // Wire up events
   container.querySelectorAll('.markerToggle').forEach(btn => {
@@ -5579,6 +5588,10 @@ function renderLabelFXList() {
   const container = document.getElementById('activeLabelsList');
   if (!container) return;
   
+  // Preserve scroll position to prevent auto-scroll bug (Issue #13)
+  const scrollParent = container.parentElement;
+  const scrollTop = scrollParent ? scrollParent.scrollTop : 0;
+  
   container.innerHTML = '';
   
   activeLabels.forEach(label => {
@@ -5596,6 +5609,11 @@ function renderLabelFXList() {
     `;
     container.appendChild(labelDiv);
   });
+  
+  // Restore scroll position after rebuilding UI
+  if (scrollParent) {
+    scrollParent.scrollTop = scrollTop;
+  }
   
   // Wire up events
   container.querySelectorAll('.markerToggle').forEach(btn => {
