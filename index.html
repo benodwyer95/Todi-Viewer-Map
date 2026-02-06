@@ -5850,22 +5850,22 @@ function renderMarkerFXControls(marker) {
     <!-- Single Color -->
     <div class="ctrlRow colorSingle" style="${marker.colorMode !== 'single' ? 'display:none' : ''}">
       <label>Color</label>
-      <input type="color" data-id="${marker.id}" data-prop="color" value="${marker.color}">
+      ${renderColorSwatch(marker.id, 'color', marker.color, false)}
     </div>
     
     <!-- Category Colors -->
     <div class="colorCategory" style="${marker.colorMode !== 'category' ? 'display:none' : ''}">
-      <div class="ctrlRow"><label>Landmark</label><input type="color" data-id="${marker.id}" data-prop="categoryColors.landmark" value="${marker.categoryColors.landmark || marker.categoryColors.Landmark || '#ff6b6b'}"></div>
-      <div class="ctrlRow"><label>Leisure</label><input type="color" data-id="${marker.id}" data-prop="categoryColors.leisure" value="${marker.categoryColors.leisure || marker.categoryColors.Leisure || '#4ecdc4'}"></div>
-      <div class="ctrlRow"><label>Place</label><input type="color" data-id="${marker.id}" data-prop="categoryColors.place" value="${marker.categoryColors.place || marker.categoryColors.Place || '#f38181'}"></div>
-      <div class="ctrlRow"><label>Amenity</label><input type="color" data-id="${marker.id}" data-prop="categoryColors.amenity" value="${marker.categoryColors.amenity || marker.categoryColors.Amenity || '#aa96da'}"></div>
+      <div class="ctrlRow"><label>Landmark</label>${renderColorSwatch(marker.id, 'categoryColors.landmark', marker.categoryColors.landmark || marker.categoryColors.Landmark || '#ff6b6b', false)}</div>
+      <div class="ctrlRow"><label>Leisure</label>${renderColorSwatch(marker.id, 'categoryColors.leisure', marker.categoryColors.leisure || marker.categoryColors.Leisure || '#4ecdc4', false)}</div>
+      <div class="ctrlRow"><label>Place</label>${renderColorSwatch(marker.id, 'categoryColors.place', marker.categoryColors.place || marker.categoryColors.Place || '#f38181', false)}</div>
+      <div class="ctrlRow"><label>Amenity</label>${renderColorSwatch(marker.id, 'categoryColors.amenity', marker.categoryColors.amenity || marker.categoryColors.Amenity || '#aa96da', false)}</div>
     </div>
     
     <!-- Visibility Colors -->
     <div class="colorVisibility" style="${marker.colorMode !== 'visibility' ? 'display:none' : ''}">
-      <div class="ctrlRow"><label>High (80-100%)</label><input type="color" data-id="${marker.id}" data-prop="visibilityColors.high" value="${marker.visibilityColors.high}"></div>
-      <div class="ctrlRow"><label>Med (40-80%)</label><input type="color" data-id="${marker.id}" data-prop="visibilityColors.medium" value="${marker.visibilityColors.medium}"></div>
-      <div class="ctrlRow"><label>Low (0-40%)</label><input type="color" data-id="${marker.id}" data-prop="visibilityColors.low" value="${marker.visibilityColors.low}"></div>
+      <div class="ctrlRow"><label>High (80-100%)</label>${renderColorSwatch(marker.id, 'visibilityColors.high', marker.visibilityColors.high, false)}</div>
+      <div class="ctrlRow"><label>Med (40-80%)</label>${renderColorSwatch(marker.id, 'visibilityColors.medium', marker.visibilityColors.medium, false)}</div>
+      <div class="ctrlRow"><label>Low (0-40%)</label>${renderColorSwatch(marker.id, 'visibilityColors.low', marker.visibilityColors.low, false)}</div>
     </div>
     
     ${hasParticles ? `
@@ -6595,7 +6595,7 @@ function renderLabelFXControls(label) {
       ${label.lineColorMode === 'single' ? `
       <div class="ctrlRow">
         <label>Line Color</label>
-        <input type="color" data-id="${label.id}" data-prop="lineColor" value="${label.lineColor || '#00ff00'}">
+        ${renderColorSwatch(label.id, 'lineColor', label.lineColor || '#00ff00', false)}
       </div>
       ` : ''}
       
@@ -6648,12 +6648,12 @@ function renderLabelFXControls(label) {
       
       <div class="ctrlRow">
         <label>Shape Fill Color</label>
-        <input type="text" data-id="${label.id}" data-prop="displayShapeFillColor" value="${label.displayShapeFillColor || 'rgba(0,0,0,0.95)'}" placeholder="rgba(0,0,0,0.95)" style="font-size:11px;">
+        ${renderColorSwatch(label.id, 'displayShapeFillColor', label.displayShapeFillColor || 'rgba(0,0,0,0.95)', true)}
       </div>
       
       <div class="ctrlRow">
         <label>Shape Stroke Color</label>
-        <input type="text" data-id="${label.id}" data-prop="displayShapeStrokeColor" value="${label.displayShapeStrokeColor || 'rgba(255,255,255,0.8)'}" placeholder="rgba(255,255,255,0.8)" style="font-size:11px;">
+        ${renderColorSwatch(label.id, 'displayShapeStrokeColor', label.displayShapeStrokeColor || 'rgba(255,255,255,0.8)', true)}
       </div>
       
       <div class="ctrlRow">
@@ -6778,18 +6778,18 @@ function renderLabelFXControls(label) {
       ${label.pillColorMode === 'single' ? `
       <div class="ctrlRow">
         <label>Pill Background</label>
-        <input type="text" data-id="${label.id}" data-prop="pillBackgroundColor" value="${label.pillBackgroundColor || 'rgba(0,0,0,0.75)'}" placeholder="rgba(0,0,0,0.75)" style="font-size:11px;">
+        ${renderColorSwatch(label.id, 'pillBackgroundColor', label.pillBackgroundColor || 'rgba(0,0,0,0.75)', true)}
       </div>
       
       <div class="ctrlRow">
         <label>Pill Border</label>
-        <input type="text" data-id="${label.id}" data-prop="pillBorderColor" value="${label.pillBorderColor || 'rgba(255,255,255,0.18)'}" placeholder="rgba(255,255,255,0.18)" style="font-size:11px;">
+        ${renderColorSwatch(label.id, 'pillBorderColor', label.pillBorderColor || 'rgba(255,255,255,0.18)', true)}
       </div>
       ` : ''}
       
       <div class="ctrlRow">
         <label>Text Color</label>
-        <input type="color" data-id="${label.id}" data-prop="pillTextColor" value="${label.pillTextColor || '#ffffff'}">
+        ${renderColorSwatch(label.id, 'pillTextColor', label.pillTextColor || '#ffffff', false)}
       </div>
       
       <div class="ctrlRow">
@@ -6828,22 +6828,22 @@ function renderLabelFXControls(label) {
       
       <div class="ctrlRow">
         <label>Landmark</label>
-        <input type="color" data-id="${label.id}" data-prop="categoryColors.landmark" value="${label.categoryColors?.landmark || '#ff0000'}">
+        ${renderColorSwatch(label.id, 'categoryColors.landmark', label.categoryColors?.landmark || '#ff0000', false)}
       </div>
       
       <div class="ctrlRow">
         <label>Leisure</label>
-        <input type="color" data-id="${label.id}" data-prop="categoryColors.leisure" value="${label.categoryColors?.leisure || '#00ff00'}">
+        ${renderColorSwatch(label.id, 'categoryColors.leisure', label.categoryColors?.leisure || '#00ff00', false)}
       </div>
       
       <div class="ctrlRow">
         <label>Amenity</label>
-        <input type="color" data-id="${label.id}" data-prop="categoryColors.amenity" value="${label.categoryColors?.amenity || '#0000ff'}">
+        ${renderColorSwatch(label.id, 'categoryColors.amenity', label.categoryColors?.amenity || '#0000ff', false)}
       </div>
       
       <div class="ctrlRow">
         <label>Place</label>
-        <input type="color" data-id="${label.id}" data-prop="categoryColors.place" value="${label.categoryColors?.place || '#ffff00'}">
+        ${renderColorSwatch(label.id, 'categoryColors.place', label.categoryColors?.place || '#ffff00', false)}
       </div>
       ` : ''}
       
@@ -6897,7 +6897,7 @@ function renderLabelFXControls(label) {
       ${label.lineColorMode === 'single' ? `
       <div class="ctrlRow">
         <label>Line Color</label>
-        <input type="color" data-id="${label.id}" data-prop="lineColor" value="${label.lineColor || '#00ff00'}">
+        ${renderColorSwatch(label.id, 'lineColor', label.lineColor || '#00ff00', false)}
       </div>
       ` : ''}
       
@@ -6950,12 +6950,12 @@ function renderLabelFXControls(label) {
       
       <div class="ctrlRow">
         <label>Shape Fill Color</label>
-        <input type="text" data-id="${label.id}" data-prop="displayShapeFillColor" value="${label.displayShapeFillColor || 'rgba(0,0,0,0.95)'}" placeholder="rgba(0,0,0,0.95)" style="font-size:11px;">
+        ${renderColorSwatch(label.id, 'displayShapeFillColor', label.displayShapeFillColor || 'rgba(0,0,0,0.95)', true)}
       </div>
       
       <div class="ctrlRow">
         <label>Shape Stroke Color</label>
-        <input type="text" data-id="${label.id}" data-prop="displayShapeStrokeColor" value="${label.displayShapeStrokeColor || 'rgba(255,255,255,0.8)'}" placeholder="rgba(255,255,255,0.8)" style="font-size:11px;">
+        ${renderColorSwatch(label.id, 'displayShapeStrokeColor', label.displayShapeStrokeColor || 'rgba(255,255,255,0.8)', true)}
       </div>
       
       <div class="ctrlRow">
@@ -7080,18 +7080,18 @@ function renderLabelFXControls(label) {
       ${label.pillColorMode === 'single' ? `
       <div class="ctrlRow">
         <label>Pill Background</label>
-        <input type="text" data-id="${label.id}" data-prop="pillBackgroundColor" value="${label.pillBackgroundColor || 'rgba(0,0,0,0.75)'}" placeholder="rgba(0,0,0,0.75)" style="font-size:11px;">
+        ${renderColorSwatch(label.id, 'pillBackgroundColor', label.pillBackgroundColor || 'rgba(0,0,0,0.75)', true)}
       </div>
       
       <div class="ctrlRow">
         <label>Pill Border</label>
-        <input type="text" data-id="${label.id}" data-prop="pillBorderColor" value="${label.pillBorderColor || 'rgba(255,255,255,0.18)'}" placeholder="rgba(255,255,255,0.18)" style="font-size:11px;">
+        ${renderColorSwatch(label.id, 'pillBorderColor', label.pillBorderColor || 'rgba(255,255,255,0.18)', true)}
       </div>
       ` : ''}
       
       <div class="ctrlRow">
         <label>Text Color</label>
-        <input type="color" data-id="${label.id}" data-prop="pillTextColor" value="${label.pillTextColor || '#ffffff'}">
+        ${renderColorSwatch(label.id, 'pillTextColor', label.pillTextColor || '#ffffff', false)}
       </div>
       
       <div class="ctrlRow">
@@ -7130,22 +7130,22 @@ function renderLabelFXControls(label) {
       
       <div class="ctrlRow">
         <label>Landmark</label>
-        <input type="color" data-id="${label.id}" data-prop="categoryColors.landmark" value="${label.categoryColors?.landmark || '#ff0000'}">
+        ${renderColorSwatch(label.id, 'categoryColors.landmark', label.categoryColors?.landmark || '#ff0000', false)}
       </div>
       
       <div class="ctrlRow">
         <label>Leisure</label>
-        <input type="color" data-id="${label.id}" data-prop="categoryColors.leisure" value="${label.categoryColors?.leisure || '#00ff00'}">
+        ${renderColorSwatch(label.id, 'categoryColors.leisure', label.categoryColors?.leisure || '#00ff00', false)}
       </div>
       
       <div class="ctrlRow">
         <label>Amenity</label>
-        <input type="color" data-id="${label.id}" data-prop="categoryColors.amenity" value="${label.categoryColors?.amenity || '#0000ff'}">
+        ${renderColorSwatch(label.id, 'categoryColors.amenity', label.categoryColors?.amenity || '#0000ff', false)}
       </div>
       
       <div class="ctrlRow">
         <label>Place</label>
-        <input type="color" data-id="${label.id}" data-prop="categoryColors.place" value="${label.categoryColors?.place || '#ffff00'}">
+        ${renderColorSwatch(label.id, 'categoryColors.place', label.categoryColors?.place || '#ffff00', false)}
       </div>
       ` : ''}
       
