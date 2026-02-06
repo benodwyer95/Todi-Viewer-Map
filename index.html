@@ -2350,6 +2350,327 @@ function updateAllPillFonts(){
   });
 }
 
+// ========== MULTI-LINE PILL SPRITE SYSTEM (Issues 7 & 8) ==========
+
+function makeMultiLinePillSprite(lines, worldSize=18, strokeHex=0x000000, config=null){
+  // lines is an array of line objects: [{ text, fontSize, fontFamily, bold, italic, underline, strikethrough, alignment }]
+  if (!Array.isArray(lines) || lines.length === 0) {
+    // Fallback to single-line sprite
+    return makePillLabelSprite('', worldSize, strokeHex, config);
+  }
+
+  // ---- styling knobs ----
+  const padX = config?.paddingX ?? 18;
+  const padY = config?.paddingY ?? 12;
+  const lineSpacing = config?.lineSpacing ?? 4; // Gap between lines
+
+  // Render at higher pixel density
+  const dpr = Math.max(2, Math.round((window.devicePixelRatio || 1) * 2) / 2);
+  const c = document.createElement('canvas');
+  const g = c.getContext('2d', { alpha:true });
+
+  // Measure all lines to determine canvas size
+  let maxWidth = 0;
+  let totalHeight = 0;
+  const lineMetrics = [];
+
+  lines.forEach((line, idx) => {
+    const lineText = safeStr(line.text || '');
+    const fontPx = (line.fontSize || 12) * 2.33;
+    const fontStack = FONT_STACKS[line.fontFamily || 'helvetica'] || FONT_STACKS.helvetica;
+    const fontWeight = line.bold ? '900' : '400';
+    const fontStyle = line.italic ? 'italic' : 'normal';
+    
+    g.font = `${fontStyle} ${fontWeight} ${fontPx}px ${fontStack}`;
+    const tw = Math.ceil(g.measureText(lineText).width);
+    
+    lineMetrics.push({
+      text: lineText,
+      fontSize: fontPx,
+      fontFamily: fontStack,
+      bold: line.bold,
+      italic: line.italic,
+      underline: line.underline,
+      strikethrough: line.strikethrough,
+      alignment: line.alignment || 'left',
+      width: tw,
+      height: fontPx
+    });
+    
+    maxWidth = Math.max(maxWidth, tw);
+    totalHeight += fontPx + (idx < lines.length - 1 ? lineSpacing : 0);
+  });
+
+  const w1 = maxWidth + padX * 2;
+  const h1 = totalHeight + padY * 2;
+
+  // allocate hi-res
+  c.width  = Math.ceil(w1 * dpr);
+  c.height = Math.ceil(h1 * dpr);
+
+  // draw in 1x logical coords
+  g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  g.clearRect(0,0,w1,h1);
+
+  // Determine radius based on pill shape
+  let radius;
+  const pillShape = config?.pillShape || 'rounded';
+  if (pillShape === 'rounded') {
+    radius = h1/2;
+  } else if (pillShape === 'soft-rounded') {
+    radius = 10;
+  } else {
+    radius = 0;
+  }
+  
+  const inset  = 3;
+  const x = inset;
+  const y = inset;
+  const w = w1 - inset*2;
+  const h = h1 - inset*2;
+
+  // Fill background
+  const bgColor = config?.pillBackgroundColor || 'rgba(0,0,0,0.55)';
+  g.fillStyle = bgColor;
+  g.beginPath();
+  roundRect(g, x, y, w, h, radius);
+  g.fill();
+
+  // Stroke border
+  const r = (strokeHex >> 16) & 255;
+  const gg = (strokeHex >> 8) & 255;
+  const b = (strokeHex) & 255;
+  const borderColor = config?.pillBorderColor || `rgba(${r},${gg},${b},0.98)`;
+  g.strokeStyle = borderColor;
+  g.lineWidth = 2.5;
+  g.lineJoin = 'round';
+  g.lineCap  = 'round';
+  g.beginPath();
+  roundRect(g, x, y, w, h, radius);
+  g.stroke();
+
+  // Draw each line
+  const textColor = config?.pillTextColor || '#ffffff';
+  let currentY = padY;
+
+  lineMetrics.forEach((metric, idx) => {
+    const fontWeight = metric.bold ? '900' : '400';
+    const fontStyle = metric.italic ? 'italic' : 'normal';
+    g.font = `${fontStyle} ${fontWeight} ${metric.fontSize}px ${metric.fontFamily}`;
+    g.fillStyle = textColor;
+    g.textBaseline = 'top';
+    
+    // Calculate X position based on alignment
+    let textX;
+    if (metric.alignment === 'center') {
+      textX = w1 / 2;
+      g.textAlign = 'center';
+    } else if (metric.alignment === 'right') {
+      textX = w1 - padX;
+      g.textAlign = 'right';
+    } else {
+      textX = padX;
+      g.textAlign = 'left';
+    }
+    
+    const textY = currentY + metric.fontSize / 2;
+    g.textBaseline = 'middle';
+    
+    // Draw text
+    g.fillText(metric.text, textX, textY);
+    
+    // Draw decorations
+    if (metric.underline || metric.strikethrough) {
+      g.save();
+      g.strokeStyle = textColor;
+      g.lineWidth = Math.max(1, metric.fontSize / 16);
+      
+      // Calculate text bounds for decoration
+      g.textAlign = 'left';
+      const textWidth = g.measureText(metric.text).width;
+      let decorationX;
+      if (metric.alignment === 'center') {
+        decorationX = (w1 - textWidth) / 2;
+      } else if (metric.alignment === 'right') {
+        decorationX = w1 - padX - textWidth;
+      } else {
+        decorationX = padX;
+      }
+      
+      if (metric.underline) {
+        const underlineY = textY + metric.fontSize * 0.3;
+        g.beginPath();
+        g.moveTo(decorationX, underlineY);
+        g.lineTo(decorationX + textWidth, underlineY);
+        g.stroke();
+      }
+      
+      if (metric.strikethrough) {
+        const strikeY = textY;
+        g.beginPath();
+        g.moveTo(decorationX, strikeY);
+        g.lineTo(decorationX + textWidth, strikeY);
+        g.stroke();
+      }
+      
+      g.restore();
+    }
+    
+    currentY += metric.height + (idx < lineMetrics.length - 1 ? lineSpacing : 0);
+  });
+
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.premultiplyAlpha = true;
+  tex.generateMipmaps = false;
+  tex.minFilter = THREE.LinearFilter;
+  tex.magFilter = THREE.LinearFilter;
+  tex.needsUpdate = true;
+
+  const mat = new THREE.SpriteMaterial({
+    map: tex,
+    transparent: true,
+    depthTest: false,
+    depthWrite: false
+  });
+  mat.premultipliedAlpha = true;
+
+  const spr = new THREE.Sprite(mat);
+  spr.renderOrder = 10006;
+
+  const aspect = w1 / h1;
+  spr.scale.set(worldSize * aspect, worldSize * 0.85, 1);
+  spr.userData.baseScale = spr.scale.clone();
+  spr.userData._pillLines = lines;
+  spr.userData._pillWorldSize = worldSize;
+  spr.userData._multiLine = true;
+  return spr;
+}
+
+// ========== END MULTI-LINE SYSTEM ==========
+
+// Helper function to build lines array from config for multi-line pills
+function buildLinesFromConfig(config, defaultText, cand) {
+  const lines = [];
+  
+  // Helper to get content text for a line
+  function getLineText(lineConfig) {
+    if (!lineConfig || !lineConfig.content) return '';
+    
+    const content = lineConfig.content;
+    switch(content) {
+      case 'name':
+        return safeStr(cand?.name || cand?.dst_name || defaultText || '');
+      case 'type':
+      case 'category':
+        return safeStr(cand?.dst_type || '');
+      case 'subtype':
+        return safeStr(cand?.amenity || cand?.leisure || cand?.place || '');
+      case 'landmark':
+        // Check if it's a landmark and format appropriately
+        const isLandmark = cand?.landmark === true || cand?.landmark === 'true';
+        if (isLandmark) {
+          const subtype = safeStr(cand?.amenity || cand?.leisure || cand?.place || '');
+          return subtype ? `Landmark – ${subtype}` : 'Landmark';
+        } else {
+          const dstType = safeStr(cand?.dst_type || '');
+          const subtype = safeStr(cand?.amenity || cand?.leisure || cand?.place || '');
+          if (dstType && subtype) {
+            return `${dstType} – ${subtype}`;
+          } else if (dstType) {
+            return dstType;
+          } else if (subtype) {
+            return subtype;
+          }
+          return '';
+        }
+      case 'distance':
+        const dist = getCandidateDistanceM(cand);
+        return dist !== undefined ? `${fmt(dist, 1)}m` : '';
+      case 'bearing':
+        const bearing = cand?.base_rel_yaw;
+        return bearing !== undefined ? `${fmt(bearing, 1)}°` : '';
+      case 'visibility':
+        const vis = getCandidateVisPct(cand);
+        return vis !== undefined ? `${fmt(vis, 0)}%` : '';
+      case 'elevation':
+        const elev = cand?.base_elev;
+        return elev !== undefined ? `${fmt(elev, 2)}°` : '';
+      case 'custom':
+        return lineConfig.customText || '';
+      default:
+        return '';
+    }
+  }
+  
+  // Build line 1
+  if (config.line1) {
+    const text = getLineText(config.line1);
+    if (text) {
+      lines.push({
+        text: text,
+        fontSize: config.line1.fontSize || 14,
+        fontFamily: config.line1.fontFamily || 'helvetica',
+        bold: config.line1.bold !== false, // Default true for line 1
+        italic: config.line1.italic || false,
+        underline: config.line1.underline || false,
+        strikethrough: config.line1.strikethrough || false,
+        alignment: config.line1.alignment || 'left'
+      });
+    }
+  }
+  
+  // Build line 2
+  if (config.line2) {
+    const text = getLineText(config.line2);
+    if (text) {
+      lines.push({
+        text: text,
+        fontSize: config.line2.fontSize || 11,
+        fontFamily: config.line2.fontFamily || 'helvetica',
+        bold: config.line2.bold || false,
+        italic: config.line2.italic || false,
+        underline: config.line2.underline || false,
+        strikethrough: config.line2.strikethrough || false,
+        alignment: config.line2.alignment || 'left'
+      });
+    }
+  }
+  
+  // Build line 3
+  if (config.line3) {
+    const text = getLineText(config.line3);
+    if (text) {
+      lines.push({
+        text: text,
+        fontSize: config.line3.fontSize || 9,
+        fontFamily: config.line3.fontFamily || 'helvetica',
+        bold: config.line3.bold || false,
+        italic: config.line3.italic || false,
+        underline: config.line3.underline || false,
+        strikethrough: config.line3.strikethrough || false,
+        alignment: config.line3.alignment || 'left'
+      });
+    }
+  }
+  
+  // Fallback to single line if no lines were added
+  if (lines.length === 0) {
+    lines.push({
+      text: defaultText || '',
+      fontSize: config.fontSize || 12,
+      fontFamily: config.font || 'helvetica',
+      bold: false,
+      italic: false,
+      underline: false,
+      strikethrough: false,
+      alignment: 'left'
+    });
+  }
+  
+  return lines;
+}
+
 function makeCalloutAnimated(root, name, isVisible=true, typeHex=0x00c8ff, lineColorHex=null, config=null){
   // Use config if provided, otherwise use defaults
   const rise = config?.lineHeight || 40;
@@ -2422,7 +2743,16 @@ function makeCalloutAnimated(root, name, isVisible=true, typeHex=0x00c8ff, lineC
   }
 
   // pill label - CRITICAL: Position based on FINAL positions (computed before animation)
-  const label = makePillLabelSprite(name, lblW, 0x000000, config);
+  // Check if multi-line mode is enabled
+  let label;
+  if (config?.useMultiLine) {
+    // Build lines array from config
+    const lines = buildLinesFromConfig(config, name, root?.userData?.cand);
+    label = makeMultiLinePillSprite(lines, lblW, 0x000000, config);
+  } else {
+    label = makePillLabelSprite(name, lblW, 0x000000, config);
+  }
+  
   const labelHalfH = (label.userData?.baseScale ? (label.userData.baseScale.y*0.5) : (label.scale.y*0.5));
   const labelHalfW = (label.userData?.baseScale ? (label.userData.baseScale.x*0.5) : (label.scale.x*0.5));
   
@@ -5492,6 +5822,40 @@ const labelTypeDefaults = {
     pillTextColor: "#ffffff",
     pillColorMode: "single",
     
+    // Multi-line text configuration (Issues 7 & 8)
+    useMultiLine: false, // Enable multi-line pill labels
+    lineSpacing: 4, // Spacing between lines in pixels
+    line1: {
+      content: "name", // name | type | custom
+      fontSize: 14,
+      fontFamily: "helvetica",
+      bold: true,
+      italic: false,
+      underline: false,
+      strikethrough: false,
+      alignment: "left" // left | center | right
+    },
+    line2: {
+      content: "category", // category | subtype | landmark | custom
+      fontSize: 11,
+      fontFamily: "helvetica",
+      bold: false,
+      italic: false,
+      underline: false,
+      strikethrough: false,
+      alignment: "left"
+    },
+    line3: {
+      content: "distance", // distance | bearing | visibility | elevation | custom
+      fontSize: 9,
+      fontFamily: "helvetica",
+      bold: false,
+      italic: false,
+      underline: false,
+      strikethrough: false,
+      alignment: "left"
+    },
+    
     // Pill positioning
     pillPosition: "top-center", // top-center | top-left | top-right | side-left | side-right
     pillTopGap: 2.0, // Gap from shape/line when in top positions
@@ -5540,6 +5904,40 @@ const labelTypeDefaults = {
     pillBorderColor: "rgba(255,255,255,0.18)",
     pillTextColor: "#ffffff",
     pillColorMode: "single",
+    
+    // Multi-line text configuration (Issues 7 & 8)
+    useMultiLine: false,
+    lineSpacing: 4,
+    line1: {
+      content: "name",
+      fontSize: 12,
+      fontFamily: "helvetica",
+      bold: true,
+      italic: false,
+      underline: false,
+      strikethrough: false,
+      alignment: "left"
+    },
+    line2: {
+      content: "category",
+      fontSize: 10,
+      fontFamily: "helvetica",
+      bold: false,
+      italic: false,
+      underline: false,
+      strikethrough: false,
+      alignment: "left"
+    },
+    line3: {
+      content: "distance",
+      fontSize: 8,
+      fontFamily: "helvetica",
+      bold: false,
+      italic: false,
+      underline: false,
+      strikethrough: false,
+      alignment: "left"
+    },
     
     // Pill positioning
     pillPosition: "top-center",
