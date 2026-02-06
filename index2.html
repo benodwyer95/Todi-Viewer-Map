@@ -1711,6 +1711,97 @@ function makeSquareSprite(worldSize=6){
   const spr = new THREE.Sprite(mat);
   spr.renderOrder = 10005;
   spr.scale.set(worldSize, worldSize, 1);
+  spr.userData.baseScale = spr.scale.clone();
+  return spr;
+}
+
+// Enhanced shape sprite maker supporting multiple shape types
+function makeDisplayShapeSprite(worldSize=6, config=null){
+  const shapeType = config?.displayShapeType || 'square';
+  const fillColor = config?.displayShapeFillColor || 'rgba(0,0,0,0.95)';
+  const strokeColor = config?.displayShapeStrokeColor || 'rgba(255,255,255,0.8)';
+  const strokeWidth = config?.displayShapeStrokeWidth || 0;
+  
+  const c = document.createElement('canvas');
+  c.width=64; c.height=64;
+  const g=c.getContext('2d');
+  g.clearRect(0,0,64,64);
+  
+  const cx = 32, cy = 32, size = 20;
+  
+  g.fillStyle = fillColor;
+  if (strokeWidth > 0) {
+    g.strokeStyle = strokeColor;
+    g.lineWidth = strokeWidth;
+  }
+  
+  switch(shapeType) {
+    case 'circle':
+      g.beginPath();
+      g.arc(cx, cy, size/2, 0, Math.PI * 2);
+      g.fill();
+      if (strokeWidth > 0) g.stroke();
+      break;
+      
+    case 'diamond':
+      g.beginPath();
+      g.moveTo(cx, cy - size/2);
+      g.lineTo(cx + size/2, cy);
+      g.lineTo(cx, cy + size/2);
+      g.lineTo(cx - size/2, cy);
+      g.closePath();
+      g.fill();
+      if (strokeWidth > 0) g.stroke();
+      break;
+      
+    case 'triangle':
+      g.beginPath();
+      g.moveTo(cx, cy - size/2);
+      g.lineTo(cx + size/2, cy + size/2);
+      g.lineTo(cx - size/2, cy + size/2);
+      g.closePath();
+      g.fill();
+      if (strokeWidth > 0) g.stroke();
+      break;
+      
+    case 'asterisk':
+      g.strokeStyle = fillColor; // Use fill color for lines
+      g.lineWidth = Math.max(2, strokeWidth || 3);
+      g.lineCap = 'round';
+      g.beginPath();
+      // Vertical line
+      g.moveTo(cx, cy - size/2);
+      g.lineTo(cx, cy + size/2);
+      // Horizontal line
+      g.moveTo(cx - size/2, cy);
+      g.lineTo(cx + size/2, cy);
+      // Diagonal \
+      g.moveTo(cx - size/2*0.7, cy - size/2*0.7);
+      g.lineTo(cx + size/2*0.7, cy + size/2*0.7);
+      // Diagonal /
+      g.moveTo(cx + size/2*0.7, cy - size/2*0.7);
+      g.lineTo(cx - size/2*0.7, cy + size/2*0.7);
+      g.stroke();
+      break;
+      
+    case 'square':
+    default:
+      g.fillRect(cx - size/2, cy - size/2, size, size);
+      if (strokeWidth > 0) {
+        g.strokeRect(cx - size/2, cy - size/2, size, size);
+      }
+      break;
+  }
+
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  const mat = new THREE.SpriteMaterial({ map: tex, transparent:true });
+  mat.depthTest=false; mat.depthWrite=false;
+
+  const spr = new THREE.Sprite(mat);
+  spr.renderOrder = 10005;
+  spr.scale.set(worldSize, worldSize, 1);
+  spr.userData.baseScale = spr.scale.clone();
   return spr;
 }
 
@@ -2276,10 +2367,10 @@ function makeCalloutAnimated(root, name, isVisible=true, typeHex=0x00c8ff, lineC
     call.add(xSpr);
   }
 
-  // top square (display shape - moves with line end)
+  // top display shape (moves with line end) - use enhanced shape function
   let sq2 = null;
   if (showDisplayShape) {
-    sq2 = makeSquareSprite(sqW);
+    sq2 = makeDisplayShapeSprite(sqW, config);
     sq2.position.set(0, gap1 + gap2, 0);
     call.add(sq2);
   }
@@ -6143,13 +6234,13 @@ function animate(){
     c.quaternion.copy(camera.quaternion);
   });
 
-  // keep hover labels glued
-  labelGroup.children.forEach(lbl=>{
-    const m = lbl.userData.marker;
-    if (!m) return;
-    const dir = m.position.clone().normalize();
-    lbl.position.copy(dir.multiplyScalar(MARKER_RADIUS - 10));
-  });
+  // LEGACY: Old label group system replaced by callout system attached to markers
+  // labelGroup.children.forEach(lbl=>{
+  //   const m = lbl.userData.marker;
+  //   if (!m) return;
+  //   const dir = m.position.clone().normalize();
+  //   lbl.position.copy(dir.multiplyScalar(MARKER_RADIUS - 10));
+  // });
 
   renderer.clear();
   renderer.render(scenePano, camera);
