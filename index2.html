@@ -2349,28 +2349,18 @@ function updateCalloutAnims(){
   const dt = Math.min(0.05, (now - lastCalloutFrameT) / 1000);
   lastCalloutFrameT = now;
 
-  const enabled = !!calloutsIn?.checked;
-  const showAll = !!allCalloutsIn?.checked;
+  // Note: ud.target is set by updateCalloutsVisibility() based on Label FX configs
+  // We just animate from current t to target
 
   currentMarkers.forEach(m=>{
     const call = m?.userData?.callout;
     if (!call) return;
     const ud = call.userData;
 
-    // decide whether this callout should be "up"
-    if (!enabled) ud.target = 0;
-    else if (showAll) ud.target = 1;
-    else ud.target = (m === selected) ? 1 : 0;
-
-    // loop (ping-pong) the selected callout if enabled
-    if (enabled && !showAll && loopCalloutIn?.checked && (m === selected)){
-      if (Math.abs(ud.t - ud.target) < 0.0005){
-        ud.target = 1 - ud.target;
-      }
-    }
-
-    // allow live edit of animation seconds
-    ud.speed = (1 / Math.max(0.05, (parseFloat(animSecondsIn?.value)||1.8)));
+    // Use config-specific animation speed if available
+    const config = ud.config;
+    const animSeconds = config?.animSeconds || 1.8;
+    ud.speed = (1 / Math.max(0.05, animSeconds));
 
     // advance t toward target
     if (ud.t !== ud.target){
