@@ -5423,7 +5423,7 @@ function updateLabelFXProperty(id, prop, value) {
     let obj = label;
     for (let i = 0; i < parts.length - 1; i++) {
       // Create intermediate object if it doesn't exist, but only if current value isn't already a non-object
-      if (!obj[parts[i]] || typeof obj[parts[i]] !== 'object') {
+      if (!obj[parts[i]] || obj[parts[i]] === null || typeof obj[parts[i]] !== 'object') {
         obj[parts[i]] = {};
       }
       obj = obj[parts[i]];
@@ -5568,7 +5568,7 @@ function renderLabelFXControls(label) {
           <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
             <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="category" 
               ${(Array.isArray(label.content) ? label.content : [label.content]).includes('category') ? 'checked' : ''}>
-            <span>Category (dst_type)</span>
+            <span>Category</span>
           </label>
           <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
             <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="subtype" 
@@ -5588,7 +5588,7 @@ function renderLabelFXControls(label) {
           <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
             <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="id" 
               ${(Array.isArray(label.content) ? label.content : [label.content]).includes('id') ? 'checked' : ''}>
-            <span>ID (LMID/osm_id/dst_id)</span>
+            <span>Identifier</span>
           </label>
         </div>
       </div>
@@ -5722,7 +5722,7 @@ function renderLabelFXControls(label) {
           <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
             <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="category" 
               ${(Array.isArray(label.content) ? label.content : [label.content]).includes('category') ? 'checked' : ''}>
-            <span>Category (dst_type)</span>
+            <span>Category</span>
           </label>
           <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
             <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="subtype" 
@@ -5742,7 +5742,7 @@ function renderLabelFXControls(label) {
           <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
             <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="id" 
               ${(Array.isArray(label.content) ? label.content : [label.content]).includes('id') ? 'checked' : ''}>
-            <span>ID (LMID/osm_id/dst_id)</span>
+            <span>Identifier</span>
           </label>
         </div>
       </div>
@@ -5881,7 +5881,8 @@ function getLabelText(contentType, cand) {
           return baseElev !== undefined ? `${fmt(baseElev, 2)}°` : '';
         }
         case 'id': {
-          // LMID uses all-caps per original dataset convention, others use snake_case
+          // ID types: LMID (Landmark ID), osm_id (OpenStreetMap ID), dst_id (Destination ID)
+          // LMID uses all-caps per original dataset convention
           const id = cand?.LMID || cand?.osm_id || cand?.dst_id || cand?.id;
           return safeStr(id || '');
         }
