@@ -2414,7 +2414,9 @@ function makeCalloutAnimated(root, name, isVisible=true, typeHex=0x00c8ff, lineC
   if (showDisplayShape) {
     sq2 = makeDisplayShapeSprite(sqW, config);
     // Compute final position: rise (total height) - gap2 (gap from line end to shape)
-    const finalShapeY = rise - gap2;
+    // Add displayShapeOffset: 0 = line top, positive = higher, negative = lower
+    const displayShapeOffset = config?.displayShapeOffset || 0;
+    const finalShapeY = rise - gap2 + displayShapeOffset;
     sq2.position.set(0, finalShapeY, 0);
     call.add(sq2);
   }
@@ -2429,9 +2431,11 @@ function makeCalloutAnimated(root, name, isVisible=true, typeHex=0x00c8ff, lineC
   const pillTopGap = config?.pillTopGap !== undefined ? config.pillTopGap : gap3;
   const pillSideGap = config?.pillSideGap !== undefined ? config.pillSideGap : 2.0;
   const pillSideAlignment = config?.pillSideAlignment || "shape";
+  const pillOffset = config?.pillOffset || 0; // Additional vertical offset
   
   // Compute label position based on mode
-  const finalShapeY = rise - gap2;
+  const displayShapeOffset = config?.displayShapeOffset || 0;
+  const finalShapeY = rise - gap2 + displayShapeOffset;
   const lineTopY = rise - gap2; // Where line ends (or would end)
   
   let finalLabelX = 0;
@@ -2440,42 +2444,42 @@ function makeCalloutAnimated(root, name, isVisible=true, typeHex=0x00c8ff, lineC
   switch(pillPosition) {
     case "top-center":
       finalLabelX = 0;
-      finalLabelY = finalShapeY + (sqW*0.5) + pillTopGap + labelHalfH;
+      finalLabelY = finalShapeY + (sqW*0.5) + pillTopGap + labelHalfH + pillOffset;
       break;
       
     case "top-left":
       // Pill right edge meets the line
       finalLabelX = -labelHalfW;
-      finalLabelY = finalShapeY + (sqW*0.5) + pillTopGap + labelHalfH;
+      finalLabelY = finalShapeY + (sqW*0.5) + pillTopGap + labelHalfH + pillOffset;
       break;
       
     case "top-right":
       // Pill left edge meets the line
       finalLabelX = labelHalfW;
-      finalLabelY = finalShapeY + (sqW*0.5) + pillTopGap + labelHalfH;
+      finalLabelY = finalShapeY + (sqW*0.5) + pillTopGap + labelHalfH + pillOffset;
       break;
       
     case "side-left":
       finalLabelX = -pillSideGap - labelHalfW;
       if (pillSideAlignment === "shape") {
-        finalLabelY = finalShapeY; // Align center with shape
+        finalLabelY = finalShapeY + pillOffset; // Align center with shape
       } else {
-        finalLabelY = lineTopY; // Align center with line top
+        finalLabelY = lineTopY + pillOffset; // Align center with line top
       }
       break;
       
     case "side-right":
       finalLabelX = pillSideGap + labelHalfW;
       if (pillSideAlignment === "shape") {
-        finalLabelY = finalShapeY; // Align center with shape
+        finalLabelY = finalShapeY + pillOffset; // Align center with shape
       } else {
-        finalLabelY = lineTopY; // Align center with line top
+        finalLabelY = lineTopY + pillOffset; // Align center with line top
       }
       break;
       
     default: // fallback to top-center
       finalLabelX = 0;
-      finalLabelY = finalShapeY + (sqW*0.5) + pillTopGap + labelHalfH;
+      finalLabelY = finalShapeY + (sqW*0.5) + pillTopGap + labelHalfH + pillOffset;
       break;
   }
   
@@ -5021,9 +5025,11 @@ function renderMarkerFXList() {
     container.appendChild(markerDiv);
   });
   
-  // Restore scroll position after rebuilding UI
+  // Restore scroll position after rebuilding UI (use requestAnimationFrame to ensure DOM is updated)
   if (scrollParent) {
-    scrollParent.scrollTop = scrollTop;
+    requestAnimationFrame(() => {
+      scrollParent.scrollTop = scrollTop;
+    });
   }
   
   // Wire up events
@@ -5477,6 +5483,7 @@ const labelTypeDefaults = {
     displayShapeStrokeWidth: 0,
     displayShapeOpacity: 1.0,
     displayShapeColorMode: "single", // single | category | visibility
+    displayShapeOffset: 0, // Vertical offset from line top (0 = line top, positive = higher, negative = lower)
     
     content: ["name"],
     pillShape: "rounded",
@@ -5490,6 +5497,7 @@ const labelTypeDefaults = {
     pillTopGap: 2.0, // Gap from shape/line when in top positions
     pillSideGap: 2.0, // Gap from line when in side positions  
     pillSideAlignment: "shape", // shape | line (for side positions: align top to shape or line)
+    pillOffset: 0, // Vertical offset from default position (0 = default, positive = higher, negative = lower)
     
     font: "helvetica",
     fontSize: 12,
@@ -5524,6 +5532,7 @@ const labelTypeDefaults = {
     displayShapeStrokeWidth: 0,
     displayShapeOpacity: 1.0,
     displayShapeColorMode: "single",
+    displayShapeOffset: 0,
     
     content: ["name"],
     pillShape: "rounded",
@@ -5537,6 +5546,7 @@ const labelTypeDefaults = {
     pillTopGap: 2.0,
     pillSideGap: 2.0,
     pillSideAlignment: "shape",
+    pillOffset: 0,
     
     font: "helvetica",
     fontSize: 12,
@@ -5610,9 +5620,11 @@ function renderLabelFXList() {
     container.appendChild(labelDiv);
   });
   
-  // Restore scroll position after rebuilding UI
+  // Restore scroll position after rebuilding UI (use requestAnimationFrame to ensure DOM is updated)
   if (scrollParent) {
-    scrollParent.scrollTop = scrollTop;
+    requestAnimationFrame(() => {
+      scrollParent.scrollTop = scrollTop;
+    });
   }
   
   // Wire up events
@@ -5628,6 +5640,43 @@ function renderLabelFXList() {
   container.querySelectorAll('.markerDelete').forEach(btn => {
     btn.addEventListener('click', (e) => {
       removeLabelFX(e.target.dataset.id);
+    });
+  });
+  
+  // Wire up "Copy from Label" button for hover tips
+  container.querySelectorAll('.copyFromLabelBtn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const hoverId = e.target.dataset.id;
+      const hoverLabel = activeLabels.find(l => l.id === hoverId);
+      const labelConfig = activeLabels.find(l => l.type === 'label');
+      
+      if (hoverLabel && labelConfig && hoverLabel.type === 'hover') {
+        // Copy all relevant properties from label to hover (except type-specific ones)
+        const propertiesToCopy = [
+          'showLine', 'lineHeight', 'lineColor', 'lineColorMode', 'lineOpacity', 'lineWidth',
+          'showDisplayShape', 'displayShapeType', 'displayShapeSize', 'displayShapeFillColor',
+          'displayShapeStrokeColor', 'displayShapeStrokeWidth', 'displayShapeOpacity', 
+          'displayShapeColorMode', 'displayShapeOffset',
+          'content', 'pillShape', 'pillBackgroundColor', 'pillBorderColor', 'pillTextColor',
+          'pillColorMode', 'pillPosition', 'pillTopGap', 'pillSideGap', 'pillSideAlignment', 'pillOffset',
+          'font', 'fontSize', 'paddingX', 'paddingY', 'categoryColors'
+        ];
+        
+        propertiesToCopy.forEach(prop => {
+          if (labelConfig[prop] !== undefined) {
+            if (typeof labelConfig[prop] === 'object' && !Array.isArray(labelConfig[prop])) {
+              hoverLabel[prop] = JSON.parse(JSON.stringify(labelConfig[prop]));
+            } else if (Array.isArray(labelConfig[prop])) {
+              hoverLabel[prop] = [...labelConfig[prop]];
+            } else {
+              hoverLabel[prop] = labelConfig[prop];
+            }
+          }
+        });
+        
+        renderLabelFXList();
+        applyAllLabelFX();
+      }
     });
   });
   
@@ -5746,7 +5795,7 @@ function renderLabelFXControls(label) {
   const isHoverMode = label.type === 'hover';
   
   // Check if any element uses category mode (to show category colors section)
-  const usesCategoryColors = isLabelMode && (
+  const usesCategoryColors = (
     label.lineColorMode === 'category' ||
     label.displayShapeColorMode === 'category' ||
     label.pillColorMode === 'category'
@@ -5817,6 +5866,12 @@ function renderLabelFXControls(label) {
       </div>
       
       <div class="ctrlRow">
+        <label>Shape Vertical Offset</label>
+        <input type="number" data-id="${label.id}" data-prop="displayShapeOffset" value="${label.displayShapeOffset || 0}" step="0.5" min="-50" max="50">
+        <small style="opacity:0.7;font-size:10px;margin-left:4px;">0=line top, +higher, -lower</small>
+      </div>
+      
+      <div class="ctrlRow">
         <label>Shape Color Mode</label>
         <select data-id="${label.id}" data-prop="displayShapeColorMode">
           <option value="single" ${(label.displayShapeColorMode || 'single') === 'single' ? 'selected' : ''}>Single Color</option>
@@ -5825,7 +5880,6 @@ function renderLabelFXControls(label) {
         </select>
       </div>
       
-      ${label.displayShapeColorMode === 'single' ? `
       <div class="ctrlRow">
         <label>Shape Fill Color</label>
         <input type="text" data-id="${label.id}" data-prop="displayShapeFillColor" value="${label.displayShapeFillColor || 'rgba(0,0,0,0.95)'}" placeholder="rgba(0,0,0,0.95)" style="font-size:11px;">
@@ -5845,7 +5899,6 @@ function renderLabelFXControls(label) {
         <label>Shape Opacity</label>
         <input type="number" data-id="${label.id}" data-prop="displayShapeOpacity" value="${label.displayShapeOpacity !== undefined ? label.displayShapeOpacity : 1.0}" step="0.05" min="0" max="1">
       </div>
-      ` : ''}
       ` : ''}
       
       <!-- Pill Label Controls -->
@@ -5893,6 +5946,12 @@ function renderLabelFXControls(label) {
         </select>
       </div>
       ` : ''}
+      
+      <div class="ctrlRow">
+        <label>Pill Vertical Offset</label>
+        <input type="number" data-id="${label.id}" data-prop="pillOffset" value="${label.pillOffset || 0}" step="0.5" min="-50" max="50">
+        <small style="opacity:0.7;font-size:10px;margin-left:4px;">+higher, -lower</small>
+      </div>
       
       <!-- Content Checkboxes -->
       <div class="ctrlRow" style="flex-direction: column; align-items: flex-start;">
@@ -6038,8 +6097,115 @@ function renderLabelFXControls(label) {
     `;
   } else if (isHoverMode) {
     return `
+      <!-- Copy from Label Button -->
+      <div class="ctrlRow">
+        <button class="copyFromLabelBtn" data-id="${label.id}" style="width:100%;padding:8px;background:rgba(100,150,255,0.2);border:1px solid rgba(100,150,255,0.4);border-radius:6px;color:#fff;cursor:pointer;font-weight:600;">
+          📋 Copy Settings from Label
+        </button>
+      </div>
+      
+      <!-- Line Controls -->
+      <hr style="border:none;border-top:1px solid rgba(255,255,255,.12);margin:12px 0;">
+      <div class="ctrlRow" style="align-items:center;">
+        <label style="flex:1;">
+          <input type="checkbox" data-id="${label.id}" data-prop="showLine" ${label.showLine ? 'checked' : ''}>
+          <span>Show Line</span>
+        </label>
+      </div>
+      
+      ${label.showLine ? `
+      <div class="ctrlRow">
+        <label>Line Height (world)</label>
+        <input type="number" data-id="${label.id}" data-prop="lineHeight" value="${label.lineHeight || 40}" step="1" min="5" max="140">
+      </div>
+      
+      <div class="ctrlRow">
+        <label>Line Color Mode</label>
+        <select data-id="${label.id}" data-prop="lineColorMode">
+          <option value="single" ${(label.lineColorMode || 'single') === 'single' ? 'selected' : ''}>Single Color</option>
+          <option value="category" ${label.lineColorMode === 'category' ? 'selected' : ''}>Category</option>
+          <option value="visibility" ${label.lineColorMode === 'visibility' ? 'selected' : ''}>Visibility %</option>
+        </select>
+      </div>
+      
+      ${label.lineColorMode === 'single' ? `
+      <div class="ctrlRow">
+        <label>Line Color</label>
+        <input type="color" data-id="${label.id}" data-prop="lineColor" value="${label.lineColor || '#00ff00'}">
+      </div>
+      ` : ''}
+      
+      <div class="ctrlRow">
+        <label>Line Width</label>
+        <input type="number" data-id="${label.id}" data-prop="lineWidth" value="${label.lineWidth || 2}" step="0.5" min="0.5" max="10">
+      </div>
+      ` : ''}
+      
+      <!-- Display Shape Controls -->
+      <hr style="border:none;border-top:1px solid rgba(255,255,255,.12);margin:12px 0;">
+      <div class="ctrlRow" style="align-items:center;">
+        <label style="flex:1;">
+          <input type="checkbox" data-id="${label.id}" data-prop="showDisplayShape" ${label.showDisplayShape ? 'checked' : ''}>
+          <span>Show Display Shape</span>
+        </label>
+      </div>
+      
+      ${label.showDisplayShape ? `
+      <div class="ctrlRow">
+        <label>Shape Type</label>
+        <select data-id="${label.id}" data-prop="displayShapeType">
+          <option value="circle" ${(label.displayShapeType || 'square') === 'circle' ? 'selected' : ''}>Circle</option>
+          <option value="square" ${(label.displayShapeType || 'square') === 'square' ? 'selected' : ''}>Square</option>
+          <option value="diamond" ${label.displayShapeType === 'diamond' ? 'selected' : ''}>Diamond</option>
+          <option value="triangle" ${label.displayShapeType === 'triangle' ? 'selected' : ''}>Triangle</option>
+          <option value="asterisk" ${label.displayShapeType === 'asterisk' ? 'selected' : ''}>Asterisk</option>
+        </select>
+      </div>
+      
+      <div class="ctrlRow">
+        <label>Display Shape Size</label>
+        <input type="number" data-id="${label.id}" data-prop="displayShapeSize" value="${label.displayShapeSize || 6}" step="1" min="2" max="18">
+      </div>
+      
+      <div class="ctrlRow">
+        <label>Shape Vertical Offset</label>
+        <input type="number" data-id="${label.id}" data-prop="displayShapeOffset" value="${label.displayShapeOffset || 0}" step="0.5" min="-50" max="50">
+        <small style="opacity:0.7;font-size:10px;margin-left:4px;">0=line top, +higher, -lower</small>
+      </div>
+      
+      <div class="ctrlRow">
+        <label>Shape Color Mode</label>
+        <select data-id="${label.id}" data-prop="displayShapeColorMode">
+          <option value="single" ${(label.displayShapeColorMode || 'single') === 'single' ? 'selected' : ''}>Single Color</option>
+          <option value="category" ${label.displayShapeColorMode === 'category' ? 'selected' : ''}>Category</option>
+          <option value="visibility" ${label.displayShapeColorMode === 'visibility' ? 'selected' : ''}>Visibility %</option>
+        </select>
+      </div>
+      
+      <div class="ctrlRow">
+        <label>Shape Fill Color</label>
+        <input type="text" data-id="${label.id}" data-prop="displayShapeFillColor" value="${label.displayShapeFillColor || 'rgba(0,0,0,0.95)'}" placeholder="rgba(0,0,0,0.95)" style="font-size:11px;">
+      </div>
+      
+      <div class="ctrlRow">
+        <label>Shape Stroke Color</label>
+        <input type="text" data-id="${label.id}" data-prop="displayShapeStrokeColor" value="${label.displayShapeStrokeColor || 'rgba(255,255,255,0.8)'}" placeholder="rgba(255,255,255,0.8)" style="font-size:11px;">
+      </div>
+      
+      <div class="ctrlRow">
+        <label>Shape Stroke Width</label>
+        <input type="number" data-id="${label.id}" data-prop="displayShapeStrokeWidth" value="${label.displayShapeStrokeWidth || 0}" step="0.5" min="0" max="5">
+      </div>
+      
+      <div class="ctrlRow">
+        <label>Shape Opacity</label>
+        <input type="number" data-id="${label.id}" data-prop="displayShapeOpacity" value="${label.displayShapeOpacity !== undefined ? label.displayShapeOpacity : 1.0}" step="0.05" min="0" max="1">
+      </div>
+      ` : ''}
+      
       <!-- Pill Label Controls -->
-      <div style="font-weight:700;margin-bottom:8px;">Hover Tip</div>
+      <hr style="border:none;border-top:1px solid rgba(255,255,255,.12);margin:12px 0;">
+      <div style="font-weight:700;margin-bottom:8px;">Pill Label</div>
       
       <div class="ctrlRow">
         <label>Pill Shape</label>
@@ -6048,6 +6214,45 @@ function renderLabelFXControls(label) {
           <option value="soft-rounded" ${label.pillShape === 'soft-rounded' ? 'selected' : ''}>Soft-rounded</option>
           <option value="square" ${label.pillShape === 'square' ? 'selected' : ''}>Square</option>
         </select>
+      </div>
+      
+      <div class="ctrlRow">
+        <label>Pill Position</label>
+        <select data-id="${label.id}" data-prop="pillPosition">
+          <option value="top-center" ${(label.pillPosition || 'top-center') === 'top-center' ? 'selected' : ''}>Top Center</option>
+          <option value="top-left" ${label.pillPosition === 'top-left' ? 'selected' : ''}>Top Left</option>
+          <option value="top-right" ${label.pillPosition === 'top-right' ? 'selected' : ''}>Top Right</option>
+          <option value="side-left" ${label.pillPosition === 'side-left' ? 'selected' : ''}>Side Left</option>
+          <option value="side-right" ${label.pillPosition === 'side-right' ? 'selected' : ''}>Side Right</option>
+        </select>
+      </div>
+      
+      ${(label.pillPosition || 'top-center').startsWith('top') ? `
+      <div class="ctrlRow">
+        <label>Pill Top Gap</label>
+        <input type="number" data-id="${label.id}" data-prop="pillTopGap" value="${label.pillTopGap !== undefined ? label.pillTopGap : 2.0}" step="0.5" min="0" max="10">
+      </div>
+      ` : ''}
+      
+      ${(label.pillPosition || 'top-center').startsWith('side') ? `
+      <div class="ctrlRow">
+        <label>Pill Side Gap</label>
+        <input type="number" data-id="${label.id}" data-prop="pillSideGap" value="${label.pillSideGap !== undefined ? label.pillSideGap : 2.0}" step="0.5" min="0" max="10">
+      </div>
+      
+      <div class="ctrlRow">
+        <label>Side Alignment</label>
+        <select data-id="${label.id}" data-prop="pillSideAlignment">
+          <option value="shape" ${(label.pillSideAlignment || 'shape') === 'shape' ? 'selected' : ''}>Align to Shape</option>
+          <option value="line" ${label.pillSideAlignment === 'line' ? 'selected' : ''}>Align to Line</option>
+        </select>
+      </div>
+      ` : ''}
+      
+      <div class="ctrlRow">
+        <label>Pill Vertical Offset</label>
+        <input type="number" data-id="${label.id}" data-prop="pillOffset" value="${label.pillOffset || 0}" step="0.5" min="-50" max="50">
+        <small style="opacity:0.7;font-size:10px;margin-left:4px;">+higher, -lower</small>
       </div>
       
       <!-- Content Checkboxes -->
@@ -6098,6 +6303,16 @@ function renderLabelFXControls(label) {
       </div>
       
       <div class="ctrlRow">
+        <label>Pill Color Mode</label>
+        <select data-id="${label.id}" data-prop="pillColorMode">
+          <option value="single" ${(label.pillColorMode || 'single') === 'single' ? 'selected' : ''}>Single Color</option>
+          <option value="category" ${label.pillColorMode === 'category' ? 'selected' : ''}>Category</option>
+          <option value="visibility" ${label.pillColorMode === 'visibility' ? 'selected' : ''}>Visibility %</option>
+        </select>
+      </div>
+      
+      ${label.pillColorMode === 'single' ? `
+      <div class="ctrlRow">
         <label>Pill Background</label>
         <input type="text" data-id="${label.id}" data-prop="pillBackgroundColor" value="${label.pillBackgroundColor || 'rgba(0,0,0,0.75)'}" placeholder="rgba(0,0,0,0.75)" style="font-size:11px;">
       </div>
@@ -6106,6 +6321,7 @@ function renderLabelFXControls(label) {
         <label>Pill Border</label>
         <input type="text" data-id="${label.id}" data-prop="pillBorderColor" value="${label.pillBorderColor || 'rgba(255,255,255,0.18)'}" placeholder="rgba(255,255,255,0.18)" style="font-size:11px;">
       </div>
+      ` : ''}
       
       <div class="ctrlRow">
         <label>Text Color</label>
@@ -6140,6 +6356,32 @@ function renderLabelFXControls(label) {
         <label>Padding Y</label>
         <input type="number" data-id="${label.id}" data-prop="paddingY" value="${label.paddingY || 8}" step="1" min="0" max="40">
       </div>
+      
+      ${usesCategoryColors ? `
+      <!-- Category Colors -->
+      <hr style="border:none;border-top:1px solid rgba(255,255,255,.12);margin:12px 0;">
+      <div style="font-weight:700;margin-bottom:8px;">Category Colors</div>
+      
+      <div class="ctrlRow">
+        <label>Landmark</label>
+        <input type="color" data-id="${label.id}" data-prop="categoryColors.landmark" value="${label.categoryColors?.landmark || '#ff0000'}">
+      </div>
+      
+      <div class="ctrlRow">
+        <label>Leisure</label>
+        <input type="color" data-id="${label.id}" data-prop="categoryColors.leisure" value="${label.categoryColors?.leisure || '#00ff00'}">
+      </div>
+      
+      <div class="ctrlRow">
+        <label>Amenity</label>
+        <input type="color" data-id="${label.id}" data-prop="categoryColors.amenity" value="${label.categoryColors?.amenity || '#0000ff'}">
+      </div>
+      
+      <div class="ctrlRow">
+        <label>Place</label>
+        <input type="color" data-id="${label.id}" data-prop="categoryColors.place" value="${label.categoryColors?.place || '#ffff00'}">
+      </div>
+      ` : ''}
       
       <!-- Fade Properties -->
       <hr style="border:none;border-top:1px solid rgba(255,255,255,.12);margin:12px 0;">
