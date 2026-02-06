@@ -2367,24 +2367,18 @@ function makeCalloutAnimated(root, name, isVisible=true, typeHex=0x00c8ff, lineC
     call.add(xSpr);
   }
 
-  // top display shape - CRITICAL: Position based on FINAL line height (rise)
+  // top display shape (moves with line end) - use enhanced shape function
   let sq2 = null;
   if (showDisplayShape) {
     sq2 = makeDisplayShapeSprite(sqW, config);
-    // Compute final position: rise (total height) - gap2 (gap from line end to shape)
-    const finalShapeY = rise - gap2;
-    sq2.position.set(0, finalShapeY, 0);
+    sq2.position.set(0, gap1 + gap2, 0);
     call.add(sq2);
   }
 
-  // pill label - CRITICAL: Position based on FINAL positions (computed before animation)
+  // pill label (appears last)
   const label = makePillLabelSprite(name, lblW, 0x000000, config);
   const labelHalfH = (label.userData?.baseScale ? (label.userData.baseScale.y*0.5) : (label.scale.y*0.5));
-  // Compute final position: shape Y + half shape size + gap3 + half label height
-  const finalShapeY = rise - gap2;
-  const topEdgeY = finalShapeY + (sqW*0.5);
-  const finalLabelY = topEdgeY + gap3 + labelHalfH;
-  label.position.set(0, finalLabelY, 0);
+  label.position.set(0, (gap1 + gap2) + (sqW*0.5) + gap3 + labelHalfH, 0);
   label.material.opacity = 0.0;
   call.add(label);
 
@@ -2472,17 +2466,17 @@ function updateCalloutAnims(){
     // show/hide
     call.visible = (ud.t > 0.001);
 
-    // staged timing (FIXED: proper line→shape→pill sequencing):
-    // 0-0.16: bottom square pop (anchor, always hidden)
-    // 0.16-0.62: line grows (completes before shape starts)
-    // 0.62-0.82: display shape pop (starts after line completes)
-    // 0.82-1.00: pill label (starts after shape completes)
+    // staged timing:
+    // 0-0.16: bottom square pop
+    // 0.16-0.62: line grows
+    // 0.52-0.76: top square pop
+    // 0.72-1.00: label + pill
     const t = ud.t;
 
     const t1 = clamp((t - 0.00)/0.16, 0, 1);
     const t2 = clamp((t - 0.16)/0.46, 0, 1);
-    const t3 = clamp((t - 0.62)/0.20, 0, 1); // Fixed: now starts at 0.62, after line
-    const t4 = clamp((t - 0.82)/0.18, 0, 1); // Fixed: now starts at 0.82, after shape
+    const t3 = clamp((t - 0.52)/0.24, 0, 1);
+    const t4 = clamp((t - 0.72)/0.28, 0, 1);
 
     const k1 = easeOutCubic(t1);
     const k2 = easeInOutCubic(t2);
@@ -2539,17 +2533,22 @@ function updateCalloutAnims(){
     const usable = Math.max(0, ud.rise - ud.gap1 - ud.gap2);
     const endY = ud.line ? (ud.gap1 + usable * k2) : (ud.rise - ud.gap2); // Animated or full height
     
-    // Display shape: Position is FIXED at creation time, only animate scale
+    // Display shape follows line end (or computed height if no line)
     if (ud.sq2) {
-      // Do NOT reposition - position was computed before animation
+      ud.sq2.position.set(0, endY + ud.gap2, 0);
       const bs = ud.sq2.userData?.baseScale;
       const s = Math.max(0.0001, k3);
       if (bs) ud.sq2.scale.copy(bs).multiplyScalar(s);
       else ud.sq2.scale.setScalar(s);
     }
     
-    // Label: Position is FIXED at creation time, only animate opacity and scale
-    // Do NOT reposition - position was computed before animation
+    // Label always positioned above display shape (or at computed height)
+    const topCenterY = endY + ud.gap2;
+    const topEdgeY = topCenterY + (ud.sqW*0.5);
+    const baseH = (ud.label.userData?.baseScale ? ud.label.userData.baseScale.y : ud.label.scale.y);
+    const labelHalfH = baseH * 0.5;
+    ud.label.position.set(0, topEdgeY + ud.gap3 + labelHalfH, 0);
+    
     ud.label.material.opacity = k4;
 
     // slight scale-in while keeping aspect
@@ -5398,21 +5397,6 @@ const labelTypeDefaults = {
   },
   hover: {
     name: "Hover Tip",
-    showLine: false, // Off by default for hover
-    lineHeight: 20,
-    lineColor: "#00ff00",
-    lineColorMode: "category",
-    lineOpacity: 0.8,
-    lineWidth: 2,
-    
-    showDisplayShape: false, // Off by default for hover
-    displayShapeType: "square",
-    displayShapeSize: 6,
-    displayShapeFillColor: "rgba(0,0,0,0.95)",
-    displayShapeStrokeColor: "rgba(255,255,255,0.8)",
-    displayShapeStrokeWidth: 0,
-    displayShapeColorMode: "single",
-    
     content: ["name"],
     pillShape: "rounded",
     pillBackgroundColor: "rgba(0,0,0,0.75)",
@@ -5425,20 +5409,12 @@ const labelTypeDefaults = {
     paddingX: 10,
     paddingY: 8,
     
-    categoryColors: {
-      "landmark": "#ff0000",
-      "leisure": "#00ff00",
-      "amenity": "#0000ff",
-      "place": "#ffff00"
-    },
-    
     showOnHover: true,
     fadeDistance: 100,
     maxDistance: 500,
     
-    // Animation params
-    animSeconds: 1.8,
-    loop: false
+    // Hover can have line height too (even if line is hidden)
+    lineHeight: 20
   }
 };
 
