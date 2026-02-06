@@ -2092,13 +2092,13 @@ function roundRect(ctx, x, y, w, h, r){
 }
 
 // Black translucent fill + stroke that animates from black -> type color
-function makePillLabelSprite(text, worldSize=18, strokeHex=0x000000){
+function makePillLabelSprite(text, worldSize=18, strokeHex=0x000000, config=null){
   const txt = safeStr(text);
 
   // ---- styling knobs ----
-  const fontPx = 28;
-  const padX = 18;
-  const padY = 12;
+  const fontPx = config?.fontSize ? config.fontSize * 2.33 : 28; // Scale fontSize to fontPx
+  const padX = config?.paddingX ?? 18;
+  const padY = config?.paddingY ?? 12;
 
   // Render at higher pixel density so the outline doesn't look blocky after texture filtering.
   // (The sprite is then scaled in world units.)
@@ -2107,7 +2107,8 @@ function makePillLabelSprite(text, worldSize=18, strokeHex=0x000000){
   const g = c.getContext('2d', { alpha:true });
 
   // measure text at 1x
-  g.font = `900 ${fontPx}px ${currentLabelFontStack}`;
+  const fontStack = config?.font ? (FONT_STACKS[config.font] || FONT_STACKS.helvetica) : currentLabelFontStack;
+  g.font = `900 ${fontPx}px ${fontStack}`;
   const tw = Math.ceil(g.measureText(txt).width);
   const w1 = tw + padX*2;
   const h1 = fontPx + padY*2;
@@ -2120,15 +2121,26 @@ function makePillLabelSprite(text, worldSize=18, strokeHex=0x000000){
   g.setTransform(dpr, 0, 0, dpr, 0, 0);
   g.clearRect(0,0,w1,h1);
 
-  const radius = h1/2;          // true pill
+  // Determine radius based on pill shape
+  let radius;
+  const pillShape = config?.pillShape || 'rounded';
+  if (pillShape === 'rounded') {
+    radius = h1/2; // true pill (fully rounded ends)
+  } else if (pillShape === 'soft-rounded') {
+    radius = 10;
+  } else { // square
+    radius = 0;
+  }
+  
   const inset  = 3;             // keep stroke away from texture edge to prevent clipping
   const x = inset;
   const y = inset;
   const w = w1 - inset*2;
   const h = h1 - inset*2;
 
-  // Fill: transparent-ish black (requested)
-  g.fillStyle = 'rgba(0,0,0,0.55)';
+  // Fill: use config background color or default
+  const bgColor = config?.pillBackgroundColor || 'rgba(0,0,0,0.55)';
+  g.fillStyle = bgColor;
   g.beginPath();
   roundRect(g, x, y, w, h, radius);
   g.fill();
@@ -2137,7 +2149,8 @@ function makePillLabelSprite(text, worldSize=18, strokeHex=0x000000){
   const r = (strokeHex >> 16) & 255;
   const gg = (strokeHex >> 8) & 255;
   const b = (strokeHex) & 255;
-  g.strokeStyle = `rgba(${r},${gg},${b},0.98)`;
+  const borderColor = config?.pillBorderColor || `rgba(${r},${gg},${b},0.98)`;
+  g.strokeStyle = borderColor;
   g.lineWidth = 2.5;
   g.lineJoin = 'round';
   g.lineCap  = 'round';
@@ -2145,11 +2158,12 @@ function makePillLabelSprite(text, worldSize=18, strokeHex=0x000000){
   roundRect(g, x, y, w, h, radius);
   g.stroke();
 
-  // Text: white (requested)
-  g.font = `900 ${fontPx}px ${currentLabelFontStack}`;
+  // Text: use config text color or default
+  const textColor = config?.pillTextColor || '#ffffff';
+  g.font = `900 ${fontPx}px ${fontStack}`;
   g.textBaseline = 'middle';
   g.textAlign = 'left';
-  g.fillStyle = '#ffffff';
+  g.fillStyle = textColor;
   g.fillText(txt, padX, h1/2);
 
   const tex = new THREE.CanvasTexture(c);
@@ -2276,7 +2290,7 @@ function makeCalloutAnimated(root, name, isVisible=true, typeHex=0x00c8ff, lineC
   }
 
   // pill label (appears last)
-  const label = makePillLabelSprite(name, lblW, 0x000000);
+  const label = makePillLabelSprite(name, lblW, 0x000000, config);
   const labelHalfH = (label.userData?.baseScale ? (label.userData.baseScale.y*0.5) : (label.scale.y*0.5));
   label.position.set(0, (gap1 + gap2) + (sqW*0.5) + gap3 + labelHalfH, 0);
   label.material.opacity = 0.0;
@@ -2574,8 +2588,14 @@ function addDebugMarker(){
   ring.userData.markerVisual = true;
   root.userData.markerVisual = ring;
   root.add(ring);
-makeCalloutAnimated(root, root.userData.name, true, root.userData.colorHex);
-markerGroup.add(root);
+  
+  // Create callout with default config
+  const labelConfig = activeLabels.find(l => l.type === 'label');
+  const hoverConfig = activeLabels.find(l => l.type === 'hover');
+  const useConfig = labelConfig || hoverConfig;
+  makeCalloutAnimated(root, root.userData.name, true, root.userData.colorHex, null, useConfig);
+  
+  markerGroup.add(root);
   return root;
 }
 
