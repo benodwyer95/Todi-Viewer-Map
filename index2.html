@@ -1375,7 +1375,7 @@ const ovOn = document.getElementById('ovOn');
 const ovType = document.getElementById('ovType');
 const ovOpacity = document.getElementById('ovOpacity');
 
-// LEGACY TOOLTIP FUNCTIONS - Replaced by new hover tip mode
+// LEGACY TOOLTIP FUNCTIONS - Replaced by new hover mode
 /*
 function showTooltip(x,y,title,meta){
   tip.style.display='block';
@@ -2096,7 +2096,9 @@ function makePillLabelSprite(text, worldSize=18, strokeHex=0x000000, config=null
   const txt = safeStr(text);
 
   // ---- styling knobs ----
-  const fontPx = config?.fontSize ? config.fontSize * 2.33 : 28; // Scale fontSize to fontPx
+  // Scale fontSize (world size units) to fontPx (canvas pixel units)
+  // 2.33 ratio maintains visual consistency with original 12pt = 28px default
+  const fontPx = config?.fontSize ? config.fontSize * 2.33 : 28;
   const padX = config?.paddingX ?? 18;
   const padY = config?.paddingY ?? 12;
 
@@ -2239,7 +2241,7 @@ function makeCalloutAnimated(root, name, isVisible=true, typeHex=0x00c8ff, lineC
   call.renderOrder = 10000;
   call.userData.isCallout = true;
 
-  // bottom square (hidden - used as anchor point)
+  // Bottom square serves as anchor point for positioning calculations (always hidden)
   const sq1 = makeSquareSprite(sqW);
   sq1.position.set(0,0,0);
   sq1.visible = false; // Always hidden, just anchor
@@ -5420,7 +5422,10 @@ function updateLabelFXProperty(id, prop, value) {
     const parts = prop.split('.');
     let obj = label;
     for (let i = 0; i < parts.length - 1; i++) {
-      if (!obj[parts[i]]) obj[parts[i]] = {};
+      // Create intermediate object if it doesn't exist, but only if current value isn't already a non-object
+      if (!obj[parts[i]] || typeof obj[parts[i]] !== 'object') {
+        obj[parts[i]] = {};
+      }
       obj = obj[parts[i]];
     }
     obj[parts[parts.length - 1]] = value;
@@ -5876,6 +5881,7 @@ function getLabelText(contentType, cand) {
           return baseElev !== undefined ? `${fmt(baseElev, 2)}°` : '';
         }
         case 'id': {
+          // LMID uses all-caps per original dataset convention, others use snake_case
           const id = cand?.LMID || cand?.osm_id || cand?.dst_id || cand?.id;
           return safeStr(id || '');
         }
