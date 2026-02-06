@@ -1486,6 +1486,14 @@ function setupColorSwatchListeners() {
   });
 }
 
+// Expose color swatch functions globally for template usage
+window.renderColorSwatch = renderColorSwatch;
+window.handleSwatchClick = handleSwatchClick;
+window.openEyeDropper = openEyeDropper;
+window.parseColor = parseColor;
+window.colorToHex = colorToHex;
+window.colorToRgba = colorToRgba;
+
 // Initialize color swatch component system
 window.addEventListener('DOMContentLoaded', () => {
   setupColorSwatchListeners();
