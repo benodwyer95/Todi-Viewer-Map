@@ -3038,11 +3038,27 @@ function buildLinesFromConfig(config, defaultText, cand) {
 
 function makeCalloutAnimated(root, name, isVisible=true, typeHex=0x00c8ff, lineColorHex=null, config=null){
   // Use config if provided, otherwise use defaults
-  const rise = config?.lineHeight || 40;
+  let rise = config?.lineHeight || 40;
   const sqW  = config?.displayShapeSize || 6;
   const lblW = 18; // Label world size (can be config-driven in future)
   const showLine = config?.showLine !== false; // default true
   const showDisplayShape = config?.showDisplayShape !== false; // default true
+  const labelsAboveHorizon = config?.labelsAboveHorizon || false;
+
+  // Calculate horizon-adjusted rise if labelsAboveHorizon is enabled
+  if (labelsAboveHorizon && root?.userData?.cand) {
+    // Get marker elevation angle (pitch)
+    const markerElev = Number(root.userData.cand.elev_ang_d ?? 0);
+    
+    // Estimate distance to horizon based on marker elevation
+    // Negative elevation = below horizon, positive = above
+    // The lower the marker, the more we need to extend the line upward
+    // Approximate: at -10° we want about 100 units extension, at 0° about 50, at +10° about 20
+    const horizonExtension = Math.max(0, 100 - markerElev * 3);
+    
+    // New rise = extension to horizon + original line height
+    rise = horizonExtension + (config?.lineHeight || 40);
+  }
 
   // gaps: square -> line start, line end -> square, square -> label
   const gap1 = Math.max(1.5, sqW * 0.35);
