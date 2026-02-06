@@ -5364,9 +5364,12 @@ const labelTypeDefaults = {
     lineWidth: 2,
     
     showDisplayShape: true,
+    displayShapeType: "square", // circle | square | diamond | triangle | asterisk
     displayShapeSize: 6,
-    displayShapeColor: "#ffffff",
-    displayShapeColorMode: "category",
+    displayShapeFillColor: "rgba(0,0,0,0.95)",
+    displayShapeStrokeColor: "rgba(255,255,255,0.8)",
+    displayShapeStrokeWidth: 0,
+    displayShapeColorMode: "single", // single | category | visibility
     
     content: ["name"],
     pillShape: "rounded",
@@ -5407,7 +5410,10 @@ const labelTypeDefaults = {
     
     showOnHover: true,
     fadeDistance: 100,
-    maxDistance: 500
+    maxDistance: 500,
+    
+    // Hover can have line height too (even if line is hidden)
+    lineHeight: 20
   }
 };
 
