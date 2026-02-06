@@ -5121,6 +5121,65 @@ function resolveLabelLineColor(config, targetMarker) {
   }
 }
 
+// Generic function to resolve color for any label element based on config
+function resolveColorForElement(config, cand, element) {
+  // element: "line" | "displayShape" | "pillBackground" | "pillBorder" | "text"
+  
+  // Determine which color mode to use based on element
+  let colorMode = 'single';
+  let baseColor = '#ffffff';
+  
+  if (element === 'line') {
+    colorMode = config.lineColorMode || 'single';
+    baseColor = config.lineColor || '#00ff00';
+  } else if (element === 'displayShape') {
+    colorMode = config.displayShapeColorMode || 'single';
+    baseColor = config.displayShapeColor || '#ffffff';
+  } else if (element === 'pillBackground') {
+    colorMode = config.pillColorMode || 'single';
+    baseColor = config.pillBackgroundColor || 'rgba(0,0,0,0.75)';
+  } else if (element === 'pillBorder') {
+    colorMode = config.pillColorMode || 'single';
+    baseColor = config.pillBorderColor || 'rgba(255,255,255,0.18)';
+  } else if (element === 'text') {
+    colorMode = 'single'; // Text usually doesn't follow color modes
+    baseColor = config.pillTextColor || '#ffffff';
+  }
+  
+  // Apply color mode logic
+  if (colorMode === 'category') {
+    const normalizeDstType = (type) => {
+      if (!type) return '';
+      return String(type).toLowerCase().trim();
+    };
+    
+    const dstType = normalizeDstType(cand?.dst_type);
+    
+    // Use categoryColors from config if available, otherwise use defaults
+    const categoryColors = config.categoryColors || {
+      'landmark': '#ff6b6b',
+      'leisure': '#4ecdc4',
+      'place': '#f38181',
+      'amenity': '#aa96da'
+    };
+    
+    for (const key in categoryColors) {
+      if (normalizeDstType(key) === dstType) {
+        return categoryColors[key];
+      }
+    }
+    return baseColor;
+  } else if (colorMode === 'visibility') {
+    const visPct = Number(cand?.vis_pct ?? cand?.visibility ?? 0);
+    if (visPct >= 80) return '#00ff00'; // green
+    if (visPct >= 40) return '#ffff00'; // yellow
+    return '#ff0000'; // red
+  }
+  
+  // Single color mode (default)
+  return baseColor;
+}
+
 // Build FX based on marker config (adapts existing FX generation)
 function buildMarkerFXFromConfig(config, targetMarker) {
   // Handle X marker type specially
