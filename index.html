@@ -15,6 +15,45 @@
 
 <style>
 
+/* ================= Font Face Definitions ================= */
+/* Note: Place actual font files in a /fonts directory */
+/* For demonstration, using web font fallbacks */
+
+/* Helvetica (using system Helvetica or Arial as fallback) */
+/* For real implementation, add: 
+   @font-face {
+     font-family: 'Helvetica';
+     src: url('./fonts/Helvetica.woff2') format('woff2'),
+          url('./fonts/Helvetica.woff') format('woff');
+     font-weight: normal;
+     font-style: normal;
+   }
+*/
+
+/* Times New Roman (using web-safe Times or serif fallback) */
+/* For real implementation, add:
+   @font-face {
+     font-family: 'Times New Roman';
+     src: url('./fonts/TimesNewRoman.woff2') format('woff2'),
+          url('./fonts/TimesNewRoman.woff') format('woff');
+     font-weight: normal;
+     font-style: normal;
+   }
+*/
+
+/* Caslon / Kasselin (using Libre Caslon Text from Google Fonts as open-source alternative) */
+@import url('https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&display=swap');
+
+/* For local implementation with actual Caslon files, use:
+   @font-face {
+     font-family: 'Caslon';
+     src: url('./fonts/Caslon.woff2') format('woff2'),
+          url('./fonts/Caslon.woff') format('woff');
+     font-weight: normal;
+     font-style: normal;
+   }
+*/
+
 /* ================= Right Dock ================= */
 #rightDock{
   position:fixed;
@@ -1337,6 +1376,8 @@ const debugDotIn   = document.getElementById('debugDot');
 
 const FONT_STACKS = {
   helvetica: '"Helvetica Neue", Helvetica, Arial, sans-serif',
+  times: '"Times New Roman", Times, Georgia, serif',
+  caslon: '"Libre Caslon Text", "Caslon", "Big Caslon", Georgia, serif',
   inter: '"Inter", "Helvetica Neue", Helvetica, Arial, sans-serif',
   manrope: '"Manrope", "Helvetica Neue", Helvetica, Arial, sans-serif',
   ibmplex: '"IBM Plex Sans", "Helvetica Neue", Helvetica, Arial, sans-serif',
@@ -5917,6 +5958,8 @@ function renderLabelFXControls(label) {
         <label>Font</label>
         <select data-id="${label.id}" data-prop="font">
           <option value="helvetica" ${(label.font || 'helvetica') === 'helvetica' ? 'selected' : ''}>Helvetica</option>
+          <option value="times" ${label.font === 'times' ? 'selected' : ''}>Times New Roman</option>
+          <option value="caslon" ${label.font === 'caslon' ? 'selected' : ''}>Caslon</option>
           <option value="inter" ${label.font === 'inter' ? 'selected' : ''}>Inter</option>
           <option value="manrope" ${label.font === 'manrope' ? 'selected' : ''}>Manrope</option>
           <option value="ibmplex" ${label.font === 'ibmplex' ? 'selected' : ''}>IBM Plex Sans</option>
@@ -6060,6 +6103,8 @@ function renderLabelFXControls(label) {
         <label>Font</label>
         <select data-id="${label.id}" data-prop="font">
           <option value="helvetica" ${(label.font || 'helvetica') === 'helvetica' ? 'selected' : ''}>Helvetica</option>
+          <option value="times" ${label.font === 'times' ? 'selected' : ''}>Times New Roman</option>
+          <option value="caslon" ${label.font === 'caslon' ? 'selected' : ''}>Caslon</option>
           <option value="inter" ${label.font === 'inter' ? 'selected' : ''}>Inter</option>
           <option value="manrope" ${label.font === 'manrope' ? 'selected' : ''}>Manrope</option>
           <option value="ibmplex" ${label.font === 'ibmplex' ? 'selected' : ''}>IBM Plex Sans</option>
