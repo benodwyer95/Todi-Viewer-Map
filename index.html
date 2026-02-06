@@ -6153,7 +6153,7 @@ function updateLabelFXProperty(id, prop, value) {
   const label = activeLabels.find(l => l.id === id);
   if (!label) return;
   
-  // Handle nested properties (e.g., categoryColors.landmark)
+  // Handle nested properties (e.g., categoryColors.landmark, line1.bold)
   if (prop.includes('.')) {
     const parts = prop.split('.');
     let obj = label;
@@ -6164,7 +6164,17 @@ function updateLabelFXProperty(id, prop, value) {
       }
       obj = obj[parts[i]];
     }
-    obj[parts[parts.length - 1]] = value;
+    // Handle value types for nested properties
+    const finalProp = parts[parts.length - 1];
+    if (value === 'true' || value === 'false') {
+      obj[finalProp] = value === 'true';
+    } else if (typeof value === 'boolean') {
+      obj[finalProp] = value;
+    } else if (!isNaN(value) && value !== '') {
+      obj[finalProp] = parseFloat(value);
+    } else {
+      obj[finalProp] = value;
+    }
   } else {
     // Handle boolean values
     if (value === 'true' || value === 'false') {
@@ -6180,7 +6190,8 @@ function updateLabelFXProperty(id, prop, value) {
   
   // Re-render if certain properties change
   if (prop === 'format' || prop === 'content' || prop === 'type' || 
-      prop === 'lineColorMode' || prop === 'displayShapeColorMode' || prop === 'pillColorMode') {
+      prop === 'lineColorMode' || prop === 'displayShapeColorMode' || prop === 'pillColorMode' ||
+      prop === 'useMultiLine' || prop.startsWith('line1.') || prop.startsWith('line2.') || prop.startsWith('line3.')) {
     renderLabelFXList();
   }
   
