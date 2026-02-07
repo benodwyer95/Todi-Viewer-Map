@@ -15,45 +15,6 @@
 
 <style>
 
-/* ================= Font Face Definitions ================= */
-/* Note: Place actual font files in a /fonts directory */
-/* For demonstration, using web font fallbacks */
-
-/* Helvetica (using system Helvetica or Arial as fallback) */
-/* For real implementation, add: 
-   @font-face {
-     font-family: 'Helvetica';
-     src: url('./fonts/Helvetica.woff2') format('woff2'),
-          url('./fonts/Helvetica.woff') format('woff');
-     font-weight: normal;
-     font-style: normal;
-   }
-*/
-
-/* Times New Roman (using web-safe Times or serif fallback) */
-/* For real implementation, add:
-   @font-face {
-     font-family: 'Times New Roman';
-     src: url('./fonts/TimesNewRoman.woff2') format('woff2'),
-          url('./fonts/TimesNewRoman.woff') format('woff');
-     font-weight: normal;
-     font-style: normal;
-   }
-*/
-
-/* Caslon / Kasselin (using Libre Caslon Text from Google Fonts as open-source alternative) */
-@import url('https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&display=swap');
-
-/* For local implementation with actual Caslon files, use:
-   @font-face {
-     font-family: 'Caslon';
-     src: url('./fonts/Caslon.woff2') format('woff2'),
-          url('./fonts/Caslon.woff') format('woff');
-     font-weight: normal;
-     font-style: normal;
-   }
-*/
-
 /* ================= Right Dock ================= */
 #rightDock{
   position:fixed;
@@ -513,119 +474,6 @@ hr.ovSep{border:none;border-top:1px solid rgba(255,255,255,.12);margin:10px 0}
 .ovRow input[type="color"]::-webkit-color-swatch-wrapper{padding:0;border-radius:6px;}
 .ovRow input[type="color"]::-webkit-color-swatch{border:none;border-radius:6px;}
 
-/* ============ Color Swatch Component (Issue 11) ============ */
-.color-swatch-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex: 1;
-}
-
-.color-swatch-preview {
-  width: 48px;
-  height: 24px;
-  border-radius: 6px;
-  border: 1px solid rgba(255,255,255,.22);
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  background: 
-    linear-gradient(45deg, #808080 25%, transparent 25%),
-    linear-gradient(-45deg, #808080 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, #808080 75%),
-    linear-gradient(-45deg, transparent 75%, #808080 75%);
-  background-size: 8px 8px;
-  background-position: 0 0, 0 4px, 4px -4px, -4px 0px;
-}
-
-.color-swatch-preview-inner {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-}
-
-.color-swatch-input-group {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  flex: 1;
-}
-
-.color-swatch-hex-input {
-  flex: 1;
-  min-width: 80px;
-  padding: 4px 6px;
-  background: rgba(255,255,255,.08);
-  border: 1px solid rgba(255,255,255,.15);
-  border-radius: 4px;
-  color: #fff;
-  font-size: 11px;
-  font-family: 'Courier New', monospace;
-}
-
-.color-swatch-hex-input:focus {
-  outline: none;
-  border-color: rgba(77, 170, 255, 0.6);
-  background: rgba(255,255,255,.12);
-}
-
-.color-swatch-opacity-group {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.color-swatch-opacity-label {
-  font-size: 10px;
-  opacity: 0.7;
-  white-space: nowrap;
-}
-
-.color-swatch-opacity-input {
-  width: 45px;
-  padding: 2px 4px;
-  background: rgba(255,255,255,.08);
-  border: 1px solid rgba(255,255,255,.15);
-  border-radius: 4px;
-  color: #fff;
-  font-size: 11px;
-  text-align: center;
-}
-
-.color-swatch-opacity-input:focus {
-  outline: none;
-  border-color: rgba(77, 170, 255, 0.6);
-  background: rgba(255,255,255,.12);
-}
-
-.color-swatch-eyedropper-btn {
-  padding: 4px 8px;
-  background: rgba(255,255,255,.08);
-  border: 1px solid rgba(255,255,255,.15);
-  border-radius: 4px;
-  color: #fff;
-  font-size: 11px;
-  cursor: pointer;
-  transition: all 0.15s;
-  white-space: nowrap;
-}
-
-.color-swatch-eyedropper-btn:hover {
-  background: rgba(255,255,255,.15);
-  border-color: rgba(255,255,255,.25);
-}
-
-.color-swatch-eyedropper-btn:active {
-  background: rgba(255,255,255,.20);
-}
-
-.color-swatch-eyedropper-btn.disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
 /* Edge reopen buttons (visible only when dock collapsed) */
 .edgeReopenBtn{
   position:fixed;
@@ -1058,16 +906,6 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
       </select>
     </div>
     
-    <!-- Export / Import Buttons -->
-    <div style="display:flex;gap:4px;margin-bottom:10px;">
-      <button id="copyMarkerSettingsBtn" type="button" style="flex:1;padding:6px;background:rgba(100,100,100,.3);border:1px solid rgba(150,150,150,.3);border-radius:4px;color:#fff;cursor:pointer;font-size:11px;">Copy Settings</button>
-      <button id="shareMarkerLinkBtn" type="button" style="flex:1;padding:6px;background:rgba(100,100,100,.3);border:1px solid rgba(150,150,150,.3);border-radius:4px;color:#fff;cursor:pointer;font-size:11px;">Share Link</button>
-    </div>
-    <div style="margin-bottom:10px;">
-      <textarea id="markerSettingsBox" placeholder="JSON settings for Marker FX..." style="width:100%;min-height:60px;padding:6px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.2);border-radius:4px;color:#fff;font-family:monospace;font-size:10px;resize:vertical;"></textarea>
-      <button id="applyMarkerSettingsBtn" type="button" style="width:100%;padding:6px;margin-top:4px;background:rgba(0,200,100,.3);border:1px solid rgba(0,255,100,.4);border-radius:4px;color:#fff;cursor:pointer;font-size:11px;">Apply JSON</button>
-    </div>
-    
     <!-- Active Markers List (dynamically populated) -->
     <div id="activeMarkersList"></div>
   </div>
@@ -1090,16 +928,6 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
         <option value="label">Label</option>
         <option value="hover">Hover Tip</option>
       </select>
-    </div>
-    
-    <!-- Export / Import Buttons -->
-    <div style="display:flex;gap:4px;margin-bottom:10px;">
-      <button id="copyLabelSettingsBtn" type="button" style="flex:1;padding:6px;background:rgba(100,100,100,.3);border:1px solid rgba(150,150,150,.3);border-radius:4px;color:#fff;cursor:pointer;font-size:11px;">Copy Settings</button>
-      <button id="shareLabelLinkBtn" type="button" style="flex:1;padding:6px;background:rgba(100,100,100,.3);border:1px solid rgba(150,150,150,.3);border-radius:4px;color:#fff;cursor:pointer;font-size:11px;">Share Link</button>
-    </div>
-    <div style="margin-bottom:10px;">
-      <textarea id="labelSettingsBox" placeholder="JSON settings for Label FX..." style="width:100%;min-height:60px;padding:6px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.2);border-radius:4px;color:#fff;font-family:monospace;font-size:10px;resize:vertical;"></textarea>
-      <button id="applyLabelSettingsBtn" type="button" style="width:100%;padding:6px;margin-top:4px;background:rgba(0,150,255,.3);border:1px solid rgba(0,200,255,.4);border-radius:4px;color:#fff;cursor:pointer;font-size:11px;">Apply JSON</button>
     </div>
     
     <!-- Active Labels List (dynamically populated) -->
@@ -1268,258 +1096,6 @@ function fmt(n, d=2){
 }
 function safeStr(x){ return (x==null) ? '' : String(x); }
 function upperSafe(s){ return safeStr(s).toUpperCase(); }
-
-// ============ Color Swatch Component Utilities (Issue 11) ============
-
-// Parse color string to {r, g, b, a} object
-function parseColor(colorStr) {
-  if (!colorStr) return {r: 255, g: 255, b: 255, a: 1};
-  
-  colorStr = colorStr.trim();
-  
-  // Handle hex format (#RGB or #RRGGBB)
-  if (colorStr.startsWith('#')) {
-    let hex = colorStr.slice(1);
-    if (hex.length === 3) {
-      hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
-    }
-    const r = parseInt(hex.substr(0, 2), 16) || 0;
-    const g = parseInt(hex.substr(2, 2), 16) || 0;
-    const b = parseInt(hex.substr(4, 2), 16) || 0;
-    return {r, g, b, a: 1};
-  }
-  
-  // Handle rgb/rgba format
-  const rgbaMatch = colorStr.match(/rgba?\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+))?\s*\)/);
-  if (rgbaMatch) {
-    return {
-      r: parseInt(rgbaMatch[1]) || 0,
-      g: parseInt(rgbaMatch[2]) || 0,
-      b: parseInt(rgbaMatch[3]) || 0,
-      a: rgbaMatch[4] !== undefined ? parseFloat(rgbaMatch[4]) : 1
-    };
-  }
-  
-  // Default fallback
-  return {r: 255, g: 255, b: 255, a: 1};
-}
-
-// Convert {r, g, b, a} to hex string
-function colorToHex(color) {
-  const r = Math.max(0, Math.min(255, Math.round(color.r)));
-  const g = Math.max(0, Math.min(255, Math.round(color.g)));
-  const b = Math.max(0, Math.min(255, Math.round(color.b)));
-  return '#' + 
-    r.toString(16).padStart(2, '0') + 
-    g.toString(16).padStart(2, '0') + 
-    b.toString(16).padStart(2, '0');
-}
-
-// Convert {r, g, b, a} to rgba string
-function colorToRgba(color) {
-  const r = Math.max(0, Math.min(255, Math.round(color.r)));
-  const g = Math.max(0, Math.min(255, Math.round(color.g)));
-  const b = Math.max(0, Math.min(255, Math.round(color.b)));
-  const a = Math.max(0, Math.min(1, color.a));
-  return `rgba(${r},${g},${b},${a})`;
-}
-
-// Check if EyeDropper API is supported
-function isEyeDropperSupported() {
-  return 'EyeDropper' in window;
-}
-
-// Render color swatch component HTML
-function renderColorSwatch(id, prop, currentValue, showOpacity = true) {
-  const color = parseColor(currentValue);
-  const hexValue = colorToHex(color);
-  const opacityValue = Math.round(color.a * 100);
-  const previewColor = colorToRgba(color);
-  
-  const eyedropperBtn = isEyeDropperSupported() 
-    ? `<button class="color-swatch-eyedropper-btn" onclick="openEyeDropper('${id}', '${prop}')">👁</button>`
-    : '';
-  
-  const opacityControl = showOpacity ? `
-    <div class="color-swatch-opacity-group">
-      <span class="color-swatch-opacity-label">α</span>
-      <input type="number" 
-        class="color-swatch-opacity-input" 
-        data-id="${id}" 
-        data-prop="${prop}" 
-        data-swatch-opacity
-        value="${opacityValue}" 
-        min="0" 
-        max="100"
-        step="1">
-    </div>
-  ` : '';
-  
-  return `
-    <div class="color-swatch-wrapper">
-      <div class="color-swatch-preview" 
-           data-id="${id}" 
-           data-prop="${prop}" 
-           onclick="handleSwatchClick(event)">
-        <div class="color-swatch-preview-inner" style="background-color: ${previewColor};"></div>
-      </div>
-      <div class="color-swatch-input-group">
-        <input type="text" 
-          class="color-swatch-hex-input" 
-          data-id="${id}" 
-          data-prop="${prop}" 
-          data-swatch-hex
-          value="${hexValue}" 
-          placeholder="#000000"
-          maxlength="7">
-        ${opacityControl}
-        ${eyedropperBtn}
-      </div>
-    </div>
-  `;
-}
-
-// Handle click on color preview to open native color picker
-function handleSwatchClick(event) {
-  const preview = event.currentTarget;
-  const id = preview.dataset.id;
-  const prop = preview.dataset.prop;
-  
-  // Create temporary hidden color input
-  const tempInput = document.createElement('input');
-  tempInput.type = 'color';
-  tempInput.style.position = 'absolute';
-  tempInput.style.left = '-9999px';
-  
-  const currentColor = preview.querySelector('.color-swatch-preview-inner').style.backgroundColor;
-  const color = parseColor(currentColor);
-  tempInput.value = colorToHex(color);
-  
-  document.body.appendChild(tempInput);
-  
-  tempInput.addEventListener('change', () => {
-    updateColorFromSwatch(id, prop, tempInput.value, color.a);
-    document.body.removeChild(tempInput);
-  });
-  
-  tempInput.click();
-}
-
-// Open eyedropper
-async function openEyeDropper(id, prop) {
-  if (!isEyeDropperSupported()) return;
-  
-  try {
-    const eyeDropper = new EyeDropper();
-    const result = await eyeDropper.open();
-    if (result?.sRGBHex) {
-      // Get current opacity
-      const hexInput = document.querySelector(`[data-id="${id}"][data-prop="${prop}"][data-swatch-hex]`);
-      const opacityInput = document.querySelector(`[data-id="${id}"][data-prop="${prop}"][data-swatch-opacity]`);
-      const opacity = opacityInput ? parseFloat(opacityInput.value) / 100 : 1;
-      
-      updateColorFromSwatch(id, prop, result.sRGBHex, opacity);
-    }
-  } catch (err) {
-    // User cancelled or error occurred
-    console.log('EyeDropper cancelled or error:', err);
-  }
-}
-
-// Update color from swatch component
-function updateColorFromSwatch(id, prop, hexValue, opacity = null) {
-  const color = parseColor(hexValue);
-  
-  // If opacity provided, use it; otherwise try to get from input
-  if (opacity === null) {
-    const opacityInput = document.querySelector(`[data-id="${id}"][data-prop="${prop}"][data-swatch-opacity]`);
-    opacity = opacityInput ? parseFloat(opacityInput.value) / 100 : 1;
-  }
-  
-  color.a = opacity;
-  
-  // Update preview
-  const preview = document.querySelector(`.color-swatch-preview[data-id="${id}"][data-prop="${prop}"] .color-swatch-preview-inner`);
-  if (preview) {
-    preview.style.backgroundColor = colorToRgba(color);
-  }
-  
-  // Update hex input
-  const hexInput = document.querySelector(`[data-id="${id}"][data-prop="${prop}"][data-swatch-hex]`);
-  if (hexInput) {
-    hexInput.value = colorToHex(color);
-  }
-  
-  // Update opacity input
-  const opacityInput = document.querySelector(`[data-id="${id}"][data-prop="${prop}"][data-swatch-opacity]`);
-  if (opacityInput) {
-    opacityInput.value = Math.round(color.a * 100);
-  }
-  
-  // Determine if we should store as hex or rgba based on opacity
-  const finalValue = (color.a < 1) ? colorToRgba(color) : colorToHex(color);
-  
-  // Trigger the appropriate update function
-  if (prop.includes('marker')) {
-    updateMarkerFXProperty(id, prop.replace('marker.', ''), finalValue);
-  } else if (id.startsWith && typeof id === 'string') {
-    // Check which type of control this is
-    const labelInput = document.querySelector(`[data-id="${id}"][data-prop="${prop}"]`);
-    if (labelInput) {
-      updateLabelFXProperty(id, prop, finalValue);
-    }
-  }
-}
-
-// Setup event listeners for color swatch inputs
-function setupColorSwatchListeners() {
-  document.addEventListener('input', (e) => {
-    const target = e.target;
-    
-    // Handle hex input changes
-    if (target.dataset.swatchHex !== undefined) {
-      const id = target.dataset.id;
-      const prop = target.dataset.prop;
-      let hexValue = target.value.trim();
-      
-      // Validate and normalize hex input
-      if (hexValue && !hexValue.startsWith('#')) {
-        hexValue = '#' + hexValue;
-      }
-      
-      if (/^#[0-9A-Fa-f]{6}$/.test(hexValue)) {
-        updateColorFromSwatch(id, prop, hexValue);
-      }
-    }
-    
-    // Handle opacity input changes
-    if (target.dataset.swatchOpacity !== undefined) {
-      const id = target.dataset.id;
-      const prop = target.dataset.prop;
-      const hexInput = document.querySelector(`[data-id="${id}"][data-prop="${prop}"][data-swatch-hex]`);
-      
-      if (hexInput) {
-        const opacity = Math.max(0, Math.min(100, parseInt(target.value) || 100)) / 100;
-        updateColorFromSwatch(id, prop, hexInput.value, opacity);
-      }
-    }
-  });
-}
-
-// Expose color swatch functions globally for template usage
-window.renderColorSwatch = renderColorSwatch;
-window.handleSwatchClick = handleSwatchClick;
-window.openEyeDropper = openEyeDropper;
-window.parseColor = parseColor;
-window.colorToHex = colorToHex;
-window.colorToRgba = colorToRgba;
-
-// Initialize color swatch component system
-window.addEventListener('DOMContentLoaded', () => {
-  setupColorSwatchListeners();
-});
-
-// ============ End Color Swatch Component ============
 
 // yaw 0 => forward (-Z), yaw 90 => right (+X), pitch up +
 function yawPitchToDir(yawDeg, pitchDeg){
@@ -1761,8 +1337,6 @@ const debugDotIn   = document.getElementById('debugDot');
 
 const FONT_STACKS = {
   helvetica: '"Helvetica Neue", Helvetica, Arial, sans-serif',
-  times: '"Times New Roman", Times, Georgia, serif',
-  caslon: '"Libre Caslon Text", "Caslon", "Big Caslon", Georgia, serif',
   inter: '"Inter", "Helvetica Neue", Helvetica, Arial, sans-serif',
   manrope: '"Manrope", "Helvetica Neue", Helvetica, Arial, sans-serif',
   ibmplex: '"IBM Plex Sans", "Helvetica Neue", Helvetica, Arial, sans-serif',
@@ -2147,7 +1721,6 @@ function makeDisplayShapeSprite(worldSize=6, config=null){
   const fillColor = config?.displayShapeFillColor || 'rgba(0,0,0,0.95)';
   const strokeColor = config?.displayShapeStrokeColor || 'rgba(255,255,255,0.8)';
   const strokeWidth = config?.displayShapeStrokeWidth || 0;
-  const opacity = config?.displayShapeOpacity !== undefined ? config.displayShapeOpacity : 1.0;
   
   const c = document.createElement('canvas');
   c.width=64; c.height=64;
@@ -2202,7 +1775,7 @@ function makeDisplayShapeSprite(worldSize=6, config=null){
       // Horizontal line
       g.moveTo(cx - size/2, cy);
       g.lineTo(cx + size/2, cy);
-      // Diagonal $$
+      // Diagonal \
       g.moveTo(cx - size/2*0.7, cy - size/2*0.7);
       g.lineTo(cx + size/2*0.7, cy + size/2*0.7);
       // Diagonal /
@@ -2222,7 +1795,7 @@ function makeDisplayShapeSprite(worldSize=6, config=null){
 
   const tex = new THREE.CanvasTexture(c);
   tex.colorSpace = THREE.SRGBColorSpace;
-  const mat = new THREE.SpriteMaterial({ map: tex, transparent:true, opacity: opacity });
+  const mat = new THREE.SpriteMaterial({ map: tex, transparent:true });
   mat.depthTest=false; mat.depthWrite=false;
 
   const spr = new THREE.Sprite(mat);
@@ -2735,350 +2308,13 @@ function updateAllPillFonts(){
   });
 }
 
-// ========== MULTI-LINE PILL SPRITE SYSTEM (Issues 7 & 8) ==========
-
-function makeMultiLinePillSprite(lines, worldSize=18, strokeHex=0x000000, config=null){
-  // lines is an array of line objects: [{ text, fontSize, fontFamily, bold, italic, underline, strikethrough, alignment }]
-  if (!Array.isArray(lines) || lines.length === 0) {
-    // Fallback to single-line sprite
-    return makePillLabelSprite('', worldSize, strokeHex, config);
-  }
-
-  // ---- styling knobs ----
-  const padX = config?.paddingX ?? 18;
-  const padY = config?.paddingY ?? 12;
-  const lineSpacing = config?.lineSpacing ?? 4; // Gap between lines
-
-  // Render at higher pixel density
-  const dpr = Math.max(2, Math.round((window.devicePixelRatio || 1) * 2) / 2);
-  const c = document.createElement('canvas');
-  const g = c.getContext('2d', { alpha:true });
-
-  // Measure all lines to determine canvas size
-  let maxWidth = 0;
-  let totalHeight = 0;
-  const lineMetrics = [];
-
-  lines.forEach((line, idx) => {
-    const lineText = safeStr(line.text || '');
-    const fontPx = (line.fontSize || 12) * 2.33;
-    const fontStack = FONT_STACKS[line.fontFamily || 'helvetica'] || FONT_STACKS.helvetica;
-    const fontWeight = line.bold ? '900' : '400';
-    const fontStyle = line.italic ? 'italic' : 'normal';
-    
-    g.font = `${fontStyle} ${fontWeight} ${fontPx}px ${fontStack}`;
-    const tw = Math.ceil(g.measureText(lineText).width);
-    
-    lineMetrics.push({
-      text: lineText,
-      fontSize: fontPx,
-      fontFamily: fontStack,
-      bold: line.bold,
-      italic: line.italic,
-      underline: line.underline,
-      strikethrough: line.strikethrough,
-      alignment: line.alignment || 'left',
-      width: tw,
-      height: fontPx
-    });
-    
-    maxWidth = Math.max(maxWidth, tw);
-    totalHeight += fontPx + (idx < lines.length - 1 ? lineSpacing : 0);
-  });
-
-  const w1 = maxWidth + padX * 2;
-  const h1 = totalHeight + padY * 2;
-
-  // allocate hi-res
-  c.width  = Math.ceil(w1 * dpr);
-  c.height = Math.ceil(h1 * dpr);
-
-  // draw in 1x logical coords
-  g.setTransform(dpr, 0, 0, dpr, 0, 0);
-  g.clearRect(0,0,w1,h1);
-
-  // Determine radius based on pill shape
-  let radius;
-  const pillShape = config?.pillShape || 'rounded';
-  if (pillShape === 'rounded') {
-    radius = h1/2;
-  } else if (pillShape === 'soft-rounded') {
-    radius = 10;
-  } else {
-    radius = 0;
-  }
-  
-  const inset  = 3;
-  const x = inset;
-  const y = inset;
-  const w = w1 - inset*2;
-  const h = h1 - inset*2;
-
-  // Fill background
-  const bgColor = config?.pillBackgroundColor || 'rgba(0,0,0,0.55)';
-  g.fillStyle = bgColor;
-  g.beginPath();
-  roundRect(g, x, y, w, h, radius);
-  g.fill();
-
-  // Stroke border
-  const r = (strokeHex >> 16) & 255;
-  const gg = (strokeHex >> 8) & 255;
-  const b = (strokeHex) & 255;
-  const borderColor = config?.pillBorderColor || `rgba(${r},${gg},${b},0.98)`;
-  g.strokeStyle = borderColor;
-  g.lineWidth = 2.5;
-  g.lineJoin = 'round';
-  g.lineCap  = 'round';
-  g.beginPath();
-  roundRect(g, x, y, w, h, radius);
-  g.stroke();
-
-  // Draw each line
-  const textColor = config?.pillTextColor || '#ffffff';
-  let currentY = padY;
-
-  lineMetrics.forEach((metric, idx) => {
-    const fontWeight = metric.bold ? '900' : '400';
-    const fontStyle = metric.italic ? 'italic' : 'normal';
-    g.font = `${fontStyle} ${fontWeight} ${metric.fontSize}px ${metric.fontFamily}`;
-    g.fillStyle = textColor;
-    g.textBaseline = 'top';
-    
-    // Calculate X position based on alignment
-    let textX;
-    if (metric.alignment === 'center') {
-      textX = w1 / 2;
-      g.textAlign = 'center';
-    } else if (metric.alignment === 'right') {
-      textX = w1 - padX;
-      g.textAlign = 'right';
-    } else {
-      textX = padX;
-      g.textAlign = 'left';
-    }
-    
-    const textY = currentY + metric.fontSize / 2;
-    g.textBaseline = 'middle';
-    
-    // Draw text
-    g.fillText(metric.text, textX, textY);
-    
-    // Draw decorations
-    if (metric.underline || metric.strikethrough) {
-      g.save();
-      g.strokeStyle = textColor;
-      g.lineWidth = Math.max(1, metric.fontSize / 16);
-      
-      // Calculate text bounds for decoration
-      g.textAlign = 'left';
-      const textWidth = g.measureText(metric.text).width;
-      let decorationX;
-      if (metric.alignment === 'center') {
-        decorationX = (w1 - textWidth) / 2;
-      } else if (metric.alignment === 'right') {
-        decorationX = w1 - padX - textWidth;
-      } else {
-        decorationX = padX;
-      }
-      
-      if (metric.underline) {
-        const underlineY = textY + metric.fontSize * 0.3;
-        g.beginPath();
-        g.moveTo(decorationX, underlineY);
-        g.lineTo(decorationX + textWidth, underlineY);
-        g.stroke();
-      }
-      
-      if (metric.strikethrough) {
-        const strikeY = textY;
-        g.beginPath();
-        g.moveTo(decorationX, strikeY);
-        g.lineTo(decorationX + textWidth, strikeY);
-        g.stroke();
-      }
-      
-      g.restore();
-    }
-    
-    currentY += metric.height + (idx < lineMetrics.length - 1 ? lineSpacing : 0);
-  });
-
-  const tex = new THREE.CanvasTexture(c);
-  tex.colorSpace = THREE.SRGBColorSpace;
-  tex.premultiplyAlpha = true;
-  tex.generateMipmaps = false;
-  tex.minFilter = THREE.LinearFilter;
-  tex.magFilter = THREE.LinearFilter;
-  tex.needsUpdate = true;
-
-  const mat = new THREE.SpriteMaterial({
-    map: tex,
-    transparent: true,
-    depthTest: false,
-    depthWrite: false
-  });
-  mat.premultipliedAlpha = true;
-
-  const spr = new THREE.Sprite(mat);
-  spr.renderOrder = 10006;
-
-  const aspect = w1 / h1;
-  spr.scale.set(worldSize * aspect, worldSize * 0.85, 1);
-  spr.userData.baseScale = spr.scale.clone();
-  spr.userData._pillLines = lines;
-  spr.userData._pillWorldSize = worldSize;
-  spr.userData._multiLine = true;
-  return spr;
-}
-
-// ========== END MULTI-LINE SYSTEM ==========
-
-// Helper function to build lines array from config for multi-line pills
-function buildLinesFromConfig(config, defaultText, cand) {
-  const lines = [];
-  
-  // Helper to get content text for a line
-  function getLineText(lineConfig) {
-    if (!lineConfig || !lineConfig.content) return '';
-    
-    const content = lineConfig.content;
-    switch(content) {
-      case 'name':
-        return safeStr(cand?.name || cand?.dst_name || defaultText || '');
-      case 'type':
-      case 'category':
-        return safeStr(cand?.dst_type || '');
-      case 'subtype':
-        return safeStr(cand?.amenity || cand?.leisure || cand?.place || '');
-      case 'landmark':
-        // Check if it's a landmark and format appropriately
-        const isLandmark = cand?.landmark === true || cand?.landmark === 'true';
-        if (isLandmark) {
-          const subtype = safeStr(cand?.amenity || cand?.leisure || cand?.place || '');
-          return subtype ? `Landmark – ${subtype}` : 'Landmark';
-        } else {
-          const dstType = safeStr(cand?.dst_type || '');
-          const subtype = safeStr(cand?.amenity || cand?.leisure || cand?.place || '');
-          if (dstType && subtype) {
-            return `${dstType} – ${subtype}`;
-          } else if (dstType) {
-            return dstType;
-          } else if (subtype) {
-            return subtype;
-          }
-          return '';
-        }
-      case 'distance':
-        const dist = getCandidateDistanceM(cand);
-        return dist !== undefined ? `${fmt(dist, 1)}m` : '';
-      case 'bearing':
-        const bearing = cand?.base_rel_yaw;
-        return bearing !== undefined ? `${fmt(bearing, 1)}°` : '';
-      case 'visibility':
-        const vis = getCandidateVisPct(cand);
-        return vis !== undefined ? `${fmt(vis, 0)}%` : '';
-      case 'elevation':
-        const elev = cand?.base_elev;
-        return elev !== undefined ? `${fmt(elev, 2)}°` : '';
-      case 'custom':
-        return lineConfig.customText || '';
-      default:
-        return '';
-    }
-  }
-  
-  // Build line 1
-  if (config.line1) {
-    const text = getLineText(config.line1);
-    if (text) {
-      lines.push({
-        text: text,
-        fontSize: config.line1.fontSize || 14,
-        fontFamily: config.line1.fontFamily || 'helvetica',
-        bold: config.line1.bold !== false, // Default true for line 1
-        italic: config.line1.italic || false,
-        underline: config.line1.underline || false,
-        strikethrough: config.line1.strikethrough || false,
-        alignment: config.line1.alignment || 'left'
-      });
-    }
-  }
-  
-  // Build line 2
-  if (config.line2) {
-    const text = getLineText(config.line2);
-    if (text) {
-      lines.push({
-        text: text,
-        fontSize: config.line2.fontSize || 11,
-        fontFamily: config.line2.fontFamily || 'helvetica',
-        bold: config.line2.bold || false,
-        italic: config.line2.italic || false,
-        underline: config.line2.underline || false,
-        strikethrough: config.line2.strikethrough || false,
-        alignment: config.line2.alignment || 'left'
-      });
-    }
-  }
-  
-  // Build line 3
-  if (config.line3) {
-    const text = getLineText(config.line3);
-    if (text) {
-      lines.push({
-        text: text,
-        fontSize: config.line3.fontSize || 9,
-        fontFamily: config.line3.fontFamily || 'helvetica',
-        bold: config.line3.bold || false,
-        italic: config.line3.italic || false,
-        underline: config.line3.underline || false,
-        strikethrough: config.line3.strikethrough || false,
-        alignment: config.line3.alignment || 'left'
-      });
-    }
-  }
-  
-  // Fallback to single line if no lines were added
-  if (lines.length === 0) {
-    lines.push({
-      text: defaultText || '',
-      fontSize: config.fontSize || 12,
-      fontFamily: config.font || 'helvetica',
-      bold: false,
-      italic: false,
-      underline: false,
-      strikethrough: false,
-      alignment: 'left'
-    });
-  }
-  
-  return lines;
-}
-
 function makeCalloutAnimated(root, name, isVisible=true, typeHex=0x00c8ff, lineColorHex=null, config=null){
   // Use config if provided, otherwise use defaults
-  let rise = config?.lineHeight || 40;
+  const rise = config?.lineHeight || 40;
   const sqW  = config?.displayShapeSize || 6;
   const lblW = 18; // Label world size (can be config-driven in future)
   const showLine = config?.showLine !== false; // default true
   const showDisplayShape = config?.showDisplayShape !== false; // default true
-  const labelsAboveHorizon = config?.labelsAboveHorizon || false;
-
-  // Calculate horizon-adjusted rise if labelsAboveHorizon is enabled
-  if (labelsAboveHorizon && root?.userData?.cand) {
-    // Get marker elevation angle (pitch)
-    const markerElev = Number(root.userData.cand.elev_ang_d ?? 0);
-    
-    // Estimate distance to horizon based on marker elevation
-    // Negative elevation = below horizon, positive = above
-    // The lower the marker, the more we need to extend the line upward
-    // Approximate: at -10° we want about 100 units extension, at 0° about 50, at +10° about 20
-    const horizonExtension = Math.max(0, 100 - markerElev * 3);
-    
-    // New rise = extension to horizon + original line height
-    rise = horizonExtension + (config?.lineHeight || 40);
-  }
 
   // gaps: square -> line start, line end -> square, square -> label
   const gap1 = Math.max(1.5, sqW * 0.35);
@@ -3102,100 +2338,47 @@ function makeCalloutAnimated(root, name, isVisible=true, typeHex=0x00c8ff, lineC
     const geo = new THREE.BufferGeometry().setFromPoints(pts);
 
     const actualLineColor = lineColorHex !== null ? lineColorHex : typeHex;
-    // Always use solid line (removed dashed line for invisible markers)
-    const mat = new THREE.LineBasicMaterial({ color: actualLineColor, transparent:true, opacity:0.0 });
-    mat.depthTest = false;
-    line = new THREE.Line(geo, mat);
+    if (isVisible){
+      const mat = new THREE.LineBasicMaterial({ color: actualLineColor, transparent:true, opacity:0.0 });
+      mat.depthTest = false;
+      line = new THREE.Line(geo, mat);
+    } else {
+      const mat = new THREE.LineDashedMaterial({
+        color: actualLineColor,
+        transparent:true,
+        opacity:0.0,
+        dashSize: Math.max(3, rise * 0.18),
+        gapSize:  Math.max(2, rise * 0.12)
+      });
+      mat.depthTest = false;
+      line = new THREE.Line(geo, mat);
+      line.computeLineDistances();
+    }
     line.renderOrder = 10001;
     call.add(line);
   }
 
-  // Removed X marker for invisible items - only show what user sets
+  // X marker at halfway for NOT visible (fades with the line)
+  let xSpr = null;
+  if (!isVisible && showLine){
+    xSpr = makeXSprite(Math.max(5, sqW*0.95));
+    xSpr.position.set(0, rise*0.5, 0);
+    xSpr.material.opacity = 0.0;
+    call.add(xSpr);
+  }
 
-  // top display shape - CRITICAL: Position based on FINAL line height (rise)
+  // top display shape (moves with line end) - use enhanced shape function
   let sq2 = null;
   if (showDisplayShape) {
     sq2 = makeDisplayShapeSprite(sqW, config);
-    // Compute final position: rise (total height) - gap2 (gap from line end to shape)
-    // Add displayShapeOffset: 0 = line top, positive = higher, negative = lower
-    const displayShapeOffset = config?.displayShapeOffset || 0;
-    const finalShapeY = rise - gap2 + displayShapeOffset;
-    sq2.position.set(0, finalShapeY, 0);
+    sq2.position.set(0, gap1 + gap2, 0);
     call.add(sq2);
   }
 
-  // pill label - CRITICAL: Position based on FINAL positions (computed before animation)
-  // Check if multi-line mode is enabled
-  let label;
-  if (config?.useMultiLine) {
-    // Build lines array from config
-    const lines = buildLinesFromConfig(config, name, root?.userData?.cand);
-    label = makeMultiLinePillSprite(lines, lblW, 0x000000, config);
-  } else {
-    label = makePillLabelSprite(name, lblW, 0x000000, config);
-  }
-  
+  // pill label (appears last)
+  const label = makePillLabelSprite(name, lblW, 0x000000, config);
   const labelHalfH = (label.userData?.baseScale ? (label.userData.baseScale.y*0.5) : (label.scale.y*0.5));
-  const labelHalfW = (label.userData?.baseScale ? (label.userData.baseScale.x*0.5) : (label.scale.x*0.5));
-  
-  // Get positioning config
-  const pillPosition = config?.pillPosition || "top-center";
-  const pillTopGap = config?.pillTopGap !== undefined ? config.pillTopGap : gap3;
-  const pillSideGap = config?.pillSideGap !== undefined ? config.pillSideGap : 2.0;
-  const pillSideAlignment = config?.pillSideAlignment || "shape";
-  const pillOffset = config?.pillOffset || 0; // Additional vertical offset
-  
-  // Compute label position based on mode
-  const displayShapeOffset = config?.displayShapeOffset || 0;
-  const finalShapeY = rise - gap2 + displayShapeOffset;
-  const lineTopY = rise - gap2; // Where line ends (or would end)
-  
-  let finalLabelX = 0;
-  let finalLabelY = 0;
-  
-  switch(pillPosition) {
-    case "top-center":
-      finalLabelX = 0;
-      finalLabelY = finalShapeY + (sqW*0.5) + pillTopGap + labelHalfH + pillOffset;
-      break;
-      
-    case "top-left":
-      // Pill right edge meets the line
-      finalLabelX = -labelHalfW;
-      finalLabelY = finalShapeY + (sqW*0.5) + pillTopGap + labelHalfH + pillOffset;
-      break;
-      
-    case "top-right":
-      // Pill left edge meets the line
-      finalLabelX = labelHalfW;
-      finalLabelY = finalShapeY + (sqW*0.5) + pillTopGap + labelHalfH + pillOffset;
-      break;
-      
-    case "side-left":
-      finalLabelX = -pillSideGap - labelHalfW;
-      if (pillSideAlignment === "shape") {
-        finalLabelY = finalShapeY + pillOffset; // Align center with shape
-      } else {
-        finalLabelY = lineTopY + pillOffset; // Align center with line top
-      }
-      break;
-      
-    case "side-right":
-      finalLabelX = pillSideGap + labelHalfW;
-      if (pillSideAlignment === "shape") {
-        finalLabelY = finalShapeY + pillOffset; // Align center with shape
-      } else {
-        finalLabelY = lineTopY + pillOffset; // Align center with line top
-      }
-      break;
-      
-    default: // fallback to top-center
-      finalLabelX = 0;
-      finalLabelY = finalShapeY + (sqW*0.5) + pillTopGap + labelHalfH + pillOffset;
-      break;
-  }
-  
-  label.position.set(finalLabelX, finalLabelY, 0);
+  label.position.set(0, (gap1 + gap2) + (sqW*0.5) + gap3 + labelHalfH, 0);
   label.material.opacity = 0.0;
   call.add(label);
 
@@ -3226,7 +2409,7 @@ function makeCalloutAnimated(root, name, isVisible=true, typeHex=0x00c8ff, lineC
     gap1, gap2, gap3,
     typeHex: (typeHex ?? 0x00c8ff),
     lineColorHex: (lineColorHex !== null ? lineColorHex : (typeHex ?? 0x00c8ff)),
-    sq1, sq2, line, label,
+    sq1, sq2, line, label, xSpr,
     t: 0,
     target: 0,
     speed: config?.animSeconds ? (1 / config.animSeconds) : (1 / 1.8),
@@ -3283,17 +2466,17 @@ function updateCalloutAnims(){
     // show/hide
     call.visible = (ud.t > 0.001);
 
-    // staged timing (FIXED: proper line→shape→pill sequencing):
-    // 0-0.16: bottom square pop (anchor, always hidden)
-    // 0.16-0.62: line grows (completes before shape starts)
-    // 0.62-0.82: display shape pop (starts after line completes)
-    // 0.82-1.00: pill label (starts after shape completes)
+    // staged timing:
+    // 0-0.16: bottom square pop
+    // 0.16-0.62: line grows
+    // 0.52-0.76: top square pop
+    // 0.72-1.00: label + pill
     const t = ud.t;
 
     const t1 = clamp((t - 0.00)/0.16, 0, 1);
     const t2 = clamp((t - 0.16)/0.46, 0, 1);
-    const t3 = clamp((t - 0.62)/0.20, 0, 1); // Fixed: now starts at 0.62, after line
-    const t4 = clamp((t - 0.82)/0.18, 0, 1); // Fixed: now starts at 0.82, after shape
+    const t3 = clamp((t - 0.52)/0.24, 0, 1);
+    const t4 = clamp((t - 0.72)/0.28, 0, 1);
 
     const k1 = easeOutCubic(t1);
     const k2 = easeInOutCubic(t2);
@@ -3325,7 +2508,14 @@ function updateCalloutAnims(){
       pos.needsUpdate = true;
 
       ud.line.material.opacity = 0.95 * k2;
-      // Removed LineDashedMaterial check - always using solid lines now
+      if (ud.line.isLine && ud.line.material.isLineDashedMaterial){
+        ud.line.computeLineDistances();
+      }
+      
+      // optional X marker
+      if (ud.xSpr && ud.xSpr.material){
+        ud.xSpr.material.opacity = 0.95 * k2;
+      }
       
       // Line color transition
       const ltr = (ud.lineColorHex >> 16) & 255;
@@ -3343,17 +2533,22 @@ function updateCalloutAnims(){
     const usable = Math.max(0, ud.rise - ud.gap1 - ud.gap2);
     const endY = ud.line ? (ud.gap1 + usable * k2) : (ud.rise - ud.gap2); // Animated or full height
     
-    // Display shape: Position is FIXED at creation time, only animate scale
+    // Display shape follows line end (or computed height if no line)
     if (ud.sq2) {
-      // Do NOT reposition - position was computed before animation
+      ud.sq2.position.set(0, endY + ud.gap2, 0);
       const bs = ud.sq2.userData?.baseScale;
       const s = Math.max(0.0001, k3);
       if (bs) ud.sq2.scale.copy(bs).multiplyScalar(s);
       else ud.sq2.scale.setScalar(s);
     }
     
-    // Label: Position is FIXED at creation time, only animate opacity and scale
-    // Do NOT reposition - position was computed before animation
+    // Label always positioned above display shape (or at computed height)
+    const topCenterY = endY + ud.gap2;
+    const topEdgeY = topCenterY + (ud.sqW*0.5);
+    const baseH = (ud.label.userData?.baseScale ? ud.label.userData.baseScale.y : ud.label.scale.y);
+    const labelHalfH = baseH * 0.5;
+    ud.label.position.set(0, topEdgeY + ud.gap3 + labelHalfH, 0);
+    
     ud.label.material.opacity = k4;
 
     // slight scale-in while keeping aspect
@@ -4320,135 +3515,6 @@ function exportPNG(){
     setTimeout(()=>URL.revokeObjectURL(url), 1000);
     ovSetStatus("Exported PNG ✔\n" + filename);
   }, "image/png");
-}
-
-// ================= Marker FX Export/Import =================
-
-function getMarkerFXSettings() {
-  return JSON.parse(JSON.stringify(activeMarkers));
-}
-
-function applyMarkerFXSettings(configs) {
-  if (!Array.isArray(configs)) return;
-  activeMarkers = configs.map(c => ({
-    ...c,
-    id: c.id || `marker_${markerIdCounter++}`
-  }));
-  renderMarkerFXList();
-  applyAllMarkerFX();
-}
-
-async function copyMarkerSettings() {
-  const txt = JSON.stringify(getMarkerFXSettings(), null, 2);
-  const box = document.getElementById('markerSettingsBox');
-  if (box) box.value = txt;
-  try {
-    await navigator.clipboard.writeText(txt);
-    console.log("Marker FX settings copied ✔");
-  } catch {
-    console.log("Copied to box (clipboard blocked) ✔");
-  }
-}
-
-function encodeMarkerShareLink() {
-  const settings = getMarkerFXSettings();
-  const json = JSON.stringify(settings);
-  const encoded = encodeURIComponent(json);
-  const url = new URL(window.location.href);
-  url.hash = `#markerFX=${encoded}`;
-  return url.toString();
-}
-
-function decodeMarkerFromHash() {
-  const hash = window.location.hash;
-  const match = hash.match(/markerFX=([^&]+)/);
-  if (!match) return null;
-  try {
-    const decoded = decodeURIComponent(match[1]);
-    return JSON.parse(decoded);
-  } catch { return null; }
-}
-
-// ================= Label FX Export/Import =================
-
-function getLabelFXSettings() {
-  return JSON.parse(JSON.stringify(activeLabels));
-}
-
-function applyLabelFXSettings(configs) {
-  if (!Array.isArray(configs)) return;
-  activeLabels = configs.map(c => ({
-    ...c,
-    id: c.id || `label_${labelIdCounter++}`
-  }));
-  renderLabelFXList();
-  applyAllLabelFX();
-}
-
-async function copyLabelSettings() {
-  const txt = JSON.stringify(getLabelFXSettings(), null, 2);
-  const box = document.getElementById('labelSettingsBox');
-  if (box) box.value = txt;
-  try {
-    await navigator.clipboard.writeText(txt);
-    console.log("Label FX settings copied ✔");
-  } catch {
-    console.log("Copied to box (clipboard blocked) ✔");
-  }
-}
-
-function encodeLabelShareLink() {
-  const settings = getLabelFXSettings();
-  const json = JSON.stringify(settings);
-  const encoded = encodeURIComponent(json);
-  const url = new URL(window.location.href);
-  url.hash = `#labelFX=${encoded}`;
-  return url.toString();
-}
-
-function decodeLabelFromHash() {
-  const hash = window.location.hash;
-  const match = hash.match(/labelFX=([^&]+)/);
-  if (!match) return null;
-  try {
-    const decoded = decodeURIComponent(match[1]);
-    return JSON.parse(decoded);
-  } catch { return null; }
-}
-
-// ================= Application-Wide Style Export/Import =================
-
-function getAllStyles() {
-  return {
-    overlay: getOverlaySettings(),
-    markerFX: getMarkerFXSettings(),
-    labelFX: getLabelFXSettings()
-  };
-}
-
-function applyAllStyles(styles) {
-  if (styles.overlay) applyOverlaySettings(styles.overlay);
-  if (styles.markerFX) applyMarkerFXSettings(styles.markerFX);
-  if (styles.labelFX) applyLabelFXSettings(styles.labelFX);
-}
-
-async function copyAllStyles() {
-  const txt = JSON.stringify(getAllStyles(), null, 2);
-  try {
-    await navigator.clipboard.writeText(txt);
-    console.log("All styles copied ✔");
-  } catch {
-    console.log("Copy to clipboard failed");
-  }
-}
-
-function encodeAllStylesShareLink() {
-  const settings = getAllStyles();
-  const json = JSON.stringify(settings);
-  const encoded = encodeURIComponent(json);
-  const url = new URL(window.location.href);
-  url.hash = `#allStyles=${encoded}`;
-  return url.toString();
 }
 
 function hookOverlayUI(){
@@ -5837,10 +4903,6 @@ function renderMarkerFXList() {
   const container = document.getElementById('activeMarkersList');
   if (!container) return;
   
-  // Preserve scroll position to prevent auto-scroll bug (Issue #13)
-  const scrollParent = container.parentElement;
-  const scrollTop = scrollParent ? scrollParent.scrollTop : 0;
-  
   container.innerHTML = '';
   
   activeMarkers.forEach(marker => {
@@ -5858,13 +4920,6 @@ function renderMarkerFXList() {
     `;
     container.appendChild(markerDiv);
   });
-  
-  // Restore scroll position after rebuilding UI (use requestAnimationFrame to ensure DOM is updated)
-  if (scrollParent) {
-    requestAnimationFrame(() => {
-      scrollParent.scrollTop = scrollTop;
-    });
-  }
   
   // Wire up events
   container.querySelectorAll('.markerToggle').forEach(btn => {
@@ -5997,22 +5052,22 @@ function renderMarkerFXControls(marker) {
     <!-- Single Color -->
     <div class="ctrlRow colorSingle" style="${marker.colorMode !== 'single' ? 'display:none' : ''}">
       <label>Color</label>
-      ${renderColorSwatch(marker.id, 'color', marker.color, false)}
+      <input type="color" data-id="${marker.id}" data-prop="color" value="${marker.color}">
     </div>
     
     <!-- Category Colors -->
     <div class="colorCategory" style="${marker.colorMode !== 'category' ? 'display:none' : ''}">
-      <div class="ctrlRow"><label>Landmark</label>${renderColorSwatch(marker.id, 'categoryColors.landmark', marker.categoryColors.landmark || marker.categoryColors.Landmark || '#ff6b6b', false)}</div>
-      <div class="ctrlRow"><label>Leisure</label>${renderColorSwatch(marker.id, 'categoryColors.leisure', marker.categoryColors.leisure || marker.categoryColors.Leisure || '#4ecdc4', false)}</div>
-      <div class="ctrlRow"><label>Place</label>${renderColorSwatch(marker.id, 'categoryColors.place', marker.categoryColors.place || marker.categoryColors.Place || '#f38181', false)}</div>
-      <div class="ctrlRow"><label>Amenity</label>${renderColorSwatch(marker.id, 'categoryColors.amenity', marker.categoryColors.amenity || marker.categoryColors.Amenity || '#aa96da', false)}</div>
+      <div class="ctrlRow"><label>Landmark</label><input type="color" data-id="${marker.id}" data-prop="categoryColors.landmark" value="${marker.categoryColors.landmark || marker.categoryColors.Landmark || '#ff6b6b'}"></div>
+      <div class="ctrlRow"><label>Leisure</label><input type="color" data-id="${marker.id}" data-prop="categoryColors.leisure" value="${marker.categoryColors.leisure || marker.categoryColors.Leisure || '#4ecdc4'}"></div>
+      <div class="ctrlRow"><label>Place</label><input type="color" data-id="${marker.id}" data-prop="categoryColors.place" value="${marker.categoryColors.place || marker.categoryColors.Place || '#f38181'}"></div>
+      <div class="ctrlRow"><label>Amenity</label><input type="color" data-id="${marker.id}" data-prop="categoryColors.amenity" value="${marker.categoryColors.amenity || marker.categoryColors.Amenity || '#aa96da'}"></div>
     </div>
     
     <!-- Visibility Colors -->
     <div class="colorVisibility" style="${marker.colorMode !== 'visibility' ? 'display:none' : ''}">
-      <div class="ctrlRow"><label>High (80-100%)</label>${renderColorSwatch(marker.id, 'visibilityColors.high', marker.visibilityColors.high, false)}</div>
-      <div class="ctrlRow"><label>Med (40-80%)</label>${renderColorSwatch(marker.id, 'visibilityColors.medium', marker.visibilityColors.medium, false)}</div>
-      <div class="ctrlRow"><label>Low (0-40%)</label>${renderColorSwatch(marker.id, 'visibilityColors.low', marker.visibilityColors.low, false)}</div>
+      <div class="ctrlRow"><label>High (80-100%)</label><input type="color" data-id="${marker.id}" data-prop="visibilityColors.high" value="${marker.visibilityColors.high}"></div>
+      <div class="ctrlRow"><label>Med (40-80%)</label><input type="color" data-id="${marker.id}" data-prop="visibilityColors.medium" value="${marker.visibilityColors.medium}"></div>
+      <div class="ctrlRow"><label>Low (0-40%)</label><input type="color" data-id="${marker.id}" data-prop="visibilityColors.low" value="${marker.visibilityColors.low}"></div>
     </div>
     
     ${hasParticles ? `
@@ -6290,36 +5345,6 @@ function initModularMarkerSystem() {
       }
     });
   }
-  
-  // Hook up export/import buttons for Marker FX
-  const copyMarkerBtn = document.getElementById('copyMarkerSettingsBtn');
-  const shareMarkerBtn = document.getElementById('shareMarkerLinkBtn');
-  const applyMarkerBtn = document.getElementById('applyMarkerSettingsBtn');
-  const markerBox = document.getElementById('markerSettingsBox');
-  
-  if (copyMarkerBtn) copyMarkerBtn.onclick = copyMarkerSettings;
-  if (shareMarkerBtn) shareMarkerBtn.onclick = async () => {
-    const url = encodeMarkerShareLink();
-    try {
-      await navigator.clipboard.writeText(url);
-      console.log("Marker FX share link copied ✔");
-    } catch {
-      console.log("Share link set in URL bar (copy it) ✔");
-    }
-  };
-  if (applyMarkerBtn && markerBox) applyMarkerBtn.onclick = () => {
-    try {
-      const configs = JSON.parse(markerBox.value);
-      applyMarkerFXSettings(configs);
-      console.log("Marker FX settings applied ✔");
-    } catch (err) {
-      console.error("Invalid JSON:", err?.message || err);
-    }
-  };
-  
-  // Load from hash if present
-  const sharedMarker = decodeMarkerFromHash();
-  if (sharedMarker) applyMarkerFXSettings(sharedMarker);
 }
 
 // ================= MODULAR LABEL SYSTEM =================
@@ -6338,7 +5363,6 @@ const labelTypeDefaults = {
     lineColorMode: "category",
     lineOpacity: 0.8,
     lineWidth: 2,
-    labelsAboveHorizon: false, // Extends line to sky mask horizon + lineHeight above
     
     showDisplayShape: true,
     displayShapeType: "square", // circle | square | diamond | triangle | asterisk
@@ -6346,9 +5370,7 @@ const labelTypeDefaults = {
     displayShapeFillColor: "rgba(0,0,0,0.95)",
     displayShapeStrokeColor: "rgba(255,255,255,0.8)",
     displayShapeStrokeWidth: 0,
-    displayShapeOpacity: 1.0,
     displayShapeColorMode: "single", // single | category | visibility
-    displayShapeOffset: 0, // Vertical offset from line top (0 = line top, positive = higher, negative = lower)
     
     content: ["name"],
     pillShape: "rounded",
@@ -6356,47 +5378,6 @@ const labelTypeDefaults = {
     pillBorderColor: "rgba(255,255,255,0.18)",
     pillTextColor: "#ffffff",
     pillColorMode: "single",
-    
-    // Multi-line text configuration (Issues 7 & 8)
-    useMultiLine: false, // Enable multi-line pill labels
-    lineSpacing: 4, // Spacing between lines in pixels
-    line1: {
-      content: "name", // name | type | custom
-      fontSize: 14,
-      fontFamily: "helvetica",
-      bold: true,
-      italic: false,
-      underline: false,
-      strikethrough: false,
-      alignment: "left" // left | center | right
-    },
-    line2: {
-      content: "category", // category | subtype | landmark | custom
-      fontSize: 11,
-      fontFamily: "helvetica",
-      bold: false,
-      italic: false,
-      underline: false,
-      strikethrough: false,
-      alignment: "left"
-    },
-    line3: {
-      content: "distance", // distance | bearing | visibility | elevation | custom
-      fontSize: 9,
-      fontFamily: "helvetica",
-      bold: false,
-      italic: false,
-      underline: false,
-      strikethrough: false,
-      alignment: "left"
-    },
-    
-    // Pill positioning
-    pillPosition: "top-center", // top-center | top-left | top-right | side-left | side-right
-    pillTopGap: 2.0, // Gap from shape/line when in top positions
-    pillSideGap: 2.0, // Gap from line when in side positions  
-    pillSideAlignment: "shape", // shape | line (for side positions: align top to shape or line)
-    pillOffset: 0, // Vertical offset from default position (0 = default, positive = higher, negative = lower)
     
     font: "helvetica",
     fontSize: 12,
@@ -6416,24 +5397,6 @@ const labelTypeDefaults = {
   },
   hover: {
     name: "Hover Tip",
-    showLine: false, // Off by default for hover
-    lineHeight: 20,
-    lineColor: "#00ff00",
-    lineColorMode: "category",
-    lineOpacity: 0.8,
-    lineWidth: 2,
-    labelsAboveHorizon: false, // Extends line to sky mask horizon + lineHeight above
-    
-    showDisplayShape: false, // Off by default for hover
-    displayShapeType: "square",
-    displayShapeSize: 6,
-    displayShapeFillColor: "rgba(0,0,0,0.95)",
-    displayShapeStrokeColor: "rgba(255,255,255,0.8)",
-    displayShapeStrokeWidth: 0,
-    displayShapeOpacity: 1.0,
-    displayShapeColorMode: "single",
-    displayShapeOffset: 0,
-    
     content: ["name"],
     pillShape: "rounded",
     pillBackgroundColor: "rgba(0,0,0,0.75)",
@@ -6441,66 +5404,17 @@ const labelTypeDefaults = {
     pillTextColor: "#ffffff",
     pillColorMode: "single",
     
-    // Multi-line text configuration (Issues 7 & 8)
-    useMultiLine: false,
-    lineSpacing: 4,
-    line1: {
-      content: "name",
-      fontSize: 12,
-      fontFamily: "helvetica",
-      bold: true,
-      italic: false,
-      underline: false,
-      strikethrough: false,
-      alignment: "left"
-    },
-    line2: {
-      content: "category",
-      fontSize: 10,
-      fontFamily: "helvetica",
-      bold: false,
-      italic: false,
-      underline: false,
-      strikethrough: false,
-      alignment: "left"
-    },
-    line3: {
-      content: "distance",
-      fontSize: 8,
-      fontFamily: "helvetica",
-      bold: false,
-      italic: false,
-      underline: false,
-      strikethrough: false,
-      alignment: "left"
-    },
-    
-    // Pill positioning
-    pillPosition: "top-center",
-    pillTopGap: 2.0,
-    pillSideGap: 2.0,
-    pillSideAlignment: "shape",
-    pillOffset: 0,
-    
     font: "helvetica",
     fontSize: 12,
     paddingX: 10,
     paddingY: 8,
     
-    categoryColors: {
-      "landmark": "#ff0000",
-      "leisure": "#00ff00",
-      "amenity": "#0000ff",
-      "place": "#ffff00"
-    },
-    
     showOnHover: true,
     fadeDistance: 100,
     maxDistance: 500,
     
-    // Animation params
-    animSeconds: 1.8,
-    loop: false
+    // Hover can have line height too (even if line is hidden)
+    lineHeight: 20
   }
 };
 
@@ -6532,10 +5446,6 @@ function renderLabelFXList() {
   const container = document.getElementById('activeLabelsList');
   if (!container) return;
   
-  // Preserve scroll position to prevent auto-scroll bug (Issue #13)
-  const scrollParent = container.parentElement;
-  const scrollTop = scrollParent ? scrollParent.scrollTop : 0;
-  
   container.innerHTML = '';
   
   activeLabels.forEach(label => {
@@ -6554,13 +5464,6 @@ function renderLabelFXList() {
     container.appendChild(labelDiv);
   });
   
-  // Restore scroll position after rebuilding UI (use requestAnimationFrame to ensure DOM is updated)
-  if (scrollParent) {
-    requestAnimationFrame(() => {
-      scrollParent.scrollTop = scrollTop;
-    });
-  }
-  
   // Wire up events
   container.querySelectorAll('.markerToggle').forEach(btn => {
     btn.addEventListener('click', (e) => {
@@ -6574,43 +5477,6 @@ function renderLabelFXList() {
   container.querySelectorAll('.markerDelete').forEach(btn => {
     btn.addEventListener('click', (e) => {
       removeLabelFX(e.target.dataset.id);
-    });
-  });
-  
-  // Wire up "Copy from Label" button for hover tips
-  container.querySelectorAll('.copyFromLabelBtn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const hoverId = e.target.dataset.id;
-      const hoverLabel = activeLabels.find(l => l.id === hoverId);
-      const labelConfig = activeLabels.find(l => l.type === 'label');
-      
-      if (hoverLabel && labelConfig && hoverLabel.type === 'hover') {
-        // Copy all relevant properties from label to hover (except type-specific ones)
-        const propertiesToCopy = [
-          'showLine', 'lineHeight', 'lineColor', 'lineColorMode', 'lineOpacity', 'lineWidth',
-          'showDisplayShape', 'displayShapeType', 'displayShapeSize', 'displayShapeFillColor',
-          'displayShapeStrokeColor', 'displayShapeStrokeWidth', 'displayShapeOpacity', 
-          'displayShapeColorMode', 'displayShapeOffset',
-          'content', 'pillShape', 'pillBackgroundColor', 'pillBorderColor', 'pillTextColor',
-          'pillColorMode', 'pillPosition', 'pillTopGap', 'pillSideGap', 'pillSideAlignment', 'pillOffset',
-          'font', 'fontSize', 'paddingX', 'paddingY', 'categoryColors'
-        ];
-        
-        propertiesToCopy.forEach(prop => {
-          if (labelConfig[prop] !== undefined) {
-            if (typeof labelConfig[prop] === 'object' && !Array.isArray(labelConfig[prop])) {
-              hoverLabel[prop] = JSON.parse(JSON.stringify(labelConfig[prop]));
-            } else if (Array.isArray(labelConfig[prop])) {
-              hoverLabel[prop] = [...labelConfig[prop]];
-            } else {
-              hoverLabel[prop] = labelConfig[prop];
-            }
-          }
-        });
-        
-        renderLabelFXList();
-        applyAllLabelFX();
-      }
     });
   });
   
@@ -6689,7 +5555,7 @@ function updateLabelFXProperty(id, prop, value) {
   const label = activeLabels.find(l => l.id === id);
   if (!label) return;
   
-  // Handle nested properties (e.g., categoryColors.landmark, line1.bold)
+  // Handle nested properties (e.g., categoryColors.landmark)
   if (prop.includes('.')) {
     const parts = prop.split('.');
     let obj = label;
@@ -6700,17 +5566,7 @@ function updateLabelFXProperty(id, prop, value) {
       }
       obj = obj[parts[i]];
     }
-    // Handle value types for nested properties
-    const finalProp = parts[parts.length - 1];
-    if (value === 'true' || value === 'false') {
-      obj[finalProp] = value === 'true';
-    } else if (typeof value === 'boolean') {
-      obj[finalProp] = value;
-    } else if (!isNaN(value) && value !== '') {
-      obj[finalProp] = parseFloat(value);
-    } else {
-      obj[finalProp] = value;
-    }
+    obj[parts[parts.length - 1]] = value;
   } else {
     // Handle boolean values
     if (value === 'true' || value === 'false') {
@@ -6726,8 +5582,7 @@ function updateLabelFXProperty(id, prop, value) {
   
   // Re-render if certain properties change
   if (prop === 'format' || prop === 'content' || prop === 'type' || 
-      prop === 'lineColorMode' || prop === 'displayShapeColorMode' || prop === 'pillColorMode' ||
-      prop === 'useMultiLine' || prop.startsWith('line1.') || prop.startsWith('line2.') || prop.startsWith('line3.')) {
+      prop === 'lineColorMode' || prop === 'displayShapeColorMode' || prop === 'pillColorMode') {
     renderLabelFXList();
   }
   
@@ -6740,7 +5595,7 @@ function renderLabelFXControls(label) {
   const isHoverMode = label.type === 'hover';
   
   // Check if any element uses category mode (to show category colors section)
-  const usesCategoryColors = (
+  const usesCategoryColors = isLabelMode && (
     label.lineColorMode === 'category' ||
     label.displayShapeColorMode === 'category' ||
     label.pillColorMode === 'category'
@@ -6774,7 +5629,7 @@ function renderLabelFXControls(label) {
       ${label.lineColorMode === 'single' ? `
       <div class="ctrlRow">
         <label>Line Color</label>
-        ${renderColorSwatch(label.id, 'lineColor', label.lineColor || '#00ff00', false)}
+        <input type="color" data-id="${label.id}" data-prop="lineColor" value="${label.lineColor || '#00ff00'}">
       </div>
       ` : ''}
       
@@ -6783,15 +5638,6 @@ function renderLabelFXControls(label) {
         <input type="number" data-id="${label.id}" data-prop="lineWidth" value="${label.lineWidth || 2}" step="0.5" min="0.5" max="10">
       </div>
       ` : ''}
-      
-      <div class="ctrlRow" style="align-items:center;">
-        <label style="flex:1;">
-          <input type="checkbox" data-id="${label.id}" data-prop="labelsAboveHorizon" ${label.labelsAboveHorizon ? 'checked' : ''}>
-          <span>Labels Above Horizon</span>
-        </label>
-      </div>
-      <small style="display:block;opacity:0.7;font-size:10px;margin:-4px 0 8px 0;">Extends line to sky mask horizon + line height</small>
-      
       
       <!-- Display Shape Controls -->
       <hr style="border:none;border-top:1px solid rgba(255,255,255,.12);margin:12px 0;">
@@ -6804,25 +5650,8 @@ function renderLabelFXControls(label) {
       
       ${label.showDisplayShape ? `
       <div class="ctrlRow">
-        <label>Shape Type</label>
-        <select data-id="${label.id}" data-prop="displayShapeType">
-          <option value="circle" ${(label.displayShapeType || 'square') === 'circle' ? 'selected' : ''}>Circle</option>
-          <option value="square" ${(label.displayShapeType || 'square') === 'square' ? 'selected' : ''}>Square</option>
-          <option value="diamond" ${label.displayShapeType === 'diamond' ? 'selected' : ''}>Diamond</option>
-          <option value="triangle" ${label.displayShapeType === 'triangle' ? 'selected' : ''}>Triangle</option>
-          <option value="asterisk" ${label.displayShapeType === 'asterisk' ? 'selected' : ''}>Asterisk</option>
-        </select>
-      </div>
-      
-      <div class="ctrlRow">
         <label>Display Shape Size</label>
         <input type="number" data-id="${label.id}" data-prop="displayShapeSize" value="${label.displayShapeSize || 6}" step="1" min="2" max="18">
-      </div>
-      
-      <div class="ctrlRow">
-        <label>Shape Vertical Offset</label>
-        <input type="number" data-id="${label.id}" data-prop="displayShapeOffset" value="${label.displayShapeOffset || 0}" step="0.5" min="-50" max="50">
-        <small style="opacity:0.7;font-size:10px;margin-left:4px;">0=line top, +higher, -lower</small>
       </div>
       
       <div class="ctrlRow">
@@ -6834,144 +5663,17 @@ function renderLabelFXControls(label) {
         </select>
       </div>
       
+      ${label.displayShapeColorMode === 'single' ? `
       <div class="ctrlRow">
-        <label>Shape Fill Color</label>
-        ${renderColorSwatch(label.id, 'displayShapeFillColor', label.displayShapeFillColor || 'rgba(0,0,0,0.95)', true)}
+        <label>Shape Color</label>
+        <input type="color" data-id="${label.id}" data-prop="displayShapeColor" value="${label.displayShapeColor || '#ffffff'}">
       </div>
-      
-      <div class="ctrlRow">
-        <label>Shape Stroke Color</label>
-        ${renderColorSwatch(label.id, 'displayShapeStrokeColor', label.displayShapeStrokeColor || 'rgba(255,255,255,0.8)', true)}
-      </div>
-      
-      <div class="ctrlRow">
-        <label>Shape Stroke Width</label>
-        <input type="number" data-id="${label.id}" data-prop="displayShapeStrokeWidth" value="${label.displayShapeStrokeWidth || 0}" step="0.5" min="0" max="5">
-      </div>
-      
-      <div class="ctrlRow">
-        <label>Shape Opacity</label>
-        <input type="number" data-id="${label.id}" data-prop="displayShapeOpacity" value="${label.displayShapeOpacity !== undefined ? label.displayShapeOpacity : 1.0}" step="0.05" min="0" max="1">
-      </div>
+      ` : ''}
       ` : ''}
       
       <!-- Pill Label Controls -->
       <hr style="border:none;border-top:1px solid rgba(255,255,255,.12);margin:12px 0;">
       <div style="font-weight:700;margin-bottom:8px;">Pill Label</div>
-      
-      <!-- Multi-line Toggle -->
-      <div class="ctrlRow" style="align-items:center;">
-        <label style="flex:1;">
-          <input type="checkbox" data-id="${label.id}" data-prop="useMultiLine" ${label.useMultiLine ? 'checked' : ''}>
-          <span>Enable Multi-line Text</span>
-        </label>
-      </div>
-      
-      <!-- Multi-line Configuration (shown when useMultiLine is true) -->
-      ${label.useMultiLine ? `
-      <div style="margin: 8px 0; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 4px;">
-        <div style="font-size: 11px; opacity: 0.8; margin-bottom: 8px;">Multi-line Text Configuration</div>
-        
-        <!-- Line 1 -->
-        <details open style="margin-bottom: 8px;">
-          <summary style="cursor: pointer; font-weight: 600; font-size: 11px; padding: 4px; background: rgba(255,255,255,0.1); border-radius: 3px;">Line 1 (Title)</summary>
-          <div style="padding: 8px 4px; display: flex; flex-direction: column; gap: 6px;">
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Content</label>
-              <select data-id="\${label.id}" data-prop="line1.content" style="font-size: 10px;">
-                <option value="name" \${label.line1?.content === 'name' ? 'selected' : ''}>Name</option>
-                <option value="type" \${label.line1?.content === 'type' ? 'selected' : ''}>Type</option>
-                <option value="category" \${label.line1?.content === 'category' ? 'selected' : ''}>Category</option>
-              </select>
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Font Size</label>
-              <input type="number" data-id="\${label.id}" data-prop="line1.fontSize" value="\${label.line1?.fontSize || 14}" min="8" max="24" step="1" style="font-size: 10px;">
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Alignment</label>
-              <select data-id="\${label.id}" data-prop="line1.alignment" style="font-size: 10px;">
-                <option value="left" \${(label.line1?.alignment || 'left') === 'left' ? 'selected' : ''}>Left</option>
-                <option value="center" \${label.line1?.alignment === 'center' ? 'selected' : ''}>Center</option>
-                <option value="right" \${label.line1?.alignment === 'right' ? 'selected' : ''}>Right</option>
-              </select>
-            </div>
-            <div class="ctrlRow" style="gap: 8px;">
-              <label style="font-size: 10px; cursor: pointer;">
-                <input type="checkbox" data-id="\${label.id}" data-prop="line1.bold" \${label.line1?.bold ? 'checked' : ''}>
-                <span>Bold</span>
-              </label>
-              <label style="font-size: 10px; cursor: pointer;">
-                <input type="checkbox" data-id="\${label.id}" data-prop="line1.italic" \${label.line1?.italic ? 'checked' : ''}>
-                <span>Italic</span>
-              </label>
-            </div>
-          </div>
-        </details>
-        
-        <!-- Line 2 -->
-        <details open style="margin-bottom: 8px;">
-          <summary style="cursor: pointer; font-weight: 600; font-size: 11px; padding: 4px; background: rgba(255,255,255,0.1); border-radius: 3px;">Line 2 (Category)</summary>
-          <div style="padding: 8px 4px; display: flex; flex-direction: column; gap: 6px;">
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Content</label>
-              <select data-id="\${label.id}" data-prop="line2.content" style="font-size: 10px;">
-                <option value="category" \${(label.line2?.content || 'category') === 'category' ? 'selected' : ''}>Category</option>
-                <option value="subtype" \${label.line2?.content === 'subtype' ? 'selected' : ''}>Subtype</option>
-                <option value="landmark" \${label.line2?.content === 'landmark' ? 'selected' : ''}>Landmark</option>
-              </select>
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Font Size</label>
-              <input type="number" data-id="\${label.id}" data-prop="line2.fontSize" value="\${label.line2?.fontSize || 11}" min="8" max="24" step="1" style="font-size: 10px;">
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Alignment</label>
-              <select data-id="\${label.id}" data-prop="line2.alignment" style="font-size: 10px;">
-                <option value="left" \${(label.line2?.alignment || 'left') === 'left' ? 'selected' : ''}>Left</option>
-                <option value="center" \${label.line2?.alignment === 'center' ? 'selected' : ''}>Center</option>
-                <option value="right" \${label.line2?.alignment === 'right' ? 'selected' : ''}>Right</option>
-              </select>
-            </div>
-          </div>
-        </details>
-        
-        <!-- Line 3 -->
-        <details open style="margin-bottom: 8px;">
-          <summary style="cursor: pointer; font-weight: 600; font-size: 11px; padding: 4px; background: rgba(255,255,255,0.1); border-radius: 3px;">Line 3 (Details)</summary>
-          <div style="padding: 8px 4px; display: flex; flex-direction: column; gap: 6px;">
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Content</label>
-              <select data-id="\${label.id}" data-prop="line3.content" style="font-size: 10px;">
-                <option value="distance" \${(label.line3?.content || 'distance') === 'distance' ? 'selected' : ''}>Distance</option>
-                <option value="bearing" \${label.line3?.content === 'bearing' ? 'selected' : ''}>Bearing</option>
-                <option value="visibility" \${label.line3?.content === 'visibility' ? 'selected' : ''}>Visibility</option>
-                <option value="combined" \${label.line3?.content === 'combined' ? 'selected' : ''}>Combined</option>
-              </select>
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Font Size</label>
-              <input type="number" data-id="\${label.id}" data-prop="line3.fontSize" value="\${label.line3?.fontSize || 9}" min="8" max="24" step="1" style="font-size: 10px;">
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Alignment</label>
-              <select data-id="\${label.id}" data-prop="line3.alignment" style="font-size: 10px;">
-                <option value="left" \${(label.line3?.alignment || 'left') === 'left' ? 'selected' : ''}>Left</option>
-                <option value="center" \${label.line3?.alignment === 'center' ? 'selected' : ''}>Center</option>
-                <option value="right" \${label.line3?.alignment === 'right' ? 'selected' : ''}>Right</option>
-              </select>
-            </div>
-          </div>
-        </details>
-        
-        <div class="ctrlRow">
-          <label style="font-size: 10px;">Line Spacing (px)</label>
-          <input type="number" data-id="\${label.id}" data-prop="lineSpacing" value="\${label.lineSpacing || 4}" min="0" max="20" step="1" style="font-size: 10px;">
-        </div>
-      </div>
-      ` : ''}
-
-      
       
       <div class="ctrlRow">
         <label>Pill Shape</label>
@@ -6980,45 +5682,6 @@ function renderLabelFXControls(label) {
           <option value="soft-rounded" ${label.pillShape === 'soft-rounded' ? 'selected' : ''}>Soft-rounded</option>
           <option value="square" ${label.pillShape === 'square' ? 'selected' : ''}>Square</option>
         </select>
-      </div>
-      
-      <div class="ctrlRow">
-        <label>Pill Position</label>
-        <select data-id="${label.id}" data-prop="pillPosition">
-          <option value="top-center" ${(label.pillPosition || 'top-center') === 'top-center' ? 'selected' : ''}>Top Center</option>
-          <option value="top-left" ${label.pillPosition === 'top-left' ? 'selected' : ''}>Top Left</option>
-          <option value="top-right" ${label.pillPosition === 'top-right' ? 'selected' : ''}>Top Right</option>
-          <option value="side-left" ${label.pillPosition === 'side-left' ? 'selected' : ''}>Side Left</option>
-          <option value="side-right" ${label.pillPosition === 'side-right' ? 'selected' : ''}>Side Right</option>
-        </select>
-      </div>
-      
-      ${(label.pillPosition || 'top-center').startsWith('top') ? `
-      <div class="ctrlRow">
-        <label>Pill Top Gap</label>
-        <input type="number" data-id="${label.id}" data-prop="pillTopGap" value="${label.pillTopGap !== undefined ? label.pillTopGap : 2.0}" step="0.5" min="0" max="10">
-      </div>
-      ` : ''}
-      
-      ${(label.pillPosition || 'top-center').startsWith('side') ? `
-      <div class="ctrlRow">
-        <label>Pill Side Gap</label>
-        <input type="number" data-id="${label.id}" data-prop="pillSideGap" value="${label.pillSideGap !== undefined ? label.pillSideGap : 2.0}" step="0.5" min="0" max="10">
-      </div>
-      
-      <div class="ctrlRow">
-        <label>Side Alignment</label>
-        <select data-id="${label.id}" data-prop="pillSideAlignment">
-          <option value="shape" ${(label.pillSideAlignment || 'shape') === 'shape' ? 'selected' : ''}>Align to Shape</option>
-          <option value="line" ${label.pillSideAlignment === 'line' ? 'selected' : ''}>Align to Line</option>
-        </select>
-      </div>
-      ` : ''}
-      
-      <div class="ctrlRow">
-        <label>Pill Vertical Offset</label>
-        <input type="number" data-id="${label.id}" data-prop="pillOffset" value="${label.pillOffset || 0}" step="0.5" min="-50" max="50">
-        <small style="opacity:0.7;font-size:10px;margin-left:4px;">+higher, -lower</small>
       </div>
       
       <!-- Content Checkboxes -->
@@ -7080,18 +5743,18 @@ function renderLabelFXControls(label) {
       ${label.pillColorMode === 'single' ? `
       <div class="ctrlRow">
         <label>Pill Background</label>
-        ${renderColorSwatch(label.id, 'pillBackgroundColor', label.pillBackgroundColor || 'rgba(0,0,0,0.75)', true)}
+        <input type="text" data-id="${label.id}" data-prop="pillBackgroundColor" value="${label.pillBackgroundColor || 'rgba(0,0,0,0.75)'}" placeholder="rgba(0,0,0,0.75)" style="font-size:11px;">
       </div>
       
       <div class="ctrlRow">
         <label>Pill Border</label>
-        ${renderColorSwatch(label.id, 'pillBorderColor', label.pillBorderColor || 'rgba(255,255,255,0.18)', true)}
+        <input type="text" data-id="${label.id}" data-prop="pillBorderColor" value="${label.pillBorderColor || 'rgba(255,255,255,0.18)'}" placeholder="rgba(255,255,255,0.18)" style="font-size:11px;">
       </div>
       ` : ''}
       
       <div class="ctrlRow">
         <label>Text Color</label>
-        ${renderColorSwatch(label.id, 'pillTextColor', label.pillTextColor || '#ffffff', false)}
+        <input type="color" data-id="${label.id}" data-prop="pillTextColor" value="${label.pillTextColor || '#ffffff'}">
       </div>
       
       <div class="ctrlRow">
@@ -7103,8 +5766,6 @@ function renderLabelFXControls(label) {
         <label>Font</label>
         <select data-id="${label.id}" data-prop="font">
           <option value="helvetica" ${(label.font || 'helvetica') === 'helvetica' ? 'selected' : ''}>Helvetica</option>
-          <option value="times" ${label.font === 'times' ? 'selected' : ''}>Times New Roman</option>
-          <option value="caslon" ${label.font === 'caslon' ? 'selected' : ''}>Caslon</option>
           <option value="inter" ${label.font === 'inter' ? 'selected' : ''}>Inter</option>
           <option value="manrope" ${label.font === 'manrope' ? 'selected' : ''}>Manrope</option>
           <option value="ibmplex" ${label.font === 'ibmplex' ? 'selected' : ''}>IBM Plex Sans</option>
@@ -7130,22 +5791,22 @@ function renderLabelFXControls(label) {
       
       <div class="ctrlRow">
         <label>Landmark</label>
-        ${renderColorSwatch(label.id, 'categoryColors.landmark', label.categoryColors?.landmark || '#ff0000', false)}
+        <input type="color" data-id="${label.id}" data-prop="categoryColors.landmark" value="${label.categoryColors?.landmark || '#ff0000'}">
       </div>
       
       <div class="ctrlRow">
         <label>Leisure</label>
-        ${renderColorSwatch(label.id, 'categoryColors.leisure', label.categoryColors?.leisure || '#00ff00', false)}
+        <input type="color" data-id="${label.id}" data-prop="categoryColors.leisure" value="${label.categoryColors?.leisure || '#00ff00'}">
       </div>
       
       <div class="ctrlRow">
         <label>Amenity</label>
-        ${renderColorSwatch(label.id, 'categoryColors.amenity', label.categoryColors?.amenity || '#0000ff', false)}
+        <input type="color" data-id="${label.id}" data-prop="categoryColors.amenity" value="${label.categoryColors?.amenity || '#0000ff'}">
       </div>
       
       <div class="ctrlRow">
         <label>Place</label>
-        ${renderColorSwatch(label.id, 'categoryColors.place', label.categoryColors?.place || '#ffff00', false)}
+        <input type="color" data-id="${label.id}" data-prop="categoryColors.place" value="${label.categoryColors?.place || '#ffff00'}">
       </div>
       ` : ''}
       
@@ -7165,238 +5826,8 @@ function renderLabelFXControls(label) {
     `;
   } else if (isHoverMode) {
     return `
-      <!-- Copy from Label Button -->
-      <div class="ctrlRow">
-        <button class="copyFromLabelBtn" data-id="${label.id}" style="width:100%;padding:8px;background:rgba(100,150,255,0.2);border:1px solid rgba(100,150,255,0.4);border-radius:6px;color:#fff;cursor:pointer;font-weight:600;">
-          📋 Copy Settings from Label
-        </button>
-      </div>
-      
-      <!-- Line Controls -->
-      <hr style="border:none;border-top:1px solid rgba(255,255,255,.12);margin:12px 0;">
-      <div class="ctrlRow" style="align-items:center;">
-        <label style="flex:1;">
-          <input type="checkbox" data-id="${label.id}" data-prop="showLine" ${label.showLine ? 'checked' : ''}>
-          <span>Show Line</span>
-        </label>
-      </div>
-      
-      ${label.showLine ? `
-      <div class="ctrlRow">
-        <label>Line Height (world)</label>
-        <input type="number" data-id="${label.id}" data-prop="lineHeight" value="${label.lineHeight || 40}" step="1" min="5" max="140">
-      </div>
-      
-      <div class="ctrlRow">
-        <label>Line Color Mode</label>
-        <select data-id="${label.id}" data-prop="lineColorMode">
-          <option value="single" ${(label.lineColorMode || 'single') === 'single' ? 'selected' : ''}>Single Color</option>
-          <option value="category" ${label.lineColorMode === 'category' ? 'selected' : ''}>Category</option>
-          <option value="visibility" ${label.lineColorMode === 'visibility' ? 'selected' : ''}>Visibility %</option>
-        </select>
-      </div>
-      
-      ${label.lineColorMode === 'single' ? `
-      <div class="ctrlRow">
-        <label>Line Color</label>
-        ${renderColorSwatch(label.id, 'lineColor', label.lineColor || '#00ff00', false)}
-      </div>
-      ` : ''}
-      
-      <div class="ctrlRow">
-        <label>Line Width</label>
-        <input type="number" data-id="${label.id}" data-prop="lineWidth" value="${label.lineWidth || 2}" step="0.5" min="0.5" max="10">
-      </div>
-      ` : ''}
-      
-      <div class="ctrlRow" style="align-items:center;">
-        <label style="flex:1;">
-          <input type="checkbox" data-id="${label.id}" data-prop="labelsAboveHorizon" ${label.labelsAboveHorizon ? 'checked' : ''}>
-          <span>Labels Above Horizon</span>
-        </label>
-      </div>
-      <small style="display:block;opacity:0.7;font-size:10px;margin:-4px 0 8px 0;">Extends line to sky mask horizon + line height</small>
-      
-      
-      <!-- Display Shape Controls -->
-      <hr style="border:none;border-top:1px solid rgba(255,255,255,.12);margin:12px 0;">
-      <div class="ctrlRow" style="align-items:center;">
-        <label style="flex:1;">
-          <input type="checkbox" data-id="${label.id}" data-prop="showDisplayShape" ${label.showDisplayShape ? 'checked' : ''}>
-          <span>Show Display Shape</span>
-        </label>
-      </div>
-      
-      ${label.showDisplayShape ? `
-      <div class="ctrlRow">
-        <label>Shape Type</label>
-        <select data-id="${label.id}" data-prop="displayShapeType">
-          <option value="circle" ${(label.displayShapeType || 'square') === 'circle' ? 'selected' : ''}>Circle</option>
-          <option value="square" ${(label.displayShapeType || 'square') === 'square' ? 'selected' : ''}>Square</option>
-          <option value="diamond" ${label.displayShapeType === 'diamond' ? 'selected' : ''}>Diamond</option>
-          <option value="triangle" ${label.displayShapeType === 'triangle' ? 'selected' : ''}>Triangle</option>
-          <option value="asterisk" ${label.displayShapeType === 'asterisk' ? 'selected' : ''}>Asterisk</option>
-        </select>
-      </div>
-      
-      <div class="ctrlRow">
-        <label>Display Shape Size</label>
-        <input type="number" data-id="${label.id}" data-prop="displayShapeSize" value="${label.displayShapeSize || 6}" step="1" min="2" max="18">
-      </div>
-      
-      <div class="ctrlRow">
-        <label>Shape Vertical Offset</label>
-        <input type="number" data-id="${label.id}" data-prop="displayShapeOffset" value="${label.displayShapeOffset || 0}" step="0.5" min="-50" max="50">
-        <small style="opacity:0.7;font-size:10px;margin-left:4px;">0=line top, +higher, -lower</small>
-      </div>
-      
-      <div class="ctrlRow">
-        <label>Shape Color Mode</label>
-        <select data-id="${label.id}" data-prop="displayShapeColorMode">
-          <option value="single" ${(label.displayShapeColorMode || 'single') === 'single' ? 'selected' : ''}>Single Color</option>
-          <option value="category" ${label.displayShapeColorMode === 'category' ? 'selected' : ''}>Category</option>
-          <option value="visibility" ${label.displayShapeColorMode === 'visibility' ? 'selected' : ''}>Visibility %</option>
-        </select>
-      </div>
-      
-      <div class="ctrlRow">
-        <label>Shape Fill Color</label>
-        ${renderColorSwatch(label.id, 'displayShapeFillColor', label.displayShapeFillColor || 'rgba(0,0,0,0.95)', true)}
-      </div>
-      
-      <div class="ctrlRow">
-        <label>Shape Stroke Color</label>
-        ${renderColorSwatch(label.id, 'displayShapeStrokeColor', label.displayShapeStrokeColor || 'rgba(255,255,255,0.8)', true)}
-      </div>
-      
-      <div class="ctrlRow">
-        <label>Shape Stroke Width</label>
-        <input type="number" data-id="${label.id}" data-prop="displayShapeStrokeWidth" value="${label.displayShapeStrokeWidth || 0}" step="0.5" min="0" max="5">
-      </div>
-      
-      <div class="ctrlRow">
-        <label>Shape Opacity</label>
-        <input type="number" data-id="${label.id}" data-prop="displayShapeOpacity" value="${label.displayShapeOpacity !== undefined ? label.displayShapeOpacity : 1.0}" step="0.05" min="0" max="1">
-      </div>
-      ` : ''}
-      
       <!-- Pill Label Controls -->
-      <hr style="border:none;border-top:1px solid rgba(255,255,255,.12);margin:12px 0;">
-      <div style="font-weight:700;margin-bottom:8px;">Pill Label</div>
-      
-      <!-- Multi-line Toggle -->
-      <div class="ctrlRow" style="align-items:center;">
-        <label style="flex:1;">
-          <input type="checkbox" data-id="${label.id}" data-prop="useMultiLine" ${label.useMultiLine ? 'checked' : ''}>
-          <span>Enable Multi-line Text</span>
-        </label>
-      </div>
-      
-      <!-- Multi-line Configuration (shown when useMultiLine is true) -->
-      ${label.useMultiLine ? `
-      <div style="margin: 8px 0; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 4px;">
-        <div style="font-size: 11px; opacity: 0.8; margin-bottom: 8px;">Multi-line Text Configuration</div>
-        
-        <!-- Line 1 -->
-        <details open style="margin-bottom: 8px;">
-          <summary style="cursor: pointer; font-weight: 600; font-size: 11px; padding: 4px; background: rgba(255,255,255,0.1); border-radius: 3px;">Line 1 (Title)</summary>
-          <div style="padding: 8px 4px; display: flex; flex-direction: column; gap: 6px;">
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Content</label>
-              <select data-id="\${label.id}" data-prop="line1.content" style="font-size: 10px;">
-                <option value="name" \${label.line1?.content === 'name' ? 'selected' : ''}>Name</option>
-                <option value="type" \${label.line1?.content === 'type' ? 'selected' : ''}>Type</option>
-                <option value="category" \${label.line1?.content === 'category' ? 'selected' : ''}>Category</option>
-              </select>
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Font Size</label>
-              <input type="number" data-id="\${label.id}" data-prop="line1.fontSize" value="\${label.line1?.fontSize || 14}" min="8" max="24" step="1" style="font-size: 10px;">
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Alignment</label>
-              <select data-id="\${label.id}" data-prop="line1.alignment" style="font-size: 10px;">
-                <option value="left" \${(label.line1?.alignment || 'left') === 'left' ? 'selected' : ''}>Left</option>
-                <option value="center" \${label.line1?.alignment === 'center' ? 'selected' : ''}>Center</option>
-                <option value="right" \${label.line1?.alignment === 'right' ? 'selected' : ''}>Right</option>
-              </select>
-            </div>
-            <div class="ctrlRow" style="gap: 8px;">
-              <label style="font-size: 10px; cursor: pointer;">
-                <input type="checkbox" data-id="\${label.id}" data-prop="line1.bold" \${label.line1?.bold ? 'checked' : ''}>
-                <span>Bold</span>
-              </label>
-              <label style="font-size: 10px; cursor: pointer;">
-                <input type="checkbox" data-id="\${label.id}" data-prop="line1.italic" \${label.line1?.italic ? 'checked' : ''}>
-                <span>Italic</span>
-              </label>
-            </div>
-          </div>
-        </details>
-        
-        <!-- Line 2 -->
-        <details open style="margin-bottom: 8px;">
-          <summary style="cursor: pointer; font-weight: 600; font-size: 11px; padding: 4px; background: rgba(255,255,255,0.1); border-radius: 3px;">Line 2 (Category)</summary>
-          <div style="padding: 8px 4px; display: flex; flex-direction: column; gap: 6px;">
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Content</label>
-              <select data-id="\${label.id}" data-prop="line2.content" style="font-size: 10px;">
-                <option value="category" \${(label.line2?.content || 'category') === 'category' ? 'selected' : ''}>Category</option>
-                <option value="subtype" \${label.line2?.content === 'subtype' ? 'selected' : ''}>Subtype</option>
-                <option value="landmark" \${label.line2?.content === 'landmark' ? 'selected' : ''}>Landmark</option>
-              </select>
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Font Size</label>
-              <input type="number" data-id="\${label.id}" data-prop="line2.fontSize" value="\${label.line2?.fontSize || 11}" min="8" max="24" step="1" style="font-size: 10px;">
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Alignment</label>
-              <select data-id="\${label.id}" data-prop="line2.alignment" style="font-size: 10px;">
-                <option value="left" \${(label.line2?.alignment || 'left') === 'left' ? 'selected' : ''}>Left</option>
-                <option value="center" \${label.line2?.alignment === 'center' ? 'selected' : ''}>Center</option>
-                <option value="right" \${label.line2?.alignment === 'right' ? 'selected' : ''}>Right</option>
-              </select>
-            </div>
-          </div>
-        </details>
-        
-        <!-- Line 3 -->
-        <details open style="margin-bottom: 8px;">
-          <summary style="cursor: pointer; font-weight: 600; font-size: 11px; padding: 4px; background: rgba(255,255,255,0.1); border-radius: 3px;">Line 3 (Details)</summary>
-          <div style="padding: 8px 4px; display: flex; flex-direction: column; gap: 6px;">
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Content</label>
-              <select data-id="\${label.id}" data-prop="line3.content" style="font-size: 10px;">
-                <option value="distance" \${(label.line3?.content || 'distance') === 'distance' ? 'selected' : ''}>Distance</option>
-                <option value="bearing" \${label.line3?.content === 'bearing' ? 'selected' : ''}>Bearing</option>
-                <option value="visibility" \${label.line3?.content === 'visibility' ? 'selected' : ''}>Visibility</option>
-                <option value="combined" \${label.line3?.content === 'combined' ? 'selected' : ''}>Combined</option>
-              </select>
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Font Size</label>
-              <input type="number" data-id="\${label.id}" data-prop="line3.fontSize" value="\${label.line3?.fontSize || 9}" min="8" max="24" step="1" style="font-size: 10px;">
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Alignment</label>
-              <select data-id="\${label.id}" data-prop="line3.alignment" style="font-size: 10px;">
-                <option value="left" \${(label.line3?.alignment || 'left') === 'left' ? 'selected' : ''}>Left</option>
-                <option value="center" \${label.line3?.alignment === 'center' ? 'selected' : ''}>Center</option>
-                <option value="right" \${label.line3?.alignment === 'right' ? 'selected' : ''}>Right</option>
-              </select>
-            </div>
-          </div>
-        </details>
-        
-        <div class="ctrlRow">
-          <label style="font-size: 10px;">Line Spacing (px)</label>
-          <input type="number" data-id="\${label.id}" data-prop="lineSpacing" value="\${label.lineSpacing || 4}" min="0" max="20" step="1" style="font-size: 10px;">
-        </div>
-      </div>
-      ` : ''}
-
-      
+      <div style="font-weight:700;margin-bottom:8px;">Hover Tip</div>
       
       <div class="ctrlRow">
         <label>Pill Shape</label>
@@ -7405,45 +5836,6 @@ function renderLabelFXControls(label) {
           <option value="soft-rounded" ${label.pillShape === 'soft-rounded' ? 'selected' : ''}>Soft-rounded</option>
           <option value="square" ${label.pillShape === 'square' ? 'selected' : ''}>Square</option>
         </select>
-      </div>
-      
-      <div class="ctrlRow">
-        <label>Pill Position</label>
-        <select data-id="${label.id}" data-prop="pillPosition">
-          <option value="top-center" ${(label.pillPosition || 'top-center') === 'top-center' ? 'selected' : ''}>Top Center</option>
-          <option value="top-left" ${label.pillPosition === 'top-left' ? 'selected' : ''}>Top Left</option>
-          <option value="top-right" ${label.pillPosition === 'top-right' ? 'selected' : ''}>Top Right</option>
-          <option value="side-left" ${label.pillPosition === 'side-left' ? 'selected' : ''}>Side Left</option>
-          <option value="side-right" ${label.pillPosition === 'side-right' ? 'selected' : ''}>Side Right</option>
-        </select>
-      </div>
-      
-      ${(label.pillPosition || 'top-center').startsWith('top') ? `
-      <div class="ctrlRow">
-        <label>Pill Top Gap</label>
-        <input type="number" data-id="${label.id}" data-prop="pillTopGap" value="${label.pillTopGap !== undefined ? label.pillTopGap : 2.0}" step="0.5" min="0" max="10">
-      </div>
-      ` : ''}
-      
-      ${(label.pillPosition || 'top-center').startsWith('side') ? `
-      <div class="ctrlRow">
-        <label>Pill Side Gap</label>
-        <input type="number" data-id="${label.id}" data-prop="pillSideGap" value="${label.pillSideGap !== undefined ? label.pillSideGap : 2.0}" step="0.5" min="0" max="10">
-      </div>
-      
-      <div class="ctrlRow">
-        <label>Side Alignment</label>
-        <select data-id="${label.id}" data-prop="pillSideAlignment">
-          <option value="shape" ${(label.pillSideAlignment || 'shape') === 'shape' ? 'selected' : ''}>Align to Shape</option>
-          <option value="line" ${label.pillSideAlignment === 'line' ? 'selected' : ''}>Align to Line</option>
-        </select>
-      </div>
-      ` : ''}
-      
-      <div class="ctrlRow">
-        <label>Pill Vertical Offset</label>
-        <input type="number" data-id="${label.id}" data-prop="pillOffset" value="${label.pillOffset || 0}" step="0.5" min="-50" max="50">
-        <small style="opacity:0.7;font-size:10px;margin-left:4px;">+higher, -lower</small>
       </div>
       
       <!-- Content Checkboxes -->
@@ -7494,29 +5886,18 @@ function renderLabelFXControls(label) {
       </div>
       
       <div class="ctrlRow">
-        <label>Pill Color Mode</label>
-        <select data-id="${label.id}" data-prop="pillColorMode">
-          <option value="single" ${(label.pillColorMode || 'single') === 'single' ? 'selected' : ''}>Single Color</option>
-          <option value="category" ${label.pillColorMode === 'category' ? 'selected' : ''}>Category</option>
-          <option value="visibility" ${label.pillColorMode === 'visibility' ? 'selected' : ''}>Visibility %</option>
-        </select>
-      </div>
-      
-      ${label.pillColorMode === 'single' ? `
-      <div class="ctrlRow">
         <label>Pill Background</label>
-        ${renderColorSwatch(label.id, 'pillBackgroundColor', label.pillBackgroundColor || 'rgba(0,0,0,0.75)', true)}
+        <input type="text" data-id="${label.id}" data-prop="pillBackgroundColor" value="${label.pillBackgroundColor || 'rgba(0,0,0,0.75)'}" placeholder="rgba(0,0,0,0.75)" style="font-size:11px;">
       </div>
       
       <div class="ctrlRow">
         <label>Pill Border</label>
-        ${renderColorSwatch(label.id, 'pillBorderColor', label.pillBorderColor || 'rgba(255,255,255,0.18)', true)}
+        <input type="text" data-id="${label.id}" data-prop="pillBorderColor" value="${label.pillBorderColor || 'rgba(255,255,255,0.18)'}" placeholder="rgba(255,255,255,0.18)" style="font-size:11px;">
       </div>
-      ` : ''}
       
       <div class="ctrlRow">
         <label>Text Color</label>
-        ${renderColorSwatch(label.id, 'pillTextColor', label.pillTextColor || '#ffffff', false)}
+        <input type="color" data-id="${label.id}" data-prop="pillTextColor" value="${label.pillTextColor || '#ffffff'}">
       </div>
       
       <div class="ctrlRow">
@@ -7528,8 +5909,6 @@ function renderLabelFXControls(label) {
         <label>Font</label>
         <select data-id="${label.id}" data-prop="font">
           <option value="helvetica" ${(label.font || 'helvetica') === 'helvetica' ? 'selected' : ''}>Helvetica</option>
-          <option value="times" ${label.font === 'times' ? 'selected' : ''}>Times New Roman</option>
-          <option value="caslon" ${label.font === 'caslon' ? 'selected' : ''}>Caslon</option>
           <option value="inter" ${label.font === 'inter' ? 'selected' : ''}>Inter</option>
           <option value="manrope" ${label.font === 'manrope' ? 'selected' : ''}>Manrope</option>
           <option value="ibmplex" ${label.font === 'ibmplex' ? 'selected' : ''}>IBM Plex Sans</option>
@@ -7547,32 +5926,6 @@ function renderLabelFXControls(label) {
         <label>Padding Y</label>
         <input type="number" data-id="${label.id}" data-prop="paddingY" value="${label.paddingY || 8}" step="1" min="0" max="40">
       </div>
-      
-      ${usesCategoryColors ? `
-      <!-- Category Colors -->
-      <hr style="border:none;border-top:1px solid rgba(255,255,255,.12);margin:12px 0;">
-      <div style="font-weight:700;margin-bottom:8px;">Category Colors</div>
-      
-      <div class="ctrlRow">
-        <label>Landmark</label>
-        ${renderColorSwatch(label.id, 'categoryColors.landmark', label.categoryColors?.landmark || '#ff0000', false)}
-      </div>
-      
-      <div class="ctrlRow">
-        <label>Leisure</label>
-        ${renderColorSwatch(label.id, 'categoryColors.leisure', label.categoryColors?.leisure || '#00ff00', false)}
-      </div>
-      
-      <div class="ctrlRow">
-        <label>Amenity</label>
-        ${renderColorSwatch(label.id, 'categoryColors.amenity', label.categoryColors?.amenity || '#0000ff', false)}
-      </div>
-      
-      <div class="ctrlRow">
-        <label>Place</label>
-        ${renderColorSwatch(label.id, 'categoryColors.place', label.categoryColors?.place || '#ffff00', false)}
-      </div>
-      ` : ''}
       
       <!-- Fade Properties -->
       <hr style="border:none;border-top:1px solid rgba(255,255,255,.12);margin:12px 0;">
@@ -7736,36 +6089,6 @@ function initModularLabelSystem() {
       }
     });
   }
-  
-  // Hook up export/import buttons for Label FX
-  const copyLabelBtn = document.getElementById('copyLabelSettingsBtn');
-  const shareLabelBtn = document.getElementById('shareLabelLinkBtn');
-  const applyLabelBtn = document.getElementById('applyLabelSettingsBtn');
-  const labelBox = document.getElementById('labelSettingsBox');
-  
-  if (copyLabelBtn) copyLabelBtn.onclick = copyLabelSettings;
-  if (shareLabelBtn) shareLabelBtn.onclick = async () => {
-    const url = encodeLabelShareLink();
-    try {
-      await navigator.clipboard.writeText(url);
-      console.log("Label FX share link copied ✔");
-    } catch {
-      console.log("Share link set in URL bar (copy it) ✔");
-    }
-  };
-  if (applyLabelBtn && labelBox) applyLabelBtn.onclick = () => {
-    try {
-      const configs = JSON.parse(labelBox.value);
-      applyLabelFXSettings(configs);
-      console.log("Label FX settings applied ✔");
-    } catch (err) {
-      console.error("Invalid JSON:", err?.message || err);
-    }
-  };
-  
-  // Load from hash if present
-  const sharedLabel = decodeLabelFromHash();
-  if (sharedLabel) applyLabelFXSettings(sharedLabel);
 }
 
 function hookMarkerFxUI(){

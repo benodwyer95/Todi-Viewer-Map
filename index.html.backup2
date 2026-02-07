@@ -1058,16 +1058,6 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
       </select>
     </div>
     
-    <!-- Export / Import Buttons -->
-    <div style="display:flex;gap:4px;margin-bottom:10px;">
-      <button id="copyMarkerSettingsBtn" type="button" style="flex:1;padding:6px;background:rgba(100,100,100,.3);border:1px solid rgba(150,150,150,.3);border-radius:4px;color:#fff;cursor:pointer;font-size:11px;">Copy Settings</button>
-      <button id="shareMarkerLinkBtn" type="button" style="flex:1;padding:6px;background:rgba(100,100,100,.3);border:1px solid rgba(150,150,150,.3);border-radius:4px;color:#fff;cursor:pointer;font-size:11px;">Share Link</button>
-    </div>
-    <div style="margin-bottom:10px;">
-      <textarea id="markerSettingsBox" placeholder="JSON settings for Marker FX..." style="width:100%;min-height:60px;padding:6px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.2);border-radius:4px;color:#fff;font-family:monospace;font-size:10px;resize:vertical;"></textarea>
-      <button id="applyMarkerSettingsBtn" type="button" style="width:100%;padding:6px;margin-top:4px;background:rgba(0,200,100,.3);border:1px solid rgba(0,255,100,.4);border-radius:4px;color:#fff;cursor:pointer;font-size:11px;">Apply JSON</button>
-    </div>
-    
     <!-- Active Markers List (dynamically populated) -->
     <div id="activeMarkersList"></div>
   </div>
@@ -1090,16 +1080,6 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
         <option value="label">Label</option>
         <option value="hover">Hover Tip</option>
       </select>
-    </div>
-    
-    <!-- Export / Import Buttons -->
-    <div style="display:flex;gap:4px;margin-bottom:10px;">
-      <button id="copyLabelSettingsBtn" type="button" style="flex:1;padding:6px;background:rgba(100,100,100,.3);border:1px solid rgba(150,150,150,.3);border-radius:4px;color:#fff;cursor:pointer;font-size:11px;">Copy Settings</button>
-      <button id="shareLabelLinkBtn" type="button" style="flex:1;padding:6px;background:rgba(100,100,100,.3);border:1px solid rgba(150,150,150,.3);border-radius:4px;color:#fff;cursor:pointer;font-size:11px;">Share Link</button>
-    </div>
-    <div style="margin-bottom:10px;">
-      <textarea id="labelSettingsBox" placeholder="JSON settings for Label FX..." style="width:100%;min-height:60px;padding:6px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.2);border-radius:4px;color:#fff;font-family:monospace;font-size:10px;resize:vertical;"></textarea>
-      <button id="applyLabelSettingsBtn" type="button" style="width:100%;padding:6px;margin-top:4px;background:rgba(0,150,255,.3);border:1px solid rgba(0,200,255,.4);border-radius:4px;color:#fff;cursor:pointer;font-size:11px;">Apply JSON</button>
     </div>
     
     <!-- Active Labels List (dynamically populated) -->
@@ -1505,14 +1485,6 @@ function setupColorSwatchListeners() {
     }
   });
 }
-
-// Expose color swatch functions globally for template usage
-window.renderColorSwatch = renderColorSwatch;
-window.handleSwatchClick = handleSwatchClick;
-window.openEyeDropper = openEyeDropper;
-window.parseColor = parseColor;
-window.colorToHex = colorToHex;
-window.colorToRgba = colorToRgba;
 
 // Initialize color swatch component system
 window.addEventListener('DOMContentLoaded', () => {
@@ -2202,7 +2174,7 @@ function makeDisplayShapeSprite(worldSize=6, config=null){
       // Horizontal line
       g.moveTo(cx - size/2, cy);
       g.lineTo(cx + size/2, cy);
-      // Diagonal $$
+      // Diagonal \
       g.moveTo(cx - size/2*0.7, cy - size/2*0.7);
       g.lineTo(cx + size/2*0.7, cy + size/2*0.7);
       // Diagonal /
@@ -3058,27 +3030,11 @@ function buildLinesFromConfig(config, defaultText, cand) {
 
 function makeCalloutAnimated(root, name, isVisible=true, typeHex=0x00c8ff, lineColorHex=null, config=null){
   // Use config if provided, otherwise use defaults
-  let rise = config?.lineHeight || 40;
+  const rise = config?.lineHeight || 40;
   const sqW  = config?.displayShapeSize || 6;
   const lblW = 18; // Label world size (can be config-driven in future)
   const showLine = config?.showLine !== false; // default true
   const showDisplayShape = config?.showDisplayShape !== false; // default true
-  const labelsAboveHorizon = config?.labelsAboveHorizon || false;
-
-  // Calculate horizon-adjusted rise if labelsAboveHorizon is enabled
-  if (labelsAboveHorizon && root?.userData?.cand) {
-    // Get marker elevation angle (pitch)
-    const markerElev = Number(root.userData.cand.elev_ang_d ?? 0);
-    
-    // Estimate distance to horizon based on marker elevation
-    // Negative elevation = below horizon, positive = above
-    // The lower the marker, the more we need to extend the line upward
-    // Approximate: at -10° we want about 100 units extension, at 0° about 50, at +10° about 20
-    const horizonExtension = Math.max(0, 100 - markerElev * 3);
-    
-    // New rise = extension to horizon + original line height
-    rise = horizonExtension + (config?.lineHeight || 40);
-  }
 
   // gaps: square -> line start, line end -> square, square -> label
   const gap1 = Math.max(1.5, sqW * 0.35);
@@ -3102,15 +3058,34 @@ function makeCalloutAnimated(root, name, isVisible=true, typeHex=0x00c8ff, lineC
     const geo = new THREE.BufferGeometry().setFromPoints(pts);
 
     const actualLineColor = lineColorHex !== null ? lineColorHex : typeHex;
-    // Always use solid line (removed dashed line for invisible markers)
-    const mat = new THREE.LineBasicMaterial({ color: actualLineColor, transparent:true, opacity:0.0 });
-    mat.depthTest = false;
-    line = new THREE.Line(geo, mat);
+    if (isVisible){
+      const mat = new THREE.LineBasicMaterial({ color: actualLineColor, transparent:true, opacity:0.0 });
+      mat.depthTest = false;
+      line = new THREE.Line(geo, mat);
+    } else {
+      const mat = new THREE.LineDashedMaterial({
+        color: actualLineColor,
+        transparent:true,
+        opacity:0.0,
+        dashSize: Math.max(3, rise * 0.18),
+        gapSize:  Math.max(2, rise * 0.12)
+      });
+      mat.depthTest = false;
+      line = new THREE.Line(geo, mat);
+      line.computeLineDistances();
+    }
     line.renderOrder = 10001;
     call.add(line);
   }
 
-  // Removed X marker for invisible items - only show what user sets
+  // X marker at halfway for NOT visible (fades with the line)
+  let xSpr = null;
+  if (!isVisible && showLine){
+    xSpr = makeXSprite(Math.max(5, sqW*0.95));
+    xSpr.position.set(0, rise*0.5, 0);
+    xSpr.material.opacity = 0.0;
+    call.add(xSpr);
+  }
 
   // top display shape - CRITICAL: Position based on FINAL line height (rise)
   let sq2 = null;
@@ -3226,7 +3201,7 @@ function makeCalloutAnimated(root, name, isVisible=true, typeHex=0x00c8ff, lineC
     gap1, gap2, gap3,
     typeHex: (typeHex ?? 0x00c8ff),
     lineColorHex: (lineColorHex !== null ? lineColorHex : (typeHex ?? 0x00c8ff)),
-    sq1, sq2, line, label,
+    sq1, sq2, line, label, xSpr,
     t: 0,
     target: 0,
     speed: config?.animSeconds ? (1 / config.animSeconds) : (1 / 1.8),
@@ -3325,7 +3300,14 @@ function updateCalloutAnims(){
       pos.needsUpdate = true;
 
       ud.line.material.opacity = 0.95 * k2;
-      // Removed LineDashedMaterial check - always using solid lines now
+      if (ud.line.isLine && ud.line.material.isLineDashedMaterial){
+        ud.line.computeLineDistances();
+      }
+      
+      // optional X marker
+      if (ud.xSpr && ud.xSpr.material){
+        ud.xSpr.material.opacity = 0.95 * k2;
+      }
       
       // Line color transition
       const ltr = (ud.lineColorHex >> 16) & 255;
@@ -4320,135 +4302,6 @@ function exportPNG(){
     setTimeout(()=>URL.revokeObjectURL(url), 1000);
     ovSetStatus("Exported PNG ✔\n" + filename);
   }, "image/png");
-}
-
-// ================= Marker FX Export/Import =================
-
-function getMarkerFXSettings() {
-  return JSON.parse(JSON.stringify(activeMarkers));
-}
-
-function applyMarkerFXSettings(configs) {
-  if (!Array.isArray(configs)) return;
-  activeMarkers = configs.map(c => ({
-    ...c,
-    id: c.id || `marker_${markerIdCounter++}`
-  }));
-  renderMarkerFXList();
-  applyAllMarkerFX();
-}
-
-async function copyMarkerSettings() {
-  const txt = JSON.stringify(getMarkerFXSettings(), null, 2);
-  const box = document.getElementById('markerSettingsBox');
-  if (box) box.value = txt;
-  try {
-    await navigator.clipboard.writeText(txt);
-    console.log("Marker FX settings copied ✔");
-  } catch {
-    console.log("Copied to box (clipboard blocked) ✔");
-  }
-}
-
-function encodeMarkerShareLink() {
-  const settings = getMarkerFXSettings();
-  const json = JSON.stringify(settings);
-  const encoded = encodeURIComponent(json);
-  const url = new URL(window.location.href);
-  url.hash = `#markerFX=${encoded}`;
-  return url.toString();
-}
-
-function decodeMarkerFromHash() {
-  const hash = window.location.hash;
-  const match = hash.match(/markerFX=([^&]+)/);
-  if (!match) return null;
-  try {
-    const decoded = decodeURIComponent(match[1]);
-    return JSON.parse(decoded);
-  } catch { return null; }
-}
-
-// ================= Label FX Export/Import =================
-
-function getLabelFXSettings() {
-  return JSON.parse(JSON.stringify(activeLabels));
-}
-
-function applyLabelFXSettings(configs) {
-  if (!Array.isArray(configs)) return;
-  activeLabels = configs.map(c => ({
-    ...c,
-    id: c.id || `label_${labelIdCounter++}`
-  }));
-  renderLabelFXList();
-  applyAllLabelFX();
-}
-
-async function copyLabelSettings() {
-  const txt = JSON.stringify(getLabelFXSettings(), null, 2);
-  const box = document.getElementById('labelSettingsBox');
-  if (box) box.value = txt;
-  try {
-    await navigator.clipboard.writeText(txt);
-    console.log("Label FX settings copied ✔");
-  } catch {
-    console.log("Copied to box (clipboard blocked) ✔");
-  }
-}
-
-function encodeLabelShareLink() {
-  const settings = getLabelFXSettings();
-  const json = JSON.stringify(settings);
-  const encoded = encodeURIComponent(json);
-  const url = new URL(window.location.href);
-  url.hash = `#labelFX=${encoded}`;
-  return url.toString();
-}
-
-function decodeLabelFromHash() {
-  const hash = window.location.hash;
-  const match = hash.match(/labelFX=([^&]+)/);
-  if (!match) return null;
-  try {
-    const decoded = decodeURIComponent(match[1]);
-    return JSON.parse(decoded);
-  } catch { return null; }
-}
-
-// ================= Application-Wide Style Export/Import =================
-
-function getAllStyles() {
-  return {
-    overlay: getOverlaySettings(),
-    markerFX: getMarkerFXSettings(),
-    labelFX: getLabelFXSettings()
-  };
-}
-
-function applyAllStyles(styles) {
-  if (styles.overlay) applyOverlaySettings(styles.overlay);
-  if (styles.markerFX) applyMarkerFXSettings(styles.markerFX);
-  if (styles.labelFX) applyLabelFXSettings(styles.labelFX);
-}
-
-async function copyAllStyles() {
-  const txt = JSON.stringify(getAllStyles(), null, 2);
-  try {
-    await navigator.clipboard.writeText(txt);
-    console.log("All styles copied ✔");
-  } catch {
-    console.log("Copy to clipboard failed");
-  }
-}
-
-function encodeAllStylesShareLink() {
-  const settings = getAllStyles();
-  const json = JSON.stringify(settings);
-  const encoded = encodeURIComponent(json);
-  const url = new URL(window.location.href);
-  url.hash = `#allStyles=${encoded}`;
-  return url.toString();
 }
 
 function hookOverlayUI(){
@@ -5997,22 +5850,22 @@ function renderMarkerFXControls(marker) {
     <!-- Single Color -->
     <div class="ctrlRow colorSingle" style="${marker.colorMode !== 'single' ? 'display:none' : ''}">
       <label>Color</label>
-      ${renderColorSwatch(marker.id, 'color', marker.color, false)}
+      <input type="color" data-id="${marker.id}" data-prop="color" value="${marker.color}">
     </div>
     
     <!-- Category Colors -->
     <div class="colorCategory" style="${marker.colorMode !== 'category' ? 'display:none' : ''}">
-      <div class="ctrlRow"><label>Landmark</label>${renderColorSwatch(marker.id, 'categoryColors.landmark', marker.categoryColors.landmark || marker.categoryColors.Landmark || '#ff6b6b', false)}</div>
-      <div class="ctrlRow"><label>Leisure</label>${renderColorSwatch(marker.id, 'categoryColors.leisure', marker.categoryColors.leisure || marker.categoryColors.Leisure || '#4ecdc4', false)}</div>
-      <div class="ctrlRow"><label>Place</label>${renderColorSwatch(marker.id, 'categoryColors.place', marker.categoryColors.place || marker.categoryColors.Place || '#f38181', false)}</div>
-      <div class="ctrlRow"><label>Amenity</label>${renderColorSwatch(marker.id, 'categoryColors.amenity', marker.categoryColors.amenity || marker.categoryColors.Amenity || '#aa96da', false)}</div>
+      <div class="ctrlRow"><label>Landmark</label><input type="color" data-id="${marker.id}" data-prop="categoryColors.landmark" value="${marker.categoryColors.landmark || marker.categoryColors.Landmark || '#ff6b6b'}"></div>
+      <div class="ctrlRow"><label>Leisure</label><input type="color" data-id="${marker.id}" data-prop="categoryColors.leisure" value="${marker.categoryColors.leisure || marker.categoryColors.Leisure || '#4ecdc4'}"></div>
+      <div class="ctrlRow"><label>Place</label><input type="color" data-id="${marker.id}" data-prop="categoryColors.place" value="${marker.categoryColors.place || marker.categoryColors.Place || '#f38181'}"></div>
+      <div class="ctrlRow"><label>Amenity</label><input type="color" data-id="${marker.id}" data-prop="categoryColors.amenity" value="${marker.categoryColors.amenity || marker.categoryColors.Amenity || '#aa96da'}"></div>
     </div>
     
     <!-- Visibility Colors -->
     <div class="colorVisibility" style="${marker.colorMode !== 'visibility' ? 'display:none' : ''}">
-      <div class="ctrlRow"><label>High (80-100%)</label>${renderColorSwatch(marker.id, 'visibilityColors.high', marker.visibilityColors.high, false)}</div>
-      <div class="ctrlRow"><label>Med (40-80%)</label>${renderColorSwatch(marker.id, 'visibilityColors.medium', marker.visibilityColors.medium, false)}</div>
-      <div class="ctrlRow"><label>Low (0-40%)</label>${renderColorSwatch(marker.id, 'visibilityColors.low', marker.visibilityColors.low, false)}</div>
+      <div class="ctrlRow"><label>High (80-100%)</label><input type="color" data-id="${marker.id}" data-prop="visibilityColors.high" value="${marker.visibilityColors.high}"></div>
+      <div class="ctrlRow"><label>Med (40-80%)</label><input type="color" data-id="${marker.id}" data-prop="visibilityColors.medium" value="${marker.visibilityColors.medium}"></div>
+      <div class="ctrlRow"><label>Low (0-40%)</label><input type="color" data-id="${marker.id}" data-prop="visibilityColors.low" value="${marker.visibilityColors.low}"></div>
     </div>
     
     ${hasParticles ? `
@@ -6290,36 +6143,6 @@ function initModularMarkerSystem() {
       }
     });
   }
-  
-  // Hook up export/import buttons for Marker FX
-  const copyMarkerBtn = document.getElementById('copyMarkerSettingsBtn');
-  const shareMarkerBtn = document.getElementById('shareMarkerLinkBtn');
-  const applyMarkerBtn = document.getElementById('applyMarkerSettingsBtn');
-  const markerBox = document.getElementById('markerSettingsBox');
-  
-  if (copyMarkerBtn) copyMarkerBtn.onclick = copyMarkerSettings;
-  if (shareMarkerBtn) shareMarkerBtn.onclick = async () => {
-    const url = encodeMarkerShareLink();
-    try {
-      await navigator.clipboard.writeText(url);
-      console.log("Marker FX share link copied ✔");
-    } catch {
-      console.log("Share link set in URL bar (copy it) ✔");
-    }
-  };
-  if (applyMarkerBtn && markerBox) applyMarkerBtn.onclick = () => {
-    try {
-      const configs = JSON.parse(markerBox.value);
-      applyMarkerFXSettings(configs);
-      console.log("Marker FX settings applied ✔");
-    } catch (err) {
-      console.error("Invalid JSON:", err?.message || err);
-    }
-  };
-  
-  // Load from hash if present
-  const sharedMarker = decodeMarkerFromHash();
-  if (sharedMarker) applyMarkerFXSettings(sharedMarker);
 }
 
 // ================= MODULAR LABEL SYSTEM =================
@@ -6338,7 +6161,6 @@ const labelTypeDefaults = {
     lineColorMode: "category",
     lineOpacity: 0.8,
     lineWidth: 2,
-    labelsAboveHorizon: false, // Extends line to sky mask horizon + lineHeight above
     
     showDisplayShape: true,
     displayShapeType: "square", // circle | square | diamond | triangle | asterisk
@@ -6422,7 +6244,6 @@ const labelTypeDefaults = {
     lineColorMode: "category",
     lineOpacity: 0.8,
     lineWidth: 2,
-    labelsAboveHorizon: false, // Extends line to sky mask horizon + lineHeight above
     
     showDisplayShape: false, // Off by default for hover
     displayShapeType: "square",
@@ -6774,7 +6595,7 @@ function renderLabelFXControls(label) {
       ${label.lineColorMode === 'single' ? `
       <div class="ctrlRow">
         <label>Line Color</label>
-        ${renderColorSwatch(label.id, 'lineColor', label.lineColor || '#00ff00', false)}
+        <input type="color" data-id="${label.id}" data-prop="lineColor" value="${label.lineColor || '#00ff00'}">
       </div>
       ` : ''}
       
@@ -6783,15 +6604,6 @@ function renderLabelFXControls(label) {
         <input type="number" data-id="${label.id}" data-prop="lineWidth" value="${label.lineWidth || 2}" step="0.5" min="0.5" max="10">
       </div>
       ` : ''}
-      
-      <div class="ctrlRow" style="align-items:center;">
-        <label style="flex:1;">
-          <input type="checkbox" data-id="${label.id}" data-prop="labelsAboveHorizon" ${label.labelsAboveHorizon ? 'checked' : ''}>
-          <span>Labels Above Horizon</span>
-        </label>
-      </div>
-      <small style="display:block;opacity:0.7;font-size:10px;margin:-4px 0 8px 0;">Extends line to sky mask horizon + line height</small>
-      
       
       <!-- Display Shape Controls -->
       <hr style="border:none;border-top:1px solid rgba(255,255,255,.12);margin:12px 0;">
@@ -6836,12 +6648,12 @@ function renderLabelFXControls(label) {
       
       <div class="ctrlRow">
         <label>Shape Fill Color</label>
-        ${renderColorSwatch(label.id, 'displayShapeFillColor', label.displayShapeFillColor || 'rgba(0,0,0,0.95)', true)}
+        <input type="text" data-id="${label.id}" data-prop="displayShapeFillColor" value="${label.displayShapeFillColor || 'rgba(0,0,0,0.95)'}" placeholder="rgba(0,0,0,0.95)" style="font-size:11px;">
       </div>
       
       <div class="ctrlRow">
         <label>Shape Stroke Color</label>
-        ${renderColorSwatch(label.id, 'displayShapeStrokeColor', label.displayShapeStrokeColor || 'rgba(255,255,255,0.8)', true)}
+        <input type="text" data-id="${label.id}" data-prop="displayShapeStrokeColor" value="${label.displayShapeStrokeColor || 'rgba(255,255,255,0.8)'}" placeholder="rgba(255,255,255,0.8)" style="font-size:11px;">
       </div>
       
       <div class="ctrlRow">
@@ -6858,120 +6670,6 @@ function renderLabelFXControls(label) {
       <!-- Pill Label Controls -->
       <hr style="border:none;border-top:1px solid rgba(255,255,255,.12);margin:12px 0;">
       <div style="font-weight:700;margin-bottom:8px;">Pill Label</div>
-      
-      <!-- Multi-line Toggle -->
-      <div class="ctrlRow" style="align-items:center;">
-        <label style="flex:1;">
-          <input type="checkbox" data-id="${label.id}" data-prop="useMultiLine" ${label.useMultiLine ? 'checked' : ''}>
-          <span>Enable Multi-line Text</span>
-        </label>
-      </div>
-      
-      <!-- Multi-line Configuration (shown when useMultiLine is true) -->
-      ${label.useMultiLine ? `
-      <div style="margin: 8px 0; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 4px;">
-        <div style="font-size: 11px; opacity: 0.8; margin-bottom: 8px;">Multi-line Text Configuration</div>
-        
-        <!-- Line 1 -->
-        <details open style="margin-bottom: 8px;">
-          <summary style="cursor: pointer; font-weight: 600; font-size: 11px; padding: 4px; background: rgba(255,255,255,0.1); border-radius: 3px;">Line 1 (Title)</summary>
-          <div style="padding: 8px 4px; display: flex; flex-direction: column; gap: 6px;">
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Content</label>
-              <select data-id="\${label.id}" data-prop="line1.content" style="font-size: 10px;">
-                <option value="name" \${label.line1?.content === 'name' ? 'selected' : ''}>Name</option>
-                <option value="type" \${label.line1?.content === 'type' ? 'selected' : ''}>Type</option>
-                <option value="category" \${label.line1?.content === 'category' ? 'selected' : ''}>Category</option>
-              </select>
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Font Size</label>
-              <input type="number" data-id="\${label.id}" data-prop="line1.fontSize" value="\${label.line1?.fontSize || 14}" min="8" max="24" step="1" style="font-size: 10px;">
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Alignment</label>
-              <select data-id="\${label.id}" data-prop="line1.alignment" style="font-size: 10px;">
-                <option value="left" \${(label.line1?.alignment || 'left') === 'left' ? 'selected' : ''}>Left</option>
-                <option value="center" \${label.line1?.alignment === 'center' ? 'selected' : ''}>Center</option>
-                <option value="right" \${label.line1?.alignment === 'right' ? 'selected' : ''}>Right</option>
-              </select>
-            </div>
-            <div class="ctrlRow" style="gap: 8px;">
-              <label style="font-size: 10px; cursor: pointer;">
-                <input type="checkbox" data-id="\${label.id}" data-prop="line1.bold" \${label.line1?.bold ? 'checked' : ''}>
-                <span>Bold</span>
-              </label>
-              <label style="font-size: 10px; cursor: pointer;">
-                <input type="checkbox" data-id="\${label.id}" data-prop="line1.italic" \${label.line1?.italic ? 'checked' : ''}>
-                <span>Italic</span>
-              </label>
-            </div>
-          </div>
-        </details>
-        
-        <!-- Line 2 -->
-        <details open style="margin-bottom: 8px;">
-          <summary style="cursor: pointer; font-weight: 600; font-size: 11px; padding: 4px; background: rgba(255,255,255,0.1); border-radius: 3px;">Line 2 (Category)</summary>
-          <div style="padding: 8px 4px; display: flex; flex-direction: column; gap: 6px;">
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Content</label>
-              <select data-id="\${label.id}" data-prop="line2.content" style="font-size: 10px;">
-                <option value="category" \${(label.line2?.content || 'category') === 'category' ? 'selected' : ''}>Category</option>
-                <option value="subtype" \${label.line2?.content === 'subtype' ? 'selected' : ''}>Subtype</option>
-                <option value="landmark" \${label.line2?.content === 'landmark' ? 'selected' : ''}>Landmark</option>
-              </select>
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Font Size</label>
-              <input type="number" data-id="\${label.id}" data-prop="line2.fontSize" value="\${label.line2?.fontSize || 11}" min="8" max="24" step="1" style="font-size: 10px;">
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Alignment</label>
-              <select data-id="\${label.id}" data-prop="line2.alignment" style="font-size: 10px;">
-                <option value="left" \${(label.line2?.alignment || 'left') === 'left' ? 'selected' : ''}>Left</option>
-                <option value="center" \${label.line2?.alignment === 'center' ? 'selected' : ''}>Center</option>
-                <option value="right" \${label.line2?.alignment === 'right' ? 'selected' : ''}>Right</option>
-              </select>
-            </div>
-          </div>
-        </details>
-        
-        <!-- Line 3 -->
-        <details open style="margin-bottom: 8px;">
-          <summary style="cursor: pointer; font-weight: 600; font-size: 11px; padding: 4px; background: rgba(255,255,255,0.1); border-radius: 3px;">Line 3 (Details)</summary>
-          <div style="padding: 8px 4px; display: flex; flex-direction: column; gap: 6px;">
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Content</label>
-              <select data-id="\${label.id}" data-prop="line3.content" style="font-size: 10px;">
-                <option value="distance" \${(label.line3?.content || 'distance') === 'distance' ? 'selected' : ''}>Distance</option>
-                <option value="bearing" \${label.line3?.content === 'bearing' ? 'selected' : ''}>Bearing</option>
-                <option value="visibility" \${label.line3?.content === 'visibility' ? 'selected' : ''}>Visibility</option>
-                <option value="combined" \${label.line3?.content === 'combined' ? 'selected' : ''}>Combined</option>
-              </select>
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Font Size</label>
-              <input type="number" data-id="\${label.id}" data-prop="line3.fontSize" value="\${label.line3?.fontSize || 9}" min="8" max="24" step="1" style="font-size: 10px;">
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Alignment</label>
-              <select data-id="\${label.id}" data-prop="line3.alignment" style="font-size: 10px;">
-                <option value="left" \${(label.line3?.alignment || 'left') === 'left' ? 'selected' : ''}>Left</option>
-                <option value="center" \${label.line3?.alignment === 'center' ? 'selected' : ''}>Center</option>
-                <option value="right" \${label.line3?.alignment === 'right' ? 'selected' : ''}>Right</option>
-              </select>
-            </div>
-          </div>
-        </details>
-        
-        <div class="ctrlRow">
-          <label style="font-size: 10px;">Line Spacing (px)</label>
-          <input type="number" data-id="\${label.id}" data-prop="lineSpacing" value="\${label.lineSpacing || 4}" min="0" max="20" step="1" style="font-size: 10px;">
-        </div>
-      </div>
-      ` : ''}
-
-      
       
       <div class="ctrlRow">
         <label>Pill Shape</label>
@@ -7080,18 +6778,18 @@ function renderLabelFXControls(label) {
       ${label.pillColorMode === 'single' ? `
       <div class="ctrlRow">
         <label>Pill Background</label>
-        ${renderColorSwatch(label.id, 'pillBackgroundColor', label.pillBackgroundColor || 'rgba(0,0,0,0.75)', true)}
+        <input type="text" data-id="${label.id}" data-prop="pillBackgroundColor" value="${label.pillBackgroundColor || 'rgba(0,0,0,0.75)'}" placeholder="rgba(0,0,0,0.75)" style="font-size:11px;">
       </div>
       
       <div class="ctrlRow">
         <label>Pill Border</label>
-        ${renderColorSwatch(label.id, 'pillBorderColor', label.pillBorderColor || 'rgba(255,255,255,0.18)', true)}
+        <input type="text" data-id="${label.id}" data-prop="pillBorderColor" value="${label.pillBorderColor || 'rgba(255,255,255,0.18)'}" placeholder="rgba(255,255,255,0.18)" style="font-size:11px;">
       </div>
       ` : ''}
       
       <div class="ctrlRow">
         <label>Text Color</label>
-        ${renderColorSwatch(label.id, 'pillTextColor', label.pillTextColor || '#ffffff', false)}
+        <input type="color" data-id="${label.id}" data-prop="pillTextColor" value="${label.pillTextColor || '#ffffff'}">
       </div>
       
       <div class="ctrlRow">
@@ -7130,22 +6828,22 @@ function renderLabelFXControls(label) {
       
       <div class="ctrlRow">
         <label>Landmark</label>
-        ${renderColorSwatch(label.id, 'categoryColors.landmark', label.categoryColors?.landmark || '#ff0000', false)}
+        <input type="color" data-id="${label.id}" data-prop="categoryColors.landmark" value="${label.categoryColors?.landmark || '#ff0000'}">
       </div>
       
       <div class="ctrlRow">
         <label>Leisure</label>
-        ${renderColorSwatch(label.id, 'categoryColors.leisure', label.categoryColors?.leisure || '#00ff00', false)}
+        <input type="color" data-id="${label.id}" data-prop="categoryColors.leisure" value="${label.categoryColors?.leisure || '#00ff00'}">
       </div>
       
       <div class="ctrlRow">
         <label>Amenity</label>
-        ${renderColorSwatch(label.id, 'categoryColors.amenity', label.categoryColors?.amenity || '#0000ff', false)}
+        <input type="color" data-id="${label.id}" data-prop="categoryColors.amenity" value="${label.categoryColors?.amenity || '#0000ff'}">
       </div>
       
       <div class="ctrlRow">
         <label>Place</label>
-        ${renderColorSwatch(label.id, 'categoryColors.place', label.categoryColors?.place || '#ffff00', false)}
+        <input type="color" data-id="${label.id}" data-prop="categoryColors.place" value="${label.categoryColors?.place || '#ffff00'}">
       </div>
       ` : ''}
       
@@ -7199,7 +6897,7 @@ function renderLabelFXControls(label) {
       ${label.lineColorMode === 'single' ? `
       <div class="ctrlRow">
         <label>Line Color</label>
-        ${renderColorSwatch(label.id, 'lineColor', label.lineColor || '#00ff00', false)}
+        <input type="color" data-id="${label.id}" data-prop="lineColor" value="${label.lineColor || '#00ff00'}">
       </div>
       ` : ''}
       
@@ -7208,15 +6906,6 @@ function renderLabelFXControls(label) {
         <input type="number" data-id="${label.id}" data-prop="lineWidth" value="${label.lineWidth || 2}" step="0.5" min="0.5" max="10">
       </div>
       ` : ''}
-      
-      <div class="ctrlRow" style="align-items:center;">
-        <label style="flex:1;">
-          <input type="checkbox" data-id="${label.id}" data-prop="labelsAboveHorizon" ${label.labelsAboveHorizon ? 'checked' : ''}>
-          <span>Labels Above Horizon</span>
-        </label>
-      </div>
-      <small style="display:block;opacity:0.7;font-size:10px;margin:-4px 0 8px 0;">Extends line to sky mask horizon + line height</small>
-      
       
       <!-- Display Shape Controls -->
       <hr style="border:none;border-top:1px solid rgba(255,255,255,.12);margin:12px 0;">
@@ -7261,12 +6950,12 @@ function renderLabelFXControls(label) {
       
       <div class="ctrlRow">
         <label>Shape Fill Color</label>
-        ${renderColorSwatch(label.id, 'displayShapeFillColor', label.displayShapeFillColor || 'rgba(0,0,0,0.95)', true)}
+        <input type="text" data-id="${label.id}" data-prop="displayShapeFillColor" value="${label.displayShapeFillColor || 'rgba(0,0,0,0.95)'}" placeholder="rgba(0,0,0,0.95)" style="font-size:11px;">
       </div>
       
       <div class="ctrlRow">
         <label>Shape Stroke Color</label>
-        ${renderColorSwatch(label.id, 'displayShapeStrokeColor', label.displayShapeStrokeColor || 'rgba(255,255,255,0.8)', true)}
+        <input type="text" data-id="${label.id}" data-prop="displayShapeStrokeColor" value="${label.displayShapeStrokeColor || 'rgba(255,255,255,0.8)'}" placeholder="rgba(255,255,255,0.8)" style="font-size:11px;">
       </div>
       
       <div class="ctrlRow">
@@ -7283,120 +6972,6 @@ function renderLabelFXControls(label) {
       <!-- Pill Label Controls -->
       <hr style="border:none;border-top:1px solid rgba(255,255,255,.12);margin:12px 0;">
       <div style="font-weight:700;margin-bottom:8px;">Pill Label</div>
-      
-      <!-- Multi-line Toggle -->
-      <div class="ctrlRow" style="align-items:center;">
-        <label style="flex:1;">
-          <input type="checkbox" data-id="${label.id}" data-prop="useMultiLine" ${label.useMultiLine ? 'checked' : ''}>
-          <span>Enable Multi-line Text</span>
-        </label>
-      </div>
-      
-      <!-- Multi-line Configuration (shown when useMultiLine is true) -->
-      ${label.useMultiLine ? `
-      <div style="margin: 8px 0; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 4px;">
-        <div style="font-size: 11px; opacity: 0.8; margin-bottom: 8px;">Multi-line Text Configuration</div>
-        
-        <!-- Line 1 -->
-        <details open style="margin-bottom: 8px;">
-          <summary style="cursor: pointer; font-weight: 600; font-size: 11px; padding: 4px; background: rgba(255,255,255,0.1); border-radius: 3px;">Line 1 (Title)</summary>
-          <div style="padding: 8px 4px; display: flex; flex-direction: column; gap: 6px;">
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Content</label>
-              <select data-id="\${label.id}" data-prop="line1.content" style="font-size: 10px;">
-                <option value="name" \${label.line1?.content === 'name' ? 'selected' : ''}>Name</option>
-                <option value="type" \${label.line1?.content === 'type' ? 'selected' : ''}>Type</option>
-                <option value="category" \${label.line1?.content === 'category' ? 'selected' : ''}>Category</option>
-              </select>
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Font Size</label>
-              <input type="number" data-id="\${label.id}" data-prop="line1.fontSize" value="\${label.line1?.fontSize || 14}" min="8" max="24" step="1" style="font-size: 10px;">
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Alignment</label>
-              <select data-id="\${label.id}" data-prop="line1.alignment" style="font-size: 10px;">
-                <option value="left" \${(label.line1?.alignment || 'left') === 'left' ? 'selected' : ''}>Left</option>
-                <option value="center" \${label.line1?.alignment === 'center' ? 'selected' : ''}>Center</option>
-                <option value="right" \${label.line1?.alignment === 'right' ? 'selected' : ''}>Right</option>
-              </select>
-            </div>
-            <div class="ctrlRow" style="gap: 8px;">
-              <label style="font-size: 10px; cursor: pointer;">
-                <input type="checkbox" data-id="\${label.id}" data-prop="line1.bold" \${label.line1?.bold ? 'checked' : ''}>
-                <span>Bold</span>
-              </label>
-              <label style="font-size: 10px; cursor: pointer;">
-                <input type="checkbox" data-id="\${label.id}" data-prop="line1.italic" \${label.line1?.italic ? 'checked' : ''}>
-                <span>Italic</span>
-              </label>
-            </div>
-          </div>
-        </details>
-        
-        <!-- Line 2 -->
-        <details open style="margin-bottom: 8px;">
-          <summary style="cursor: pointer; font-weight: 600; font-size: 11px; padding: 4px; background: rgba(255,255,255,0.1); border-radius: 3px;">Line 2 (Category)</summary>
-          <div style="padding: 8px 4px; display: flex; flex-direction: column; gap: 6px;">
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Content</label>
-              <select data-id="\${label.id}" data-prop="line2.content" style="font-size: 10px;">
-                <option value="category" \${(label.line2?.content || 'category') === 'category' ? 'selected' : ''}>Category</option>
-                <option value="subtype" \${label.line2?.content === 'subtype' ? 'selected' : ''}>Subtype</option>
-                <option value="landmark" \${label.line2?.content === 'landmark' ? 'selected' : ''}>Landmark</option>
-              </select>
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Font Size</label>
-              <input type="number" data-id="\${label.id}" data-prop="line2.fontSize" value="\${label.line2?.fontSize || 11}" min="8" max="24" step="1" style="font-size: 10px;">
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Alignment</label>
-              <select data-id="\${label.id}" data-prop="line2.alignment" style="font-size: 10px;">
-                <option value="left" \${(label.line2?.alignment || 'left') === 'left' ? 'selected' : ''}>Left</option>
-                <option value="center" \${label.line2?.alignment === 'center' ? 'selected' : ''}>Center</option>
-                <option value="right" \${label.line2?.alignment === 'right' ? 'selected' : ''}>Right</option>
-              </select>
-            </div>
-          </div>
-        </details>
-        
-        <!-- Line 3 -->
-        <details open style="margin-bottom: 8px;">
-          <summary style="cursor: pointer; font-weight: 600; font-size: 11px; padding: 4px; background: rgba(255,255,255,0.1); border-radius: 3px;">Line 3 (Details)</summary>
-          <div style="padding: 8px 4px; display: flex; flex-direction: column; gap: 6px;">
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Content</label>
-              <select data-id="\${label.id}" data-prop="line3.content" style="font-size: 10px;">
-                <option value="distance" \${(label.line3?.content || 'distance') === 'distance' ? 'selected' : ''}>Distance</option>
-                <option value="bearing" \${label.line3?.content === 'bearing' ? 'selected' : ''}>Bearing</option>
-                <option value="visibility" \${label.line3?.content === 'visibility' ? 'selected' : ''}>Visibility</option>
-                <option value="combined" \${label.line3?.content === 'combined' ? 'selected' : ''}>Combined</option>
-              </select>
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Font Size</label>
-              <input type="number" data-id="\${label.id}" data-prop="line3.fontSize" value="\${label.line3?.fontSize || 9}" min="8" max="24" step="1" style="font-size: 10px;">
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Alignment</label>
-              <select data-id="\${label.id}" data-prop="line3.alignment" style="font-size: 10px;">
-                <option value="left" \${(label.line3?.alignment || 'left') === 'left' ? 'selected' : ''}>Left</option>
-                <option value="center" \${label.line3?.alignment === 'center' ? 'selected' : ''}>Center</option>
-                <option value="right" \${label.line3?.alignment === 'right' ? 'selected' : ''}>Right</option>
-              </select>
-            </div>
-          </div>
-        </details>
-        
-        <div class="ctrlRow">
-          <label style="font-size: 10px;">Line Spacing (px)</label>
-          <input type="number" data-id="\${label.id}" data-prop="lineSpacing" value="\${label.lineSpacing || 4}" min="0" max="20" step="1" style="font-size: 10px;">
-        </div>
-      </div>
-      ` : ''}
-
-      
       
       <div class="ctrlRow">
         <label>Pill Shape</label>
@@ -7505,18 +7080,18 @@ function renderLabelFXControls(label) {
       ${label.pillColorMode === 'single' ? `
       <div class="ctrlRow">
         <label>Pill Background</label>
-        ${renderColorSwatch(label.id, 'pillBackgroundColor', label.pillBackgroundColor || 'rgba(0,0,0,0.75)', true)}
+        <input type="text" data-id="${label.id}" data-prop="pillBackgroundColor" value="${label.pillBackgroundColor || 'rgba(0,0,0,0.75)'}" placeholder="rgba(0,0,0,0.75)" style="font-size:11px;">
       </div>
       
       <div class="ctrlRow">
         <label>Pill Border</label>
-        ${renderColorSwatch(label.id, 'pillBorderColor', label.pillBorderColor || 'rgba(255,255,255,0.18)', true)}
+        <input type="text" data-id="${label.id}" data-prop="pillBorderColor" value="${label.pillBorderColor || 'rgba(255,255,255,0.18)'}" placeholder="rgba(255,255,255,0.18)" style="font-size:11px;">
       </div>
       ` : ''}
       
       <div class="ctrlRow">
         <label>Text Color</label>
-        ${renderColorSwatch(label.id, 'pillTextColor', label.pillTextColor || '#ffffff', false)}
+        <input type="color" data-id="${label.id}" data-prop="pillTextColor" value="${label.pillTextColor || '#ffffff'}">
       </div>
       
       <div class="ctrlRow">
@@ -7555,22 +7130,22 @@ function renderLabelFXControls(label) {
       
       <div class="ctrlRow">
         <label>Landmark</label>
-        ${renderColorSwatch(label.id, 'categoryColors.landmark', label.categoryColors?.landmark || '#ff0000', false)}
+        <input type="color" data-id="${label.id}" data-prop="categoryColors.landmark" value="${label.categoryColors?.landmark || '#ff0000'}">
       </div>
       
       <div class="ctrlRow">
         <label>Leisure</label>
-        ${renderColorSwatch(label.id, 'categoryColors.leisure', label.categoryColors?.leisure || '#00ff00', false)}
+        <input type="color" data-id="${label.id}" data-prop="categoryColors.leisure" value="${label.categoryColors?.leisure || '#00ff00'}">
       </div>
       
       <div class="ctrlRow">
         <label>Amenity</label>
-        ${renderColorSwatch(label.id, 'categoryColors.amenity', label.categoryColors?.amenity || '#0000ff', false)}
+        <input type="color" data-id="${label.id}" data-prop="categoryColors.amenity" value="${label.categoryColors?.amenity || '#0000ff'}">
       </div>
       
       <div class="ctrlRow">
         <label>Place</label>
-        ${renderColorSwatch(label.id, 'categoryColors.place', label.categoryColors?.place || '#ffff00', false)}
+        <input type="color" data-id="${label.id}" data-prop="categoryColors.place" value="${label.categoryColors?.place || '#ffff00'}">
       </div>
       ` : ''}
       
@@ -7736,36 +7311,6 @@ function initModularLabelSystem() {
       }
     });
   }
-  
-  // Hook up export/import buttons for Label FX
-  const copyLabelBtn = document.getElementById('copyLabelSettingsBtn');
-  const shareLabelBtn = document.getElementById('shareLabelLinkBtn');
-  const applyLabelBtn = document.getElementById('applyLabelSettingsBtn');
-  const labelBox = document.getElementById('labelSettingsBox');
-  
-  if (copyLabelBtn) copyLabelBtn.onclick = copyLabelSettings;
-  if (shareLabelBtn) shareLabelBtn.onclick = async () => {
-    const url = encodeLabelShareLink();
-    try {
-      await navigator.clipboard.writeText(url);
-      console.log("Label FX share link copied ✔");
-    } catch {
-      console.log("Share link set in URL bar (copy it) ✔");
-    }
-  };
-  if (applyLabelBtn && labelBox) applyLabelBtn.onclick = () => {
-    try {
-      const configs = JSON.parse(labelBox.value);
-      applyLabelFXSettings(configs);
-      console.log("Label FX settings applied ✔");
-    } catch (err) {
-      console.error("Invalid JSON:", err?.message || err);
-    }
-  };
-  
-  // Load from hash if present
-  const sharedLabel = decodeLabelFromHash();
-  if (sharedLabel) applyLabelFXSettings(sharedLabel);
 }
 
 function hookMarkerFxUI(){
