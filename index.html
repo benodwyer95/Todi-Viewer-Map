@@ -3082,34 +3082,15 @@ function makeCalloutAnimated(root, name, isVisible=true, typeHex=0x00c8ff, lineC
     const geo = new THREE.BufferGeometry().setFromPoints(pts);
 
     const actualLineColor = lineColorHex !== null ? lineColorHex : typeHex;
-    if (isVisible){
-      const mat = new THREE.LineBasicMaterial({ color: actualLineColor, transparent:true, opacity:0.0 });
-      mat.depthTest = false;
-      line = new THREE.Line(geo, mat);
-    } else {
-      const mat = new THREE.LineDashedMaterial({
-        color: actualLineColor,
-        transparent:true,
-        opacity:0.0,
-        dashSize: Math.max(3, rise * 0.18),
-        gapSize:  Math.max(2, rise * 0.12)
-      });
-      mat.depthTest = false;
-      line = new THREE.Line(geo, mat);
-      line.computeLineDistances();
-    }
+    // Always use solid line (removed dashed line for invisible markers)
+    const mat = new THREE.LineBasicMaterial({ color: actualLineColor, transparent:true, opacity:0.0 });
+    mat.depthTest = false;
+    line = new THREE.Line(geo, mat);
     line.renderOrder = 10001;
     call.add(line);
   }
 
-  // X marker at halfway for NOT visible (fades with the line)
-  let xSpr = null;
-  if (!isVisible && showLine){
-    xSpr = makeXSprite(Math.max(5, sqW*0.95));
-    xSpr.position.set(0, rise*0.5, 0);
-    xSpr.material.opacity = 0.0;
-    call.add(xSpr);
-  }
+  // Removed X marker for invisible items - only show what user sets
 
   // top display shape - CRITICAL: Position based on FINAL line height (rise)
   let sq2 = null;
@@ -3225,7 +3206,7 @@ function makeCalloutAnimated(root, name, isVisible=true, typeHex=0x00c8ff, lineC
     gap1, gap2, gap3,
     typeHex: (typeHex ?? 0x00c8ff),
     lineColorHex: (lineColorHex !== null ? lineColorHex : (typeHex ?? 0x00c8ff)),
-    sq1, sq2, line, label, xSpr,
+    sq1, sq2, line, label,
     t: 0,
     target: 0,
     speed: config?.animSeconds ? (1 / config.animSeconds) : (1 / 1.8),
@@ -3324,14 +3305,7 @@ function updateCalloutAnims(){
       pos.needsUpdate = true;
 
       ud.line.material.opacity = 0.95 * k2;
-      if (ud.line.isLine && ud.line.material.isLineDashedMaterial){
-        ud.line.computeLineDistances();
-      }
-      
-      // optional X marker
-      if (ud.xSpr && ud.xSpr.material){
-        ud.xSpr.material.opacity = 0.95 * k2;
-      }
+      // Removed LineDashedMaterial check - always using solid lines now
       
       // Line color transition
       const ltr = (ud.lineColorHex >> 16) & 255;
