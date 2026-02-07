@@ -6688,6 +6688,111 @@ function renderLabelFXControls(label) {
         </label>
       </div>
       
+      <!-- Multi-line Configuration (shown when useMultiLine is true) -->
+      \${label.useMultiLine ? `
+      <div style="margin: 8px 0; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 4px;">
+        <div style="font-size: 11px; opacity: 0.8; margin-bottom: 8px;">Multi-line Text Configuration</div>
+        
+        <!-- Line 1 -->
+        <details open style="margin-bottom: 8px;">
+          <summary style="cursor: pointer; font-weight: 600; font-size: 11px; padding: 4px; background: rgba(255,255,255,0.1); border-radius: 3px;">Line 1 (Title)</summary>
+          <div style="padding: 8px 4px; display: flex; flex-direction: column; gap: 6px;">
+            <div class="ctrlRow">
+              <label style="font-size: 10px;">Content</label>
+              <select data-id="\${label.id}" data-prop="line1.content" style="font-size: 10px;">
+                <option value="name" \${label.line1?.content === 'name' ? 'selected' : ''}>Name</option>
+                <option value="type" \${label.line1?.content === 'type' ? 'selected' : ''}>Type</option>
+                <option value="category" \${label.line1?.content === 'category' ? 'selected' : ''}>Category</option>
+              </select>
+            </div>
+            <div class="ctrlRow">
+              <label style="font-size: 10px;">Font Size</label>
+              <input type="number" data-id="\${label.id}" data-prop="line1.fontSize" value="\${label.line1?.fontSize || 14}" min="8" max="24" step="1" style="font-size: 10px;">
+            </div>
+            <div class="ctrlRow">
+              <label style="font-size: 10px;">Alignment</label>
+              <select data-id="\${label.id}" data-prop="line1.alignment" style="font-size: 10px;">
+                <option value="left" \${(label.line1?.alignment || 'left') === 'left' ? 'selected' : ''}>Left</option>
+                <option value="center" \${label.line1?.alignment === 'center' ? 'selected' : ''}>Center</option>
+                <option value="right" \${label.line1?.alignment === 'right' ? 'selected' : ''}>Right</option>
+              </select>
+            </div>
+            <div class="ctrlRow" style="gap: 8px;">
+              <label style="font-size: 10px; cursor: pointer;">
+                <input type="checkbox" data-id="\${label.id}" data-prop="line1.bold" \${label.line1?.bold ? 'checked' : ''}>
+                <span>Bold</span>
+              </label>
+              <label style="font-size: 10px; cursor: pointer;">
+                <input type="checkbox" data-id="\${label.id}" data-prop="line1.italic" \${label.line1?.italic ? 'checked' : ''}>
+                <span>Italic</span>
+              </label>
+            </div>
+          </div>
+        </details>
+        
+        <!-- Line 2 -->
+        <details open style="margin-bottom: 8px;">
+          <summary style="cursor: pointer; font-weight: 600; font-size: 11px; padding: 4px; background: rgba(255,255,255,0.1); border-radius: 3px;">Line 2 (Category)</summary>
+          <div style="padding: 8px 4px; display: flex; flex-direction: column; gap: 6px;">
+            <div class="ctrlRow">
+              <label style="font-size: 10px;">Content</label>
+              <select data-id="\${label.id}" data-prop="line2.content" style="font-size: 10px;">
+                <option value="category" \${(label.line2?.content || 'category') === 'category' ? 'selected' : ''}>Category</option>
+                <option value="subtype" \${label.line2?.content === 'subtype' ? 'selected' : ''}>Subtype</option>
+                <option value="landmark" \${label.line2?.content === 'landmark' ? 'selected' : ''}>Landmark</option>
+              </select>
+            </div>
+            <div class="ctrlRow">
+              <label style="font-size: 10px;">Font Size</label>
+              <input type="number" data-id="\${label.id}" data-prop="line2.fontSize" value="\${label.line2?.fontSize || 11}" min="8" max="24" step="1" style="font-size: 10px;">
+            </div>
+            <div class="ctrlRow">
+              <label style="font-size: 10px;">Alignment</label>
+              <select data-id="\${label.id}" data-prop="line2.alignment" style="font-size: 10px;">
+                <option value="left" \${(label.line2?.alignment || 'left') === 'left' ? 'selected' : ''}>Left</option>
+                <option value="center" \${label.line2?.alignment === 'center' ? 'selected' : ''}>Center</option>
+                <option value="right" \${label.line2?.alignment === 'right' ? 'selected' : ''}>Right</option>
+              </select>
+            </div>
+          </div>
+        </details>
+        
+        <!-- Line 3 -->
+        <details open style="margin-bottom: 8px;">
+          <summary style="cursor: pointer; font-weight: 600; font-size: 11px; padding: 4px; background: rgba(255,255,255,0.1); border-radius: 3px;">Line 3 (Details)</summary>
+          <div style="padding: 8px 4px; display: flex; flex-direction: column; gap: 6px;">
+            <div class="ctrlRow">
+              <label style="font-size: 10px;">Content</label>
+              <select data-id="\${label.id}" data-prop="line3.content" style="font-size: 10px;">
+                <option value="distance" \${(label.line3?.content || 'distance') === 'distance' ? 'selected' : ''}>Distance</option>
+                <option value="bearing" \${label.line3?.content === 'bearing' ? 'selected' : ''}>Bearing</option>
+                <option value="visibility" \${label.line3?.content === 'visibility' ? 'selected' : ''}>Visibility</option>
+                <option value="combined" \${label.line3?.content === 'combined' ? 'selected' : ''}>Combined</option>
+              </select>
+            </div>
+            <div class="ctrlRow">
+              <label style="font-size: 10px;">Font Size</label>
+              <input type="number" data-id="\${label.id}" data-prop="line3.fontSize" value="\${label.line3?.fontSize || 9}" min="8" max="24" step="1" style="font-size: 10px;">
+            </div>
+            <div class="ctrlRow">
+              <label style="font-size: 10px;">Alignment</label>
+              <select data-id="\${label.id}" data-prop="line3.alignment" style="font-size: 10px;">
+                <option value="left" \${(label.line3?.alignment || 'left') === 'left' ? 'selected' : ''}>Left</option>
+                <option value="center" \${label.line3?.alignment === 'center' ? 'selected' : ''}>Center</option>
+                <option value="right" \${label.line3?.alignment === 'right' ? 'selected' : ''}>Right</option>
+              </select>
+            </div>
+          </div>
+        </details>
+        
+        <div class="ctrlRow">
+          <label style="font-size: 10px;">Line Spacing (px)</label>
+          <input type="number" data-id="\${label.id}" data-prop="lineSpacing" value="\${label.lineSpacing || 4}" min="0" max="20" step="1" style="font-size: 10px;">
+        </div>
+      </div>
+      ` : ''}
+
+      
       
       <div class="ctrlRow">
         <label>Pill Shape</label>
@@ -7007,6 +7112,111 @@ function renderLabelFXControls(label) {
           <span>Enable Multi-line Text</span>
         </label>
       </div>
+      
+      <!-- Multi-line Configuration (shown when useMultiLine is true) -->
+      \${label.useMultiLine ? `
+      <div style="margin: 8px 0; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 4px;">
+        <div style="font-size: 11px; opacity: 0.8; margin-bottom: 8px;">Multi-line Text Configuration</div>
+        
+        <!-- Line 1 -->
+        <details open style="margin-bottom: 8px;">
+          <summary style="cursor: pointer; font-weight: 600; font-size: 11px; padding: 4px; background: rgba(255,255,255,0.1); border-radius: 3px;">Line 1 (Title)</summary>
+          <div style="padding: 8px 4px; display: flex; flex-direction: column; gap: 6px;">
+            <div class="ctrlRow">
+              <label style="font-size: 10px;">Content</label>
+              <select data-id="\${label.id}" data-prop="line1.content" style="font-size: 10px;">
+                <option value="name" \${label.line1?.content === 'name' ? 'selected' : ''}>Name</option>
+                <option value="type" \${label.line1?.content === 'type' ? 'selected' : ''}>Type</option>
+                <option value="category" \${label.line1?.content === 'category' ? 'selected' : ''}>Category</option>
+              </select>
+            </div>
+            <div class="ctrlRow">
+              <label style="font-size: 10px;">Font Size</label>
+              <input type="number" data-id="\${label.id}" data-prop="line1.fontSize" value="\${label.line1?.fontSize || 14}" min="8" max="24" step="1" style="font-size: 10px;">
+            </div>
+            <div class="ctrlRow">
+              <label style="font-size: 10px;">Alignment</label>
+              <select data-id="\${label.id}" data-prop="line1.alignment" style="font-size: 10px;">
+                <option value="left" \${(label.line1?.alignment || 'left') === 'left' ? 'selected' : ''}>Left</option>
+                <option value="center" \${label.line1?.alignment === 'center' ? 'selected' : ''}>Center</option>
+                <option value="right" \${label.line1?.alignment === 'right' ? 'selected' : ''}>Right</option>
+              </select>
+            </div>
+            <div class="ctrlRow" style="gap: 8px;">
+              <label style="font-size: 10px; cursor: pointer;">
+                <input type="checkbox" data-id="\${label.id}" data-prop="line1.bold" \${label.line1?.bold ? 'checked' : ''}>
+                <span>Bold</span>
+              </label>
+              <label style="font-size: 10px; cursor: pointer;">
+                <input type="checkbox" data-id="\${label.id}" data-prop="line1.italic" \${label.line1?.italic ? 'checked' : ''}>
+                <span>Italic</span>
+              </label>
+            </div>
+          </div>
+        </details>
+        
+        <!-- Line 2 -->
+        <details open style="margin-bottom: 8px;">
+          <summary style="cursor: pointer; font-weight: 600; font-size: 11px; padding: 4px; background: rgba(255,255,255,0.1); border-radius: 3px;">Line 2 (Category)</summary>
+          <div style="padding: 8px 4px; display: flex; flex-direction: column; gap: 6px;">
+            <div class="ctrlRow">
+              <label style="font-size: 10px;">Content</label>
+              <select data-id="\${label.id}" data-prop="line2.content" style="font-size: 10px;">
+                <option value="category" \${(label.line2?.content || 'category') === 'category' ? 'selected' : ''}>Category</option>
+                <option value="subtype" \${label.line2?.content === 'subtype' ? 'selected' : ''}>Subtype</option>
+                <option value="landmark" \${label.line2?.content === 'landmark' ? 'selected' : ''}>Landmark</option>
+              </select>
+            </div>
+            <div class="ctrlRow">
+              <label style="font-size: 10px;">Font Size</label>
+              <input type="number" data-id="\${label.id}" data-prop="line2.fontSize" value="\${label.line2?.fontSize || 11}" min="8" max="24" step="1" style="font-size: 10px;">
+            </div>
+            <div class="ctrlRow">
+              <label style="font-size: 10px;">Alignment</label>
+              <select data-id="\${label.id}" data-prop="line2.alignment" style="font-size: 10px;">
+                <option value="left" \${(label.line2?.alignment || 'left') === 'left' ? 'selected' : ''}>Left</option>
+                <option value="center" \${label.line2?.alignment === 'center' ? 'selected' : ''}>Center</option>
+                <option value="right" \${label.line2?.alignment === 'right' ? 'selected' : ''}>Right</option>
+              </select>
+            </div>
+          </div>
+        </details>
+        
+        <!-- Line 3 -->
+        <details open style="margin-bottom: 8px;">
+          <summary style="cursor: pointer; font-weight: 600; font-size: 11px; padding: 4px; background: rgba(255,255,255,0.1); border-radius: 3px;">Line 3 (Details)</summary>
+          <div style="padding: 8px 4px; display: flex; flex-direction: column; gap: 6px;">
+            <div class="ctrlRow">
+              <label style="font-size: 10px;">Content</label>
+              <select data-id="\${label.id}" data-prop="line3.content" style="font-size: 10px;">
+                <option value="distance" \${(label.line3?.content || 'distance') === 'distance' ? 'selected' : ''}>Distance</option>
+                <option value="bearing" \${label.line3?.content === 'bearing' ? 'selected' : ''}>Bearing</option>
+                <option value="visibility" \${label.line3?.content === 'visibility' ? 'selected' : ''}>Visibility</option>
+                <option value="combined" \${label.line3?.content === 'combined' ? 'selected' : ''}>Combined</option>
+              </select>
+            </div>
+            <div class="ctrlRow">
+              <label style="font-size: 10px;">Font Size</label>
+              <input type="number" data-id="\${label.id}" data-prop="line3.fontSize" value="\${label.line3?.fontSize || 9}" min="8" max="24" step="1" style="font-size: 10px;">
+            </div>
+            <div class="ctrlRow">
+              <label style="font-size: 10px;">Alignment</label>
+              <select data-id="\${label.id}" data-prop="line3.alignment" style="font-size: 10px;">
+                <option value="left" \${(label.line3?.alignment || 'left') === 'left' ? 'selected' : ''}>Left</option>
+                <option value="center" \${label.line3?.alignment === 'center' ? 'selected' : ''}>Center</option>
+                <option value="right" \${label.line3?.alignment === 'right' ? 'selected' : ''}>Right</option>
+              </select>
+            </div>
+          </div>
+        </details>
+        
+        <div class="ctrlRow">
+          <label style="font-size: 10px;">Line Spacing (px)</label>
+          <input type="number" data-id="\${label.id}" data-prop="lineSpacing" value="\${label.lineSpacing || 4}" min="0" max="20" step="1" style="font-size: 10px;">
+        </div>
+      </div>
+      ` : ''}
+
       
       
       <div class="ctrlRow">
