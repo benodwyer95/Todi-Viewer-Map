@@ -1058,6 +1058,16 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
       </select>
     </div>
     
+    <!-- Export / Import Buttons -->
+    <div style="display:flex;gap:4px;margin-bottom:10px;">
+      <button id="copyMarkerSettingsBtn" type="button" style="flex:1;padding:6px;background:rgba(100,100,100,.3);border:1px solid rgba(150,150,150,.3);border-radius:4px;color:#fff;cursor:pointer;font-size:11px;">Copy Settings</button>
+      <button id="shareMarkerLinkBtn" type="button" style="flex:1;padding:6px;background:rgba(100,100,100,.3);border:1px solid rgba(150,150,150,.3);border-radius:4px;color:#fff;cursor:pointer;font-size:11px;">Share Link</button>
+    </div>
+    <div style="margin-bottom:10px;">
+      <textarea id="markerSettingsBox" placeholder="JSON settings for Marker FX..." style="width:100%;min-height:60px;padding:6px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.2);border-radius:4px;color:#fff;font-family:monospace;font-size:10px;resize:vertical;"></textarea>
+      <button id="applyMarkerSettingsBtn" type="button" style="width:100%;padding:6px;margin-top:4px;background:rgba(0,200,100,.3);border:1px solid rgba(0,255,100,.4);border-radius:4px;color:#fff;cursor:pointer;font-size:11px;">Apply JSON</button>
+    </div>
+    
     <!-- Active Markers List (dynamically populated) -->
     <div id="activeMarkersList"></div>
   </div>
@@ -1080,6 +1090,16 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
         <option value="label">Label</option>
         <option value="hover">Hover Tip</option>
       </select>
+    </div>
+    
+    <!-- Export / Import Buttons -->
+    <div style="display:flex;gap:4px;margin-bottom:10px;">
+      <button id="copyLabelSettingsBtn" type="button" style="flex:1;padding:6px;background:rgba(100,100,100,.3);border:1px solid rgba(150,150,150,.3);border-radius:4px;color:#fff;cursor:pointer;font-size:11px;">Copy Settings</button>
+      <button id="shareLabelLinkBtn" type="button" style="flex:1;padding:6px;background:rgba(100,100,100,.3);border:1px solid rgba(150,150,150,.3);border-radius:4px;color:#fff;cursor:pointer;font-size:11px;">Share Link</button>
+    </div>
+    <div style="margin-bottom:10px;">
+      <textarea id="labelSettingsBox" placeholder="JSON settings for Label FX..." style="width:100%;min-height:60px;padding:6px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.2);border-radius:4px;color:#fff;font-family:monospace;font-size:10px;resize:vertical;"></textarea>
+      <button id="applyLabelSettingsBtn" type="button" style="width:100%;padding:6px;margin-top:4px;background:rgba(0,150,255,.3);border:1px solid rgba(0,200,255,.4);border-radius:4px;color:#fff;cursor:pointer;font-size:11px;">Apply JSON</button>
     </div>
     
     <!-- Active Labels List (dynamically populated) -->
@@ -4302,6 +4322,135 @@ function exportPNG(){
   }, "image/png");
 }
 
+// ================= Marker FX Export/Import =================
+
+function getMarkerFXSettings() {
+  return JSON.parse(JSON.stringify(activeMarkers));
+}
+
+function applyMarkerFXSettings(configs) {
+  if (!Array.isArray(configs)) return;
+  activeMarkers = configs.map(c => ({
+    ...c,
+    id: c.id || `marker_${markerIdCounter++}`
+  }));
+  renderMarkerFXList();
+  applyAllMarkerFX();
+}
+
+async function copyMarkerSettings() {
+  const txt = JSON.stringify(getMarkerFXSettings(), null, 2);
+  const box = document.getElementById('markerSettingsBox');
+  if (box) box.value = txt;
+  try {
+    await navigator.clipboard.writeText(txt);
+    console.log("Marker FX settings copied ✔");
+  } catch {
+    console.log("Copied to box (clipboard blocked) ✔");
+  }
+}
+
+function encodeMarkerShareLink() {
+  const settings = getMarkerFXSettings();
+  const json = JSON.stringify(settings);
+  const encoded = encodeURIComponent(json);
+  const url = new URL(window.location.href);
+  url.hash = `#markerFX=${encoded}`;
+  return url.toString();
+}
+
+function decodeMarkerFromHash() {
+  const hash = window.location.hash;
+  const match = hash.match(/markerFX=([^&]+)/);
+  if (!match) return null;
+  try {
+    const decoded = decodeURIComponent(match[1]);
+    return JSON.parse(decoded);
+  } catch { return null; }
+}
+
+// ================= Label FX Export/Import =================
+
+function getLabelFXSettings() {
+  return JSON.parse(JSON.stringify(activeLabels));
+}
+
+function applyLabelFXSettings(configs) {
+  if (!Array.isArray(configs)) return;
+  activeLabels = configs.map(c => ({
+    ...c,
+    id: c.id || `label_${labelIdCounter++}`
+  }));
+  renderLabelFXList();
+  applyAllLabelFX();
+}
+
+async function copyLabelSettings() {
+  const txt = JSON.stringify(getLabelFXSettings(), null, 2);
+  const box = document.getElementById('labelSettingsBox');
+  if (box) box.value = txt;
+  try {
+    await navigator.clipboard.writeText(txt);
+    console.log("Label FX settings copied ✔");
+  } catch {
+    console.log("Copied to box (clipboard blocked) ✔");
+  }
+}
+
+function encodeLabelShareLink() {
+  const settings = getLabelFXSettings();
+  const json = JSON.stringify(settings);
+  const encoded = encodeURIComponent(json);
+  const url = new URL(window.location.href);
+  url.hash = `#labelFX=${encoded}`;
+  return url.toString();
+}
+
+function decodeLabelFromHash() {
+  const hash = window.location.hash;
+  const match = hash.match(/labelFX=([^&]+)/);
+  if (!match) return null;
+  try {
+    const decoded = decodeURIComponent(match[1]);
+    return JSON.parse(decoded);
+  } catch { return null; }
+}
+
+// ================= Application-Wide Style Export/Import =================
+
+function getAllStyles() {
+  return {
+    overlay: getOverlaySettings(),
+    markerFX: getMarkerFXSettings(),
+    labelFX: getLabelFXSettings()
+  };
+}
+
+function applyAllStyles(styles) {
+  if (styles.overlay) applyOverlaySettings(styles.overlay);
+  if (styles.markerFX) applyMarkerFXSettings(styles.markerFX);
+  if (styles.labelFX) applyLabelFXSettings(styles.labelFX);
+}
+
+async function copyAllStyles() {
+  const txt = JSON.stringify(getAllStyles(), null, 2);
+  try {
+    await navigator.clipboard.writeText(txt);
+    console.log("All styles copied ✔");
+  } catch {
+    console.log("Copy to clipboard failed");
+  }
+}
+
+function encodeAllStylesShareLink() {
+  const settings = getAllStyles();
+  const json = JSON.stringify(settings);
+  const encoded = encodeURIComponent(json);
+  const url = new URL(window.location.href);
+  url.hash = `#allStyles=${encoded}`;
+  return url.toString();
+}
+
 function hookOverlayUI(){
   const shared = decodeOverlayFromHash();
   if(shared) applyOverlaySettings(shared);
@@ -6141,6 +6290,36 @@ function initModularMarkerSystem() {
       }
     });
   }
+  
+  // Hook up export/import buttons for Marker FX
+  const copyMarkerBtn = document.getElementById('copyMarkerSettingsBtn');
+  const shareMarkerBtn = document.getElementById('shareMarkerLinkBtn');
+  const applyMarkerBtn = document.getElementById('applyMarkerSettingsBtn');
+  const markerBox = document.getElementById('markerSettingsBox');
+  
+  if (copyMarkerBtn) copyMarkerBtn.onclick = copyMarkerSettings;
+  if (shareMarkerBtn) shareMarkerBtn.onclick = async () => {
+    const url = encodeMarkerShareLink();
+    try {
+      await navigator.clipboard.writeText(url);
+      console.log("Marker FX share link copied ✔");
+    } catch {
+      console.log("Share link set in URL bar (copy it) ✔");
+    }
+  };
+  if (applyMarkerBtn && markerBox) applyMarkerBtn.onclick = () => {
+    try {
+      const configs = JSON.parse(markerBox.value);
+      applyMarkerFXSettings(configs);
+      console.log("Marker FX settings applied ✔");
+    } catch (err) {
+      console.error("Invalid JSON:", err?.message || err);
+    }
+  };
+  
+  // Load from hash if present
+  const sharedMarker = decodeMarkerFromHash();
+  if (sharedMarker) applyMarkerFXSettings(sharedMarker);
 }
 
 // ================= MODULAR LABEL SYSTEM =================
@@ -7557,6 +7736,36 @@ function initModularLabelSystem() {
       }
     });
   }
+  
+  // Hook up export/import buttons for Label FX
+  const copyLabelBtn = document.getElementById('copyLabelSettingsBtn');
+  const shareLabelBtn = document.getElementById('shareLabelLinkBtn');
+  const applyLabelBtn = document.getElementById('applyLabelSettingsBtn');
+  const labelBox = document.getElementById('labelSettingsBox');
+  
+  if (copyLabelBtn) copyLabelBtn.onclick = copyLabelSettings;
+  if (shareLabelBtn) shareLabelBtn.onclick = async () => {
+    const url = encodeLabelShareLink();
+    try {
+      await navigator.clipboard.writeText(url);
+      console.log("Label FX share link copied ✔");
+    } catch {
+      console.log("Share link set in URL bar (copy it) ✔");
+    }
+  };
+  if (applyLabelBtn && labelBox) applyLabelBtn.onclick = () => {
+    try {
+      const configs = JSON.parse(labelBox.value);
+      applyLabelFXSettings(configs);
+      console.log("Label FX settings applied ✔");
+    } catch (err) {
+      console.error("Invalid JSON:", err?.message || err);
+    }
+  };
+  
+  // Load from hash if present
+  const sharedLabel = decodeLabelFromHash();
+  if (sharedLabel) applyLabelFXSettings(sharedLabel);
 }
 
 function hookMarkerFxUI(){
