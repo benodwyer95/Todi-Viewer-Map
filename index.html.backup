@@ -1223,38 +1223,6 @@ npx http-server . -a 127.0.0.1 -p 8000 -c-1</code>
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", mount);
   else mount();
 
-  // PHASE 7: Pill Editor Modal Event Handlers
-  const pillEditorModal = document.getElementById('pillEditorModal');
-  if (pillEditorModal) {
-    document.getElementById('closePillEditorBtn')?.addEventListener('click', closePillEditor);
-    document.getElementById('cancelPillEditorBtn')?.addEventListener('click', closePillEditor);
-    document.getElementById('savePillEditorBtn')?.addEventListener('click', savePillEditor);
-    
-    // Layout select
-    document.getElementById('pillLayoutSelect')?.addEventListener('change', (e) => {
-      if (currentPillEdit && currentPillEdit.pill) {
-        currentPillEdit.pill.layout = e.target.value;
-        updatePillPreview();
-      }
-    });
-    
-    // Close on outside click
-    pillEditorModal.addEventListener('click', (e) => {
-      if (e.target === pillEditorModal) {
-        closePillEditor();
-      }
-    });
-  }
-  
-  // Update pill slot styling (remove disabled look)
-  document.addEventListener('click', (e) => {
-    if (e.target.classList.contains('pillSlot')) {
-      // Pill editor is now functional - remove disabled styling
-      e.target.style.opacity = '1';
-      e.target.title = 'Click to edit pill fields and styling';
-    }
-  });
-
   // Wire overlay Collapse button (from overlay panel) to right dock collapse
   try{
     const ovBtn = document.getElementById("ovCollapseBtn");
@@ -6995,6 +6963,9 @@ function renderLabelFXList() {
       const pillId = e.target.dataset.pillId;
       openPillEditor(labelId, rowId, pillId);
     });
+    // Style as disabled/coming soon
+    btn.style.opacity = '0.6';
+    btn.title = 'Pill editor coming soon - shows field configuration interface';
   });
   
   container.querySelectorAll('.addFilterRuleBtn').forEach(btn => {
@@ -7028,55 +6999,16 @@ function renderLabelFXList() {
     });
   });
   
-  // PHASE 10: Export/Import Config Buttons
-  container.querySelectorAll('.exportConfigBtn').forEach(btn => {
-    btn.addEventListener('click', async (e) => {
-      e.preventDefault();
-      const labelId = e.target.dataset.id;
-      const label = activeLabels.find(l => l.id === labelId);
-      if (label && label.builderConfig) {
-        const config = JSON.stringify(label.builderConfig, null, 2);
-        try {
-          await navigator.clipboard.writeText(config);
-          e.target.textContent = '✓ Copied!';
-          setTimeout(() => { e.target.textContent = '📋 Export'; }, 1500);
-        } catch (err) {
-          console.error('Failed to copy config:', err);
-          alert('Failed to copy to clipboard');
-        }
-      }
-    });
-  });
-  
-  container.querySelectorAll('.importConfigBtn').forEach(btn => {
-    btn.addEventListener('click', async (e) => {
-      e.preventDefault();
-      const labelId = e.target.dataset.id;
-      const label = activeLabels.find(l => l.id === labelId);
-      if (label) {
-        try {
-          const text = await navigator.clipboard.readText();
-          const config = JSON.parse(text);
-          label.builderConfig = config;
-          renderLabelFXList();
-          applyAllLabelFX();
-          e.target.textContent = '✓ Imported!';
-          setTimeout(() => { e.target.textContent = '📥 Import'; }, 1500);
-        } catch (err) {
-          console.error('Failed to import config:', err);
-          alert('Failed to import config. Make sure clipboard contains valid JSON.');
-        }
-      }
-    });
-  });
-  
-  // PHASE 9: Live Preview Navigation Buttons
   container.querySelectorAll('.prevSampleBtn, .nextSampleBtn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.preventDefault();
-      const direction = btn.classList.contains('prevSampleBtn') ? -1 : 1;
-      cyclePreviewSample(direction);
+      // Feature not yet implemented
+      console.warn('Preview navigation not yet implemented');
     });
+    // Style as disabled/coming soon
+    btn.style.opacity = '0.5';
+    btn.style.cursor = 'not-allowed';
+    btn.title = 'Preview navigation coming soon';
   });
   
   // Wire up control changes
@@ -7200,291 +7132,13 @@ function updateLabelFXProperty(id, prop, value) {
   applyAllLabelFX();
 }
 
-
-// PHASE 7: Pill Editor Modal Implementation
-let currentPillEdit = null;
-
+// Pill Editor Modal (simplified placeholder)
 function openPillEditor(labelId, rowId, pillId) {
-  const label = activeLabels.find(l => l.id === labelId);
-  if (!label || !label.builderConfig || !label.builderConfig.rows) return;
-  
-  const row = label.builderConfig.rows.find(r => r.id === rowId);
-  if (!row) return;
-  
-  const pill = row.pills.find(p => p.id === pillId);
-  if (!pill) return;
-  
-  currentPillEdit = { labelId, rowId, pillId, pill };
-  
-  // Open modal
-  const modal = document.getElementById('pillEditorModal');
-  if (!modal) return;
-  
-  modal.style.display = 'flex';
-  
-  // Populate fields
-  renderPillFieldList();
-  renderPillTextureGrid();
-  
-  // Populate layout
-  document.getElementById('pillLayoutSelect').value = pill.layout || 'horizontal';
-  
-  // Update preview
-  updatePillPreview();
+  // TODO: Implement full pill editor modal with field selection, texture controls, etc.
+  // For now, just log to console to avoid disruptive alerts
+  console.info(`Pill editor for ${pillId} in row ${rowId} - Full modal UI to be implemented`);
+  console.info('Future features: field selection, priorities, textures, per-pill styles');
 }
-
-function closePillEditor() {
-  currentPillEdit = null;
-  const modal = document.getElementById('pillEditorModal');
-  if (modal) modal.style.display = 'none';
-}
-
-function savePillEditor() {
-  if (!currentPillEdit) return;
-  
-  // Save is automatic (we edit the object directly)
-  // Just close and re-render
-  closePillEditor();
-  renderLabelFXList();
-  applyAllLabelFX();
-}
-
-function renderPillFieldList() {
-  if (!currentPillEdit) return;
-  
-  const container = document.getElementById('pillFieldList');
-  if (!container) return;
-  
-  const { pill } = currentPillEdit;
-  if (!pill.fields) pill.fields = [];
-  
-  const availableFields = [
-    'name', 'dst_name', 'dst_type', 'amenity', 'leisure', 'place',
-    'landmark', 'distance_m', 'bearing', 'visibility'
-  ];
-  
-  container.innerHTML = pill.fields.map((field, idx) => `
-    <div class="pillFieldItem" draggable="true" data-index="${idx}">
-      <span class="dragHandle">⋮⋮</span>
-      <select class="fieldNameSelect" data-index="${idx}">
-        ${availableFields.map(f => `<option value="${f}" ${field.name === f ? 'selected' : ''}>${f}</option>`).join('')}
-      </select>
-      <input type="number" class="fieldPriority" data-index="${idx}" value="${field.priority || 1}" min="1" max="10" step="1">
-      <button class="removeFieldBtn" data-index="${idx}">×</button>
-    </div>
-  `).join('') + `
-    <button id="addFieldBtn" style="width:100%;padding:6px;margin-top:8px;background:rgba(255,255,255,0.1);border:none;color:#fff;border-radius:4px;cursor:pointer;">+ Add Field</button>
-  `;
-  
-  // Wire up events
-  setupFieldDragAndDrop();
-  
-  container.querySelectorAll('.fieldNameSelect').forEach(select => {
-    select.addEventListener('change', (e) => {
-      const idx = parseInt(e.target.dataset.index);
-      if (pill.fields[idx]) {
-        pill.fields[idx].name = e.target.value;
-        updatePillPreview();
-      }
-    });
-  });
-  
-  container.querySelectorAll('.fieldPriority').forEach(input => {
-    input.addEventListener('change', (e) => {
-      const idx = parseInt(e.target.dataset.index);
-      if (pill.fields[idx]) {
-        pill.fields[idx].priority = parseInt(e.target.value);
-        updatePillPreview();
-      }
-    });
-  });
-  
-  container.querySelectorAll('.removeFieldBtn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const idx = parseInt(e.target.dataset.index);
-      pill.fields.splice(idx, 1);
-      renderPillFieldList();
-      updatePillPreview();
-    });
-  });
-  
-  const addBtn = document.getElementById('addFieldBtn');
-  if (addBtn) {
-    addBtn.addEventListener('click', () => {
-      pill.fields.push({ name: 'name', priority: 1 });
-      renderPillFieldList();
-      updatePillPreview();
-    });
-  }
-}
-
-function setupFieldDragAndDrop() {
-  const container = document.getElementById('pillFieldList');
-  if (!container || !currentPillEdit) return;
-  
-  const items = container.querySelectorAll('.pillFieldItem');
-  let draggedItem = null;
-  
-  items.forEach(item => {
-    item.addEventListener('dragstart', (e) => {
-      draggedItem = item;
-      item.style.opacity = '0.4';
-    });
-    
-    item.addEventListener('dragend', (e) => {
-      item.style.opacity = '1';
-      draggedItem = null;
-    });
-    
-    item.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      const afterElement = getDragAfterElement(container, e.clientY);
-      if (afterElement == null) {
-        container.appendChild(draggedItem);
-      } else {
-        container.insertBefore(draggedItem, afterElement);
-      }
-    });
-    
-    item.addEventListener('drop', (e) => {
-      e.preventDefault();
-      // Reorder the fields array based on DOM order
-      const newOrder = [];
-      container.querySelectorAll('.pillFieldItem').forEach(item => {
-        const idx = parseInt(item.dataset.index);
-        if (currentPillEdit.pill.fields[idx]) {
-          newOrder.push(currentPillEdit.pill.fields[idx]);
-        }
-      });
-      currentPillEdit.pill.fields = newOrder;
-      renderPillFieldList();
-      updatePillPreview();
-    });
-  });
-}
-
-function getDragAfterElement(container, y) {
-  const draggableElements = [...container.querySelectorAll('.pillFieldItem:not(.dragging)')];
-  
-  return draggableElements.reduce((closest, child) => {
-    const box = child.getBoundingClientRect();
-    const offset = y - box.top - box.height / 2;
-    
-    if (offset < 0 && offset > closest.offset) {
-      return { offset: offset, element: child };
-    } else {
-      return closest;
-    }
-  }, { offset: Number.NEGATIVE_INFINITY }).element;
-}
-
-function renderPillTextureGrid() {
-  if (!currentPillEdit) return;
-  
-  const container = document.getElementById('pillTextureGrid');
-  if (!container) return;
-  
-  const { pill } = currentPillEdit;
-  if (!pill.texture) pill.texture = { enabled: false, name: 'White Paper', opacity: 0.8, scale: 1.0, offsetX: 0, offsetY: 0, fitMode: 'cover' };
-  
-  const textures = Object.keys(PILL_TEXTURES);
-  
-  container.innerHTML = `
-    <label style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">
-      <input type="checkbox" id="pillTextureEnabled" ${pill.texture.enabled ? 'checked' : ''}>
-      <span>Enable Texture</span>
-    </label>
-    <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;max-height:200px;overflow-y:auto;padding:4px;">
-      ${textures.map(name => `
-        <div class="textureOption ${pill.texture.name === name ? 'selected' : ''}" data-texture="${name}" style="cursor:pointer;border:2px solid ${pill.texture.name === name ? '#4af' : 'rgba(255,255,255,0.2)'};border-radius:4px;padding:4px;background:rgba(0,0,0,0.3);">
-          <img src="${PILL_TEXTURES[name]}" style="width:100%;height:60px;object-fit:cover;border-radius:2px;">
-          <div style="font-size:8px;text-align:center;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${name}</div>
-        </div>
-      `).join('')}
-    </div>
-    <div style="margin-top:12px;display:flex;flex-direction:column;gap:6px;">
-      <label style="font-size:10px;display:flex;justify-content:space-between;align-items:center;">
-        <span>Opacity</span>
-        <input type="number" id="pillTextureOpacity" value="${pill.texture.opacity}" min="0" max="1" step="0.1" style="width:60px;font-size:10px;">
-      </label>
-      <label style="font-size:10px;display:flex;justify-content:space-between;align-items:center;">
-        <span>Scale</span>
-        <input type="number" id="pillTextureScale" value="${pill.texture.scale}" min="0.1" max="5" step="0.1" style="width:60px;font-size:10px;">
-      </label>
-    </div>
-  `;
-  
-  // Wire up events
-  const enabledCheckbox = document.getElementById('pillTextureEnabled');
-  if (enabledCheckbox) {
-    enabledCheckbox.addEventListener('change', (e) => {
-      pill.texture.enabled = e.target.checked;
-      updatePillPreview();
-    });
-  }
-  
-  container.querySelectorAll('.textureOption').forEach(option => {
-    option.addEventListener('click', (e) => {
-      const textureName = e.currentTarget.dataset.texture;
-      pill.texture.name = textureName;
-      renderPillTextureGrid();
-      updatePillPreview();
-    });
-  });
-  
-  const opacityInput = document.getElementById('pillTextureOpacity');
-  if (opacityInput) {
-    opacityInput.addEventListener('change', (e) => {
-      pill.texture.opacity = parseFloat(e.target.value);
-      updatePillPreview();
-    });
-  }
-  
-  const scaleInput = document.getElementById('pillTextureScale');
-  if (scaleInput) {
-    scaleInput.addEventListener('change', (e) => {
-      pill.texture.scale = parseFloat(e.target.value);
-      updatePillPreview();
-    });
-  }
-}
-
-function updatePillPreview() {
-  if (!currentPillEdit) return;
-  
-  const container = document.getElementById('pillPreviewContainer');
-  if (!container) return;
-  
-  const { labelId, pill } = currentPillEdit;
-  const label = activeLabels.find(l => l.id === labelId);
-  if (!label) return;
-  
-  // Use the first preview sample as test data
-  const testData = PREVIEW_SAMPLES[0].data;
-  
-  // Evaluate pill with test data
-  const resolvedFields = pill.fields
-    .map(f => ({ ...f, value: testData[f.name] }))
-    .filter(f => f.value !== null && f.value !== undefined)
-    .sort((a, b) => (a.priority || 1) - (b.priority || 1));
-  
-  const pillText = resolvedFields.length > 0 
-    ? (pill.layout === 'vertical' 
-        ? resolvedFields.map(f => String(f.value)).join('\n')
-        : resolvedFields.map(f => String(f.value)).join(' '))
-    : 'NULL';
-  
-  const nullFallback = resolvedFields.length === 0 
-    ? '<div style="margin-top:8px;padding:6px;background:rgba(255,100,100,0.2);border:1px solid rgba(255,100,100,0.5);border-radius:4px;font-size:9px;">⚠️ All fields NULL - pill will not render</div>'
-    : '';
-  
-  container.innerHTML = `
-    <div style="padding:12px;background:rgba(255,255,255,0.05);border-radius:6px;font-size:10px;font-family:monospace;white-space:pre-wrap;word-break:break-word;">${pillText}</div>
-    ${nullFallback}
-    <div style="margin-top:6px;font-size:9px;opacity:0.7;">Field resolution: ${resolvedFields.map(f => `${f.name}(${f.priority})`).join(' → ')}</div>
-  `;
-}
-
 
 // PHASE 9: Live Preview Functions
 function updateLivePreview(labelId) {
@@ -7745,11 +7399,7 @@ function renderLabelFXControls(label) {
         <!-- Builder Header -->
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
           <span style="font-size:11px;opacity:0.9;">Build custom pill layouts with field fallbacks</span>
-          <div style="display:flex;gap:6px;">
-            <button class="exportConfigBtn" data-id="${label.id}" style="padding:4px 8px;font-size:10px;background:rgba(100,150,255,0.15);border:none;color:#fff;border-radius:4px;cursor:pointer;" title="Export config to clipboard">📋 Export</button>
-            <button class="importConfigBtn" data-id="${label.id}" style="padding:4px 8px;font-size:10px;background:rgba(100,200,100,0.15);border:none;color:#fff;border-radius:4px;cursor:pointer;" title="Import config from clipboard">📥 Import</button>
-            <button class="addRowBtn" data-id="${label.id}" style="padding:4px 10px;font-size:10px;background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:4px;cursor:pointer;">+ Add Row</button>
-          </div>
+          <button class="addRowBtn" data-id="${label.id}" style="padding:4px 10px;font-size:10px;background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:4px;cursor:pointer;">+ Add Row</button>
         </div>
         
         <!-- Rows Container -->
@@ -7773,57 +7423,10 @@ function renderLabelFXControls(label) {
               <label style="font-size:10px;">Font Size</label>
               <input type="number" data-id="${label.id}" data-prop="builderConfig.globalStyle.fontSize" value="${label.builderConfig?.globalStyle?.fontSize || 12}" min="6" max="48" step="0.5" style="font-size:10px;">
             </div>
-            
-            <!-- PHASE 4: Typography Controls -->
             <div class="ctrlRow">
               <label style="font-size:10px;">Font Weight</label>
-              <input type="range" data-id="${label.id}" data-prop="builderConfig.globalStyle.fontWeight" value="${label.builderConfig?.globalStyle?.fontWeight || 400}" min="100" max="900" step="100" style="font-size:10px;flex:1;" oninput="this.nextElementSibling.textContent = this.value">
-              <span style="font-size:10px;margin-left:6px;min-width:30px;text-align:right;">${label.builderConfig?.globalStyle?.fontWeight || 400}</span>
+              <input type="number" data-id="${label.id}" data-prop="builderConfig.globalStyle.fontWeight" value="${label.builderConfig?.globalStyle?.fontWeight || 400}" min="100" max="900" step="100" style="font-size:10px;">
             </div>
-            <div class="ctrlRow" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
-              <label style="font-size:9px;display:flex;align-items:center;gap:4px;">
-                <input type="checkbox" data-id="${label.id}" data-prop="builderConfig.globalStyle.italic" ${label.builderConfig?.globalStyle?.italic ? 'checked' : ''}>
-                <span>Italic</span>
-              </label>
-              <label style="font-size:9px;display:flex;align-items:center;gap:4px;">
-                <input type="checkbox" data-id="${label.id}" data-prop="builderConfig.globalStyle.underline" ${label.builderConfig?.globalStyle?.underline ? 'checked' : ''}>
-                <span>Underline</span>
-              </label>
-              <label style="font-size:9px;display:flex;align-items:center;gap:4px;">
-                <input type="checkbox" data-id="${label.id}" data-prop="builderConfig.globalStyle.strikethrough" ${label.builderConfig?.globalStyle?.strikethrough ? 'checked' : ''}>
-                <span>Strike</span>
-              </label>
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size:10px;">Text Transform</label>
-              <select data-id="${label.id}" data-prop="builderConfig.globalStyle.textTransform" style="font-size:10px;">
-                <option value="none" ${(label.builderConfig?.globalStyle?.textTransform || 'none') === 'none' ? 'selected' : ''}>None</option>
-                <option value="uppercase" ${label.builderConfig?.globalStyle?.textTransform === 'uppercase' ? 'selected' : ''}>UPPERCASE</option>
-                <option value="lowercase" ${label.builderConfig?.globalStyle?.textTransform === 'lowercase' ? 'selected' : ''}>lowercase</option>
-                <option value="capitalize" ${label.builderConfig?.globalStyle?.textTransform === 'capitalize' ? 'selected' : ''}>Capitalize</option>
-              </select>
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size:10px;">Text Align</label>
-              <select data-id="${label.id}" data-prop="builderConfig.globalStyle.textAlign" style="font-size:10px;">
-                <option value="left" ${label.builderConfig?.globalStyle?.textAlign === 'left' ? 'selected' : ''}>Left</option>
-                <option value="center" ${(label.builderConfig?.globalStyle?.textAlign || 'center') === 'center' ? 'selected' : ''}>Center</option>
-                <option value="right" ${label.builderConfig?.globalStyle?.textAlign === 'right' ? 'selected' : ''}>Right</option>
-              </select>
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size:10px;">Line Height</label>
-              <input type="number" data-id="${label.id}" data-prop="builderConfig.globalStyle.lineHeight" value="${label.builderConfig?.globalStyle?.lineHeight || 1.4}" min="0.5" max="3" step="0.1" style="font-size:10px;">
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size:10px;">Letter Spacing</label>
-              <input type="number" data-id="${label.id}" data-prop="builderConfig.globalStyle.letterSpacing" value="${label.builderConfig?.globalStyle?.letterSpacing || 0}" min="-5" max="20" step="0.5" style="font-size:10px;">
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size:10px;">Word Spacing</label>
-              <input type="number" data-id="${label.id}" data-prop="builderConfig.globalStyle.wordSpacing" value="${label.builderConfig?.globalStyle?.wordSpacing || 0}" min="-10" max="50" step="1" style="font-size:10px;">
-            </div>
-            
             <div class="ctrlRow">
               <label style="font-size:10px;">Corner Radius</label>
               <input type="number" data-id="${label.id}" data-prop="builderConfig.globalStyle.cornerRadius" value="${label.builderConfig?.globalStyle?.cornerRadius || 10}" min="0" max="50" step="1" style="font-size:10px;">
@@ -7832,68 +7435,6 @@ function renderLabelFXControls(label) {
               <label style="font-size:10px;">Stroke Width</label>
               <input type="number" data-id="${label.id}" data-prop="builderConfig.globalStyle.strokeWidth" value="${label.builderConfig?.globalStyle?.strokeWidth || 2.5}" min="0" max="10" step="0.5" style="font-size:10px;">
             </div>
-            
-            <!-- PHASE 5: Padding Controls -->
-            <div style="font-size:10px;font-weight:600;margin-top:4px;opacity:0.8;">Padding</div>
-            <div class="ctrlRow">
-              <label style="font-size:10px;">Top</label>
-              <input type="number" data-id="${label.id}" data-prop="builderConfig.globalStyle.paddingTop" value="${label.builderConfig?.globalStyle?.paddingTop || 12}" min="0" max="50" step="1" style="font-size:10px;">
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size:10px;">Right</label>
-              <input type="number" data-id="${label.id}" data-prop="builderConfig.globalStyle.paddingRight" value="${label.builderConfig?.globalStyle?.paddingRight || 18}" min="0" max="50" step="1" style="font-size:10px;">
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size:10px;">Bottom</label>
-              <input type="number" data-id="${label.id}" data-prop="builderConfig.globalStyle.paddingBottom" value="${label.builderConfig?.globalStyle?.paddingBottom || 12}" min="0" max="50" step="1" style="font-size:10px;">
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size:10px;">Left</label>
-              <input type="number" data-id="${label.id}" data-prop="builderConfig.globalStyle.paddingLeft" value="${label.builderConfig?.globalStyle?.paddingLeft || 18}" min="0" max="50" step="1" style="font-size:10px;">
-            </div>
-            
-            <!-- PHASE 6: Color Controls -->
-            <div style="font-size:10px;font-weight:600;margin-top:4px;opacity:0.8;">Colors</div>
-            <div class="ctrlRow">
-              <label style="font-size:10px;">Fill Color</label>
-              ${renderColorSwatch(label.id, 'builderConfig.globalStyle.fillColor', label.builderConfig?.globalStyle?.fillColor || 'rgba(0,0,0,0.55)', true)}
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size:10px;">Stroke Color</label>
-              ${renderColorSwatch(label.id, 'builderConfig.globalStyle.strokeColor', label.builderConfig?.globalStyle?.strokeColor || 'rgba(255,255,255,0.98)', true)}
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size:10px;">Text Color</label>
-              ${renderColorSwatch(label.id, 'builderConfig.globalStyle.textColor', label.builderConfig?.globalStyle?.textColor || 'rgba(255,255,255,1)', true)}
-            </div>
-            
-            <!-- PHASE 8: Stroke Quality Controls -->
-            <div style="font-size:10px;font-weight:600;margin-top:4px;opacity:0.8;">Stroke Style</div>
-            <div class="ctrlRow">
-              <label style="font-size:10px;">Stroke Style</label>
-              <select data-id="${label.id}" data-prop="builderConfig.globalStyle.strokeStyle" style="font-size:10px;">
-                <option value="solid" ${(label.builderConfig?.globalStyle?.strokeStyle || 'solid') === 'solid' ? 'selected' : ''}>Solid</option>
-                <option value="dashed" ${label.builderConfig?.globalStyle?.strokeStyle === 'dashed' ? 'selected' : ''}>Dashed</option>
-                <option value="dotted" ${label.builderConfig?.globalStyle?.strokeStyle === 'dotted' ? 'selected' : ''}>Dotted</option>
-              </select>
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size:10px;">Line Join</label>
-              <select data-id="${label.id}" data-prop="builderConfig.globalStyle.lineJoin" style="font-size:10px;">
-                <option value="round" ${(label.builderConfig?.globalStyle?.lineJoin || 'round') === 'round' ? 'selected' : ''}>Round</option>
-                <option value="miter" ${label.builderConfig?.globalStyle?.lineJoin === 'miter' ? 'selected' : ''}>Miter</option>
-                <option value="bevel" ${label.builderConfig?.globalStyle?.lineJoin === 'bevel' ? 'selected' : ''}>Bevel</option>
-              </select>
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size:10px;">Line Cap</label>
-              <select data-id="${label.id}" data-prop="builderConfig.globalStyle.lineCap" style="font-size:10px;">
-                <option value="round" ${(label.builderConfig?.globalStyle?.lineCap || 'round') === 'round' ? 'selected' : ''}>Round</option>
-                <option value="butt" ${label.builderConfig?.globalStyle?.lineCap === 'butt' ? 'selected' : ''}>Butt</option>
-                <option value="square" ${label.builderConfig?.globalStyle?.lineCap === 'square' ? 'selected' : ''}>Square</option>
-              </select>
-            </div>
-            
             <div class="ctrlRow">
               <label style="font-size:10px;">Row Gap (px)</label>
               <input type="number" data-id="${label.id}" data-prop="builderConfig.rowGap" value="${label.builderConfig?.rowGap || 4}" min="0" max="50" step="1" style="font-size:10px;">
@@ -8247,11 +7788,7 @@ function renderLabelFXControls(label) {
         <!-- Builder Header -->
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
           <span style="font-size:11px;opacity:0.9;">Build custom pill layouts with field fallbacks</span>
-          <div style="display:flex;gap:6px;">
-            <button class="exportConfigBtn" data-id="${label.id}" style="padding:4px 8px;font-size:10px;background:rgba(100,150,255,0.15);border:none;color:#fff;border-radius:4px;cursor:pointer;" title="Export config to clipboard">📋 Export</button>
-            <button class="importConfigBtn" data-id="${label.id}" style="padding:4px 8px;font-size:10px;background:rgba(100,200,100,0.15);border:none;color:#fff;border-radius:4px;cursor:pointer;" title="Import config from clipboard">📥 Import</button>
-            <button class="addRowBtn" data-id="${label.id}" style="padding:4px 10px;font-size:10px;background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:4px;cursor:pointer;">+ Add Row</button>
-          </div>
+          <button class="addRowBtn" data-id="${label.id}" style="padding:4px 10px;font-size:10px;background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:4px;cursor:pointer;">+ Add Row</button>
         </div>
         
         <!-- Rows Container -->
@@ -8275,57 +7812,10 @@ function renderLabelFXControls(label) {
               <label style="font-size:10px;">Font Size</label>
               <input type="number" data-id="${label.id}" data-prop="builderConfig.globalStyle.fontSize" value="${label.builderConfig?.globalStyle?.fontSize || 12}" min="6" max="48" step="0.5" style="font-size:10px;">
             </div>
-            
-            <!-- PHASE 4: Typography Controls -->
             <div class="ctrlRow">
               <label style="font-size:10px;">Font Weight</label>
-              <input type="range" data-id="${label.id}" data-prop="builderConfig.globalStyle.fontWeight" value="${label.builderConfig?.globalStyle?.fontWeight || 400}" min="100" max="900" step="100" style="font-size:10px;flex:1;" oninput="this.nextElementSibling.textContent = this.value">
-              <span style="font-size:10px;margin-left:6px;min-width:30px;text-align:right;">${label.builderConfig?.globalStyle?.fontWeight || 400}</span>
+              <input type="number" data-id="${label.id}" data-prop="builderConfig.globalStyle.fontWeight" value="${label.builderConfig?.globalStyle?.fontWeight || 400}" min="100" max="900" step="100" style="font-size:10px;">
             </div>
-            <div class="ctrlRow" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
-              <label style="font-size:9px;display:flex;align-items:center;gap:4px;">
-                <input type="checkbox" data-id="${label.id}" data-prop="builderConfig.globalStyle.italic" ${label.builderConfig?.globalStyle?.italic ? 'checked' : ''}>
-                <span>Italic</span>
-              </label>
-              <label style="font-size:9px;display:flex;align-items:center;gap:4px;">
-                <input type="checkbox" data-id="${label.id}" data-prop="builderConfig.globalStyle.underline" ${label.builderConfig?.globalStyle?.underline ? 'checked' : ''}>
-                <span>Underline</span>
-              </label>
-              <label style="font-size:9px;display:flex;align-items:center;gap:4px;">
-                <input type="checkbox" data-id="${label.id}" data-prop="builderConfig.globalStyle.strikethrough" ${label.builderConfig?.globalStyle?.strikethrough ? 'checked' : ''}>
-                <span>Strike</span>
-              </label>
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size:10px;">Text Transform</label>
-              <select data-id="${label.id}" data-prop="builderConfig.globalStyle.textTransform" style="font-size:10px;">
-                <option value="none" ${(label.builderConfig?.globalStyle?.textTransform || 'none') === 'none' ? 'selected' : ''}>None</option>
-                <option value="uppercase" ${label.builderConfig?.globalStyle?.textTransform === 'uppercase' ? 'selected' : ''}>UPPERCASE</option>
-                <option value="lowercase" ${label.builderConfig?.globalStyle?.textTransform === 'lowercase' ? 'selected' : ''}>lowercase</option>
-                <option value="capitalize" ${label.builderConfig?.globalStyle?.textTransform === 'capitalize' ? 'selected' : ''}>Capitalize</option>
-              </select>
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size:10px;">Text Align</label>
-              <select data-id="${label.id}" data-prop="builderConfig.globalStyle.textAlign" style="font-size:10px;">
-                <option value="left" ${label.builderConfig?.globalStyle?.textAlign === 'left' ? 'selected' : ''}>Left</option>
-                <option value="center" ${(label.builderConfig?.globalStyle?.textAlign || 'center') === 'center' ? 'selected' : ''}>Center</option>
-                <option value="right" ${label.builderConfig?.globalStyle?.textAlign === 'right' ? 'selected' : ''}>Right</option>
-              </select>
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size:10px;">Line Height</label>
-              <input type="number" data-id="${label.id}" data-prop="builderConfig.globalStyle.lineHeight" value="${label.builderConfig?.globalStyle?.lineHeight || 1.4}" min="0.5" max="3" step="0.1" style="font-size:10px;">
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size:10px;">Letter Spacing</label>
-              <input type="number" data-id="${label.id}" data-prop="builderConfig.globalStyle.letterSpacing" value="${label.builderConfig?.globalStyle?.letterSpacing || 0}" min="-5" max="20" step="0.5" style="font-size:10px;">
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size:10px;">Word Spacing</label>
-              <input type="number" data-id="${label.id}" data-prop="builderConfig.globalStyle.wordSpacing" value="${label.builderConfig?.globalStyle?.wordSpacing || 0}" min="-10" max="50" step="1" style="font-size:10px;">
-            </div>
-            
             <div class="ctrlRow">
               <label style="font-size:10px;">Corner Radius</label>
               <input type="number" data-id="${label.id}" data-prop="builderConfig.globalStyle.cornerRadius" value="${label.builderConfig?.globalStyle?.cornerRadius || 10}" min="0" max="50" step="1" style="font-size:10px;">
@@ -8334,68 +7824,6 @@ function renderLabelFXControls(label) {
               <label style="font-size:10px;">Stroke Width</label>
               <input type="number" data-id="${label.id}" data-prop="builderConfig.globalStyle.strokeWidth" value="${label.builderConfig?.globalStyle?.strokeWidth || 2.5}" min="0" max="10" step="0.5" style="font-size:10px;">
             </div>
-            
-            <!-- PHASE 5: Padding Controls -->
-            <div style="font-size:10px;font-weight:600;margin-top:4px;opacity:0.8;">Padding</div>
-            <div class="ctrlRow">
-              <label style="font-size:10px;">Top</label>
-              <input type="number" data-id="${label.id}" data-prop="builderConfig.globalStyle.paddingTop" value="${label.builderConfig?.globalStyle?.paddingTop || 12}" min="0" max="50" step="1" style="font-size:10px;">
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size:10px;">Right</label>
-              <input type="number" data-id="${label.id}" data-prop="builderConfig.globalStyle.paddingRight" value="${label.builderConfig?.globalStyle?.paddingRight || 18}" min="0" max="50" step="1" style="font-size:10px;">
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size:10px;">Bottom</label>
-              <input type="number" data-id="${label.id}" data-prop="builderConfig.globalStyle.paddingBottom" value="${label.builderConfig?.globalStyle?.paddingBottom || 12}" min="0" max="50" step="1" style="font-size:10px;">
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size:10px;">Left</label>
-              <input type="number" data-id="${label.id}" data-prop="builderConfig.globalStyle.paddingLeft" value="${label.builderConfig?.globalStyle?.paddingLeft || 18}" min="0" max="50" step="1" style="font-size:10px;">
-            </div>
-            
-            <!-- PHASE 6: Color Controls -->
-            <div style="font-size:10px;font-weight:600;margin-top:4px;opacity:0.8;">Colors</div>
-            <div class="ctrlRow">
-              <label style="font-size:10px;">Fill Color</label>
-              ${renderColorSwatch(label.id, 'builderConfig.globalStyle.fillColor', label.builderConfig?.globalStyle?.fillColor || 'rgba(0,0,0,0.55)', true)}
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size:10px;">Stroke Color</label>
-              ${renderColorSwatch(label.id, 'builderConfig.globalStyle.strokeColor', label.builderConfig?.globalStyle?.strokeColor || 'rgba(255,255,255,0.98)', true)}
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size:10px;">Text Color</label>
-              ${renderColorSwatch(label.id, 'builderConfig.globalStyle.textColor', label.builderConfig?.globalStyle?.textColor || 'rgba(255,255,255,1)', true)}
-            </div>
-            
-            <!-- PHASE 8: Stroke Quality Controls -->
-            <div style="font-size:10px;font-weight:600;margin-top:4px;opacity:0.8;">Stroke Style</div>
-            <div class="ctrlRow">
-              <label style="font-size:10px;">Stroke Style</label>
-              <select data-id="${label.id}" data-prop="builderConfig.globalStyle.strokeStyle" style="font-size:10px;">
-                <option value="solid" ${(label.builderConfig?.globalStyle?.strokeStyle || 'solid') === 'solid' ? 'selected' : ''}>Solid</option>
-                <option value="dashed" ${label.builderConfig?.globalStyle?.strokeStyle === 'dashed' ? 'selected' : ''}>Dashed</option>
-                <option value="dotted" ${label.builderConfig?.globalStyle?.strokeStyle === 'dotted' ? 'selected' : ''}>Dotted</option>
-              </select>
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size:10px;">Line Join</label>
-              <select data-id="${label.id}" data-prop="builderConfig.globalStyle.lineJoin" style="font-size:10px;">
-                <option value="round" ${(label.builderConfig?.globalStyle?.lineJoin || 'round') === 'round' ? 'selected' : ''}>Round</option>
-                <option value="miter" ${label.builderConfig?.globalStyle?.lineJoin === 'miter' ? 'selected' : ''}>Miter</option>
-                <option value="bevel" ${label.builderConfig?.globalStyle?.lineJoin === 'bevel' ? 'selected' : ''}>Bevel</option>
-              </select>
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size:10px;">Line Cap</label>
-              <select data-id="${label.id}" data-prop="builderConfig.globalStyle.lineCap" style="font-size:10px;">
-                <option value="round" ${(label.builderConfig?.globalStyle?.lineCap || 'round') === 'round' ? 'selected' : ''}>Round</option>
-                <option value="butt" ${label.builderConfig?.globalStyle?.lineCap === 'butt' ? 'selected' : ''}>Butt</option>
-                <option value="square" ${label.builderConfig?.globalStyle?.lineCap === 'square' ? 'selected' : ''}>Square</option>
-              </select>
-            </div>
-            
             <div class="ctrlRow">
               <label style="font-size:10px;">Row Gap (px)</label>
               <input type="number" data-id="${label.id}" data-prop="builderConfig.rowGap" value="${label.builderConfig?.rowGap || 4}" min="0" max="50" step="1" style="font-size:10px;">
@@ -9395,100 +8823,6 @@ init().then(()=>animate()).catch(err=>{
 
 <button id="edgeReopenLeft" class="edgeReopen" title="Open verifier">▶</button>
 <button id="edgeReopenRight" class="edgeReopen" title="Open overlays">◀</button>
-
-
-<!-- PHASE 7: Pill Editor Modal -->
-<div id="pillEditorModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:10000;align-items:center;justify-content:center;">
-  <div style="background:rgba(20,20,20,0.95);border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:20px;width:90%;max-width:600px;max-height:90vh;overflow-y:auto;color:#fff;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-      <h3 style="margin:0;font-size:16px;">Edit Pill</h3>
-      <button id="closePillEditorBtn" style="background:none;border:none;color:#fff;font-size:24px;cursor:pointer;padding:0;line-height:1;">&times;</button>
-    </div>
-    
-    <div style="margin-bottom:16px;">
-      <h4 style="font-size:12px;margin:0 0 8px 0;opacity:0.8;">Fields (drag to reorder)</h4>
-      <div id="pillFieldList" style="display:flex;flex-direction:column;gap:6px;">
-        <!-- Populated by renderPillFieldList() -->
-      </div>
-    </div>
-    
-    <div style="margin-bottom:16px;">
-      <h4 style="font-size:12px;margin:0 0 8px 0;opacity:0.8;">Layout</h4>
-      <select id="pillLayoutSelect" style="width:100%;padding:6px;font-size:11px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;border-radius:4px;">
-        <option value="horizontal">Horizontal (fields side-by-side)</option>
-        <option value="vertical">Vertical (fields stacked)</option>
-      </select>
-    </div>
-    
-    <div style="margin-bottom:16px;">
-      <h4 style="font-size:12px;margin:0 0 8px 0;opacity:0.8;">Texture</h4>
-      <div id="pillTextureGrid">
-        <!-- Populated by renderPillTextureGrid() -->
-      </div>
-    </div>
-    
-    <div style="margin-bottom:16px;">
-      <h4 style="font-size:12px;margin:0 0 8px 0;opacity:0.8;">Preview</h4>
-      <div id="pillPreviewContainer" style="min-height:60px;">
-        <!-- Populated by updatePillPreview() -->
-      </div>
-    </div>
-    
-    <div style="display:flex;gap:8px;justify-content:flex-end;">
-      <button id="cancelPillEditorBtn" style="padding:8px 16px;background:rgba(255,255,255,0.1);border:none;color:#fff;border-radius:4px;cursor:pointer;">Cancel</button>
-      <button id="savePillEditorBtn" style="padding:8px 16px;background:rgba(100,150,255,0.3);border:none;color:#fff;border-radius:4px;cursor:pointer;font-weight:600;">Save</button>
-    </div>
-  </div>
-</div>
-
-<style>
-.pillFieldItem {
-  display:flex;
-  align-items:center;
-  gap:8px;
-  padding:6px;
-  background:rgba(255,255,255,0.05);
-  border-radius:4px;
-}
-.dragHandle {
-  cursor:move;
-  opacity:0.5;
-  font-size:12px;
-}
-.fieldNameSelect {
-  flex:1;
-  padding:4px;
-  font-size:10px;
-  background:rgba(255,255,255,0.1);
-  border:1px solid rgba(255,255,255,0.2);
-  color:#fff;
-  border-radius:4px;
-}
-.fieldPriority {
-  width:50px;
-  padding:4px;
-  font-size:10px;
-  background:rgba(255,255,255,0.1);
-  border:1px solid rgba(255,255,255,0.2);
-  color:#fff;
-  border-radius:4px;
-}
-.removeFieldBtn {
-  background:rgba(255,100,100,0.3);
-  border:none;
-  color:#fff;
-  width:24px;
-  height:24px;
-  border-radius:4px;
-  cursor:pointer;
-  font-size:16px;
-  line-height:1;
-}
-.textureOption.selected {
-  border-color:#4af !important;
-  box-shadow:0 0 8px rgba(68,170,255,0.5);
-}
-</style>
 
 </body>
 </html>
