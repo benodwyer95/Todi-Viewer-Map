@@ -2811,6 +2811,7 @@ function makeMultiLinePillSprite(lines, worldSize=18, strokeHex=0x000000, config
       underline: line.underline,
       strikethrough: line.strikethrough,
       alignment: line.alignment || 'left',
+      textColor: line.textColor,
       width: tw,
       height: fontPx
     });
@@ -2868,13 +2869,14 @@ function makeMultiLinePillSprite(lines, worldSize=18, strokeHex=0x000000, config
   g.stroke();
 
   // Draw each line
-  const textColor = config?.pillTextColor || '#ffffff';
+  const defaultTextColor = config?.pillTextColor || '#ffffff';
   let currentY = padY;
 
   lineMetrics.forEach((metric, idx) => {
     const fontWeight = metric.bold ? '900' : '400';
     const fontStyle = metric.italic ? 'italic' : 'normal';
     g.font = `${fontStyle} ${fontWeight} ${metric.fontSize}px ${metric.fontFamily}`;
+    const textColor = metric.textColor || defaultTextColor;
     g.fillStyle = textColor;
     g.textBaseline = 'top';
     
@@ -3050,23 +3052,23 @@ function renderLabelFromBuilder(defaultText, candidate, worldSize, config) {
     return makePillLabelSprite(defaultText, worldSize, 0x000000, config);
   }
   
-  // Build text from rules
+  // Build text from rules with per-pill styling
   const rowTexts = [];
   for (const row of builderConfig.rows) {
-    const rowPills = [];
+    const rowPillsData = [];
     for (const pill of row.pills) {
       const rule = FIELD_RULES[pill.rule];
       if (rule) {
         const text = rule.evaluate(candidate);
         if (text) {
-          rowPills.push(text);
+          rowPillsData.push({ text, style: pill.textStyle || {} });
         }
       } else {
         console.warn(`Invalid or missing rule for pill:`, pill);
       }
     }
-    if (rowPills.length > 0) {
-      rowTexts.push(rowPills.join('  '));
+    if (rowPillsData.length > 0) {
+      rowTexts.push(rowPillsData);
     }
   }
   
@@ -3074,15 +3076,24 @@ function renderLabelFromBuilder(defaultText, candidate, worldSize, config) {
     return makePillLabelSprite('', worldSize, 0x000000, config);
   }
   
-  // Create multi-line sprite with texture applied to entire label
-  const lines = rowTexts.map(text => ({
-    text,
-    fontSize: builderConfig.globalStyle?.fontSize || 12,
-    fontFamily: builderConfig.globalStyle?.fontFamily || 'helvetica',
-    bold: builderConfig.globalStyle?.fontWeight >= 600,
-    italic: false,
-    alignment: 'center'
-  }));
+  // Create multi-line sprite with per-row pill data
+  const lines = rowTexts.map(pillsData => {
+    // For now, join text and use first pill's style if available, else use global
+    const text = pillsData.map(p => p.text).join('  ');
+    const firstPillStyle = pillsData[0]?.style || {};
+    
+    return {
+      text,
+      fontSize: firstPillStyle.fontSize || builderConfig.globalStyle?.fontSize || 12,
+      fontFamily: builderConfig.globalStyle?.fontFamily || 'helvetica',
+      bold: firstPillStyle.bold || (builderConfig.globalStyle?.fontWeight >= 600),
+      italic: firstPillStyle.italic || false,
+      underline: firstPillStyle.underline || false,
+      textColor: firstPillStyle.textColor,
+      fontWeight: firstPillStyle.fontWeight,
+      alignment: 'center'
+    };
+  });
   
   return makeMultiLinePillSprite(lines, worldSize, 0x000000, config);
 }
@@ -7024,6 +7035,51 @@ function renderLabelFXList() {
     });
   });
   
+  // Edit pill text style button
+  container.querySelectorAll('.editPillTextBtn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const labelId = e.target.dataset.labelId;
+      const rowIndex = e.target.dataset.rowIndex;
+      const pillIndex = e.target.dataset.pillIndex;
+      const editorId = `pillTextEditor_${labelId}_${rowIndex}_${pillIndex}`;
+      const editor = document.getElementById(editorId);
+      if (editor) {
+        editor.style.display = editor.style.display === 'none' ? 'block' : 'none';
+      }
+    });
+  });
+  
+  // Handle pill text style changes
+  container.querySelectorAll('.pillTextStyleInput').forEach(input => {
+    const eventType = (input.type === 'checkbox' || input.type === 'color') ? 'change' : 'input';
+    input.addEventListener(eventType, (e) => {
+      const labelId = e.target.dataset.labelId;
+      const rowIndex = parseInt(e.target.dataset.rowIndex);
+      const pillIndex = parseInt(e.target.dataset.pillIndex);
+      const styleProp = e.target.dataset.styleProp;
+      
+      const label = activeLabels.find(l => l.id === labelId);
+      if (label && label.builderConfig && label.builderConfig.rows[rowIndex] && label.builderConfig.rows[rowIndex].pills[pillIndex]) {
+        const pill = label.builderConfig.rows[rowIndex].pills[pillIndex];
+        if (!pill.textStyle) {
+          pill.textStyle = {};
+        }
+        
+        let value;
+        if (e.target.type === 'checkbox') {
+          value = e.target.checked;
+        } else if (e.target.type === 'number') {
+          value = parseFloat(e.target.value) || null;
+        } else {
+          value = e.target.value;
+        }
+        
+        pill.textStyle[styleProp] = value;
+        applyAllLabelFX();
+      }
+    });
+  });
+  
   // REMOVED: Filter handlers (not in simplified system)
   // container.querySelectorAll('.addFilterRuleBtn')...
   // container.querySelectorAll('.removeFilterRuleBtn')...
@@ -7525,13 +7581,43 @@ function renderBuilderRows(label) {
       <!-- Pills in this row -->
       <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;">
         ${row.pills.map((pill, pillIndex) => `
-          <div style="padding:4px 8px;font-size:9px;background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.3);color:#fff;border-radius:8px;display:flex;align-items:center;gap:4px;">
-            <select class="pillRuleSelect" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" style="font-size:9px;background:rgba(0,0,0,0.3);border:none;color:#fff;padding:2px;">
-              ${Object.keys(FIELD_RULES).map(ruleKey => 
-                `<option value="${ruleKey}" ${pill.rule === ruleKey ? 'selected' : ''}>${FIELD_RULES[ruleKey].label}</option>`
-              ).join('')}
-            </select>
-            <button class="removePillBtn" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" style="padding:0 4px;font-size:10px;background:rgba(255,0,0,0.5);border:none;color:#fff;border-radius:3px;cursor:pointer;line-height:1;">×</button>
+          <div style="padding:4px 8px;font-size:9px;background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.3);color:#fff;border-radius:8px;">
+            <div style="display:flex;align-items:center;gap:4px;">
+              <select class="pillRuleSelect" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" style="font-size:9px;background:rgba(0,0,0,0.3);border:none;color:#fff;padding:2px;">
+                ${Object.keys(FIELD_RULES).map(ruleKey => 
+                  `<option value="${ruleKey}" ${pill.rule === ruleKey ? 'selected' : ''}>${FIELD_RULES[ruleKey].label}</option>`
+                ).join('')}
+              </select>
+              <button class="editPillTextBtn" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" style="padding:2px 4px;font-size:9px;background:rgba(100,150,255,0.3);border:none;color:#fff;border-radius:3px;cursor:pointer;" title="Edit text style">✏️</button>
+              <button class="removePillBtn" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" style="padding:0 4px;font-size:10px;background:rgba(255,0,0,0.5);border:none;color:#fff;border-radius:3px;cursor:pointer;line-height:1;">×</button>
+            </div>
+            <div class="pillTextEditor" id="pillTextEditor_${label.id}_${rowIndex}_${pillIndex}" style="display:none;margin-top:6px;padding:6px;background:rgba(0,0,0,0.3);border-radius:4px;font-size:9px;">
+              <div style="display:grid;grid-template-columns:auto 1fr;gap:4px;align-items:center;">
+                <label>Font Size:</label>
+                <input type="number" class="pillTextStyleInput" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" data-style-prop="fontSize" value="${pill.textStyle?.fontSize || ''}" placeholder="12" min="6" max="48" step="0.5" style="width:60px;font-size:9px;">
+                
+                <label>Font Weight:</label>
+                <input type="number" class="pillTextStyleInput" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" data-style-prop="fontWeight" value="${pill.textStyle?.fontWeight || ''}" placeholder="400" min="100" max="900" step="100" style="width:60px;font-size:9px;">
+                
+                <label>Text Color:</label>
+                <input type="color" class="pillTextStyleInput" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" data-style-prop="textColor" value="${pill.textStyle?.textColor || '#ffffff'}" style="width:60px;font-size:9px;">
+                
+                <label style="display:flex;align-items:center;gap:4px;grid-column:1/3;">
+                  <input type="checkbox" class="pillTextStyleInput" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" data-style-prop="bold" ${pill.textStyle?.bold ? 'checked' : ''}>
+                  <span>Bold</span>
+                </label>
+                
+                <label style="display:flex;align-items:center;gap:4px;grid-column:1/3;">
+                  <input type="checkbox" class="pillTextStyleInput" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" data-style-prop="italic" ${pill.textStyle?.italic ? 'checked' : ''}>
+                  <span>Italic</span>
+                </label>
+                
+                <label style="display:flex;align-items:center;gap:4px;grid-column:1/3;">
+                  <input type="checkbox" class="pillTextStyleInput" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" data-style-prop="underline" ${pill.textStyle?.underline ? 'checked' : ''}>
+                  <span>Underline</span>
+                </label>
+              </div>
+            </div>
           </div>
         `).join('')}
         <button class="addPillBtn" data-label-id="${label.id}" data-row-index="${rowIndex}" style="padding:4px 8px;font-size:9px;background:rgba(255,255,255,0.1);border:1px dashed rgba(255,255,255,0.3);color:#fff;border-radius:8px;cursor:pointer;">( + )</button>
