@@ -281,7 +281,8 @@ hr.ovSep{border:none;border-top:1px solid rgba(255,255,255,.12);margin:10px 0}
 #uiOverlay.collapsed #ovFooter{ display:none; }
 
 
-  html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:Arial,Helvetica,sans-serif}
+  html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:Arial,Helvetica,sans-serif;scroll-behavior:auto}
+  * {scroll-behavior:auto !important;} /* Prevent auto-smooth scrolling on all elements */
   #app{position:fixed;inset:0;z-index:1}
   canvas{display:block}
 
@@ -3648,11 +3649,9 @@ function addDebugMarker(){
   root.userData.markerVisual = ring;
   root.add(ring);
   
-  // Create callout with default config
-  const labelConfig = activeLabels.find(l => l.type === 'label');
-  const hoverConfig = activeLabels.find(l => l.type === 'hover');
-  const useConfig = labelConfig || hoverConfig;
-  makeCalloutAnimated(root, root.userData.name, true, root.userData.colorHex, null, useConfig);
+  // DEBUG MARKER: Do NOT create callout/label - it interferes with user's labels
+  // Debug marker is just for positioning reference, no label needed
+  // REMOVED: makeCalloutAnimated(root, root.userData.name, true, root.userData.colorHex, null, useConfig);
   
   markerGroup.add(root);
   return root;
