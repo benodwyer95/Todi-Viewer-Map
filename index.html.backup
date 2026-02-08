@@ -7084,6 +7084,41 @@ function renderLabelFXList() {
     const inputType = input.type;
     const prop = input.dataset.prop;
     
+    // Special handling for content checkboxes
+    if (inputType === 'checkbox' && prop === 'content') {
+      input.addEventListener('change', (e) => {
+        const labelId = e.target.dataset.id;
+        const contentValue = e.target.dataset.contentValue;
+        const label = activeLabels.find(l => l.id === labelId);
+        if (!label) return;
+        
+        // Ensure content is an array
+        if (!Array.isArray(label.content)) {
+          label.content = label.content ? [label.content] : [];
+        }
+        
+        // Add or remove the content value
+        if (e.target.checked) {
+          if (!label.content.includes(contentValue)) {
+            label.content.push(contentValue);
+          }
+        } else {
+          label.content = label.content.filter(v => v !== contentValue);
+        }
+        
+        // Ensure at least one item is selected
+        if (label.content.length === 0) {
+          label.content = ['name'];
+          // Re-render will update all checkbox states correctly
+          renderLabelFXList();
+          return;
+        }
+        
+        renderLabelFXList();
+      });
+      return; // Skip the normal handler
+    }
+    
     // For color and select inputs, only use change event
     // For text and number inputs, debounce input
     if (inputType === 'color' || input.tagName === 'SELECT') {
@@ -8022,6 +8057,52 @@ function renderLabelFXControls(label) {
         <small style="opacity:0.7;font-size:10px;margin-left:4px;">+higher, -lower</small>
       </div>
       
+      <!-- Content Checkboxes -->
+      <div class="ctrlRow" style="flex-direction: column; align-items: flex-start;">
+        <label style="margin-bottom: 6px;">Content (select multiple)</label>
+        <div style="display: flex; flex-direction: column; gap: 4px; width: 100%;">
+          <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
+            <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="name" 
+              ${(Array.isArray(label.content) ? label.content : [label.content]).includes('name') ? 'checked' : ''}>
+            <span>Name</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
+            <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="distance" 
+              ${(Array.isArray(label.content) ? label.content : [label.content]).includes('distance') ? 'checked' : ''}>
+            <span>Distance</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
+            <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="bearing" 
+              ${(Array.isArray(label.content) ? label.content : [label.content]).includes('bearing') ? 'checked' : ''}>
+            <span>Bearing</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
+            <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="category" 
+              ${(Array.isArray(label.content) ? label.content : [label.content]).includes('category') ? 'checked' : ''}>
+            <span>Category</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
+            <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="subtype" 
+              ${(Array.isArray(label.content) ? label.content : [label.content]).includes('subtype') ? 'checked' : ''}>
+            <span>Subtype</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
+            <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="visibility" 
+              ${(Array.isArray(label.content) ? label.content : [label.content]).includes('visibility') ? 'checked' : ''}>
+            <span>Visibility %</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
+            <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="elevation" 
+              ${(Array.isArray(label.content) ? label.content : [label.content]).includes('elevation') ? 'checked' : ''}>
+            <span>Elevation</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
+            <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="id" 
+              ${(Array.isArray(label.content) ? label.content : [label.content]).includes('id') ? 'checked' : ''}>
+            <span>Identifier</span>
+          </label>
+        </div>
+      </div>
       
       <div class="ctrlRow">
         <label>Pill Color Mode</label>
@@ -8520,6 +8601,52 @@ function renderLabelFXControls(label) {
         <small style="opacity:0.7;font-size:10px;margin-left:4px;">+higher, -lower</small>
       </div>
       
+      <!-- Content Checkboxes -->
+      <div class="ctrlRow" style="flex-direction: column; align-items: flex-start;">
+        <label style="margin-bottom: 6px;">Content (select multiple)</label>
+        <div style="display: flex; flex-direction: column; gap: 4px; width: 100%;">
+          <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
+            <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="name" 
+              ${(Array.isArray(label.content) ? label.content : [label.content]).includes('name') ? 'checked' : ''}>
+            <span>Name</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
+            <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="distance" 
+              ${(Array.isArray(label.content) ? label.content : [label.content]).includes('distance') ? 'checked' : ''}>
+            <span>Distance</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
+            <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="bearing" 
+              ${(Array.isArray(label.content) ? label.content : [label.content]).includes('bearing') ? 'checked' : ''}>
+            <span>Bearing</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
+            <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="category" 
+              ${(Array.isArray(label.content) ? label.content : [label.content]).includes('category') ? 'checked' : ''}>
+            <span>Category</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
+            <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="subtype" 
+              ${(Array.isArray(label.content) ? label.content : [label.content]).includes('subtype') ? 'checked' : ''}>
+            <span>Subtype</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
+            <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="visibility" 
+              ${(Array.isArray(label.content) ? label.content : [label.content]).includes('visibility') ? 'checked' : ''}>
+            <span>Visibility %</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
+            <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="elevation" 
+              ${(Array.isArray(label.content) ? label.content : [label.content]).includes('elevation') ? 'checked' : ''}>
+            <span>Elevation</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
+            <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="id" 
+              ${(Array.isArray(label.content) ? label.content : [label.content]).includes('id') ? 'checked' : ''}>
+            <span>Identifier</span>
+          </label>
+        </div>
+      </div>
       
       <div class="ctrlRow">
         <label>Pill Color Mode</label>
