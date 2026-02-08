@@ -3082,15 +3082,18 @@ function renderLabelFromBuilder(defaultText, candidate, worldSize, config) {
     const text = pillsData.map(p => p.text).join('  ');
     const firstPillStyle = pillsData[0]?.style || {};
     
+    // Use fontWeight if provided, otherwise derive from bold flag
+    const fontWeight = firstPillStyle.fontWeight || (builderConfig.globalStyle?.fontWeight) || 400;
+    const bold = fontWeight >= 600;
+    
     return {
       text,
       fontSize: firstPillStyle.fontSize || builderConfig.globalStyle?.fontSize || 12,
       fontFamily: builderConfig.globalStyle?.fontFamily || 'helvetica',
-      bold: firstPillStyle.bold || (builderConfig.globalStyle?.fontWeight >= 600),
+      bold: bold,
       italic: firstPillStyle.italic || false,
       underline: firstPillStyle.underline || false,
       textColor: firstPillStyle.textColor,
-      fontWeight: firstPillStyle.fontWeight,
       alignment: 'center'
     };
   });
@@ -7069,7 +7072,14 @@ function renderLabelFXList() {
         if (e.target.type === 'checkbox') {
           value = e.target.checked;
         } else if (e.target.type === 'number') {
-          value = parseFloat(e.target.value) || null;
+          const numValue = parseFloat(e.target.value);
+          // For fontWeight, round to nearest 100 (valid range: 100-900)
+          if (styleProp === 'fontWeight') {
+            value = numValue ? Math.round(numValue / 100) * 100 : null;
+            value = value && Math.max(100, Math.min(900, value));
+          } else {
+            value = numValue || null;
+          }
         } else {
           value = e.target.value;
         }
