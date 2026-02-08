@@ -7022,36 +7022,9 @@ function renderLabelFXList() {
     });
   });
   
-  container.querySelectorAll('.addFilterRuleBtn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const labelId = e.target.dataset.id;
-      const label = activeLabels.find(l => l.id === labelId);
-      if (label) {
-        if (!label.builderConfig) label.builderConfig = { filters: { mode: 'includeOnly', rules: [] } };
-        if (!label.builderConfig.filters) label.builderConfig.filters = { mode: 'includeOnly', rules: [] };
-        if (!label.builderConfig.filters.rules) label.builderConfig.filters.rules = [];
-        label.builderConfig.filters.rules.push({
-          field: 'dst_type',
-          operator: 'equals',
-          value: '',
-          caseSensitive: false
-        });
-        renderLabelFXList();
-      }
-    });
-  });
-  
-  container.querySelectorAll('.removeFilterRuleBtn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const labelId = e.target.dataset.id;
-      const ruleIndex = parseInt(e.target.dataset.ruleIndex);
-      const label = activeLabels.find(l => l.id === labelId);
-      if (label && label.builderConfig && label.builderConfig.filters && label.builderConfig.filters.rules) {
-        label.builderConfig.filters.rules.splice(ruleIndex, 1);
-        renderLabelFXList();
-      }
-    });
-  });
+  // REMOVED: Filter handlers (not in simplified system)
+  // container.querySelectorAll('.addFilterRuleBtn')...
+  // container.querySelectorAll('.removeFilterRuleBtn')...
   
   // PHASE 10: Export/Import Config Buttons
   container.querySelectorAll('.exportConfigBtn').forEach(btn => {
