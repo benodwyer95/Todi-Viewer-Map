@@ -2953,6 +2953,14 @@ function evaluateFieldsWithFallback(candidate, fields) {
 }
 
 // Apply filters to candidates for builder system
+/**
+ * Filters an array of candidates based on configured filter rules.
+ * @param {Array} candidates - Array of candidate objects to filter
+ * @param {Object} filters - Filter configuration object
+ * @param {string} filters.mode - 'includeOnly' to keep only matching candidates, 'exclude' to remove matching candidates
+ * @param {Array} filters.rules - Array of filter rule objects
+ * @returns {Array} Filtered array of candidates
+ */
 function applyFilters(candidates, filters) {
   if (!filters || !filters.rules || filters.rules.length === 0) return candidates;
   
@@ -2995,6 +3003,15 @@ function applyFilters(candidates, filters) {
 }
 
 // Render label from builder configuration
+/**
+ * Main render pipeline for the builder system. Processes builderConfig to create pills from rows,
+ * applies filters, evaluates fields with fallbacks, and generates the final label sprite.
+ * @param {string} defaultText - Fallback text if no valid pills are generated
+ * @param {Object} candidate - Candidate data object with fields like name, dst_name, etc.
+ * @param {number} worldSize - World size for the label
+ * @param {Object} config - Label configuration including builderConfig
+ * @returns {THREE.Sprite} The rendered label sprite
+ */
 function renderLabelFromBuilder(defaultText, candidate, worldSize, config) {
   const builderConfig = config.builderConfig;
   if (!builderConfig || !builderConfig.rows || builderConfig.rows.length === 0) {
@@ -3021,6 +3038,7 @@ function renderLabelFromBuilder(defaultText, candidate, worldSize, config) {
       }
     }
     if (rowPills.length > 0) {
+      // TODO: Use builderConfig.pillGap for spacing instead of hardcoded double-space
       rowTexts.push(rowPills.join('  '));  // Join pills with gap
     }
   }
@@ -6443,6 +6461,8 @@ function initModularMarkerSystem() {
 // Active label configurations
 let activeLabels = [];
 let labelIdCounter = 0;
+let rowIdCounter = 0;
+let pillIdCounter = 0;
 
 // Pill texture definitions and loading system
 const PILL_TEXTURES = {
@@ -6831,7 +6851,7 @@ function renderLabelFXList() {
         if (!label.builderConfig) label.builderConfig = { rows: [], rowGap: 4, pillGap: 8, globalStyle: {}, filters: { mode: 'includeOnly', rules: [] } };
         if (!label.builderConfig.rows) label.builderConfig.rows = [];
         label.builderConfig.rows.push({
-          id: `row${Date.now()}`,
+          id: `row${rowIdCounter++}`,
           pills: [],
           style: {},
           layout: 'horizontal'
@@ -6862,7 +6882,7 @@ function renderLabelFXList() {
         const row = label.builderConfig.rows.find(r => r.id === rowId);
         if (row) {
           row.pills.push({
-            id: `pill${Date.now()}`,
+            id: `pill${pillIdCounter++}`,
             fields: [{ name: 'name', priority: 1 }],
             texture: { enabled: false, name: 'White Paper', opacity: 0.8, scale: 1.0, offsetX: 0, offsetY: 0, fitMode: 'cover' },
             style: {},
@@ -6918,7 +6938,7 @@ function renderLabelFXList() {
     btn.addEventListener('click', (e) => {
       const labelId = e.target.dataset.id;
       // TODO: Implement preview sample cycling
-      console.log('Preview navigation not yet implemented');
+      console.warn('Preview navigation not yet implemented');
     });
   });
   
@@ -7050,6 +7070,11 @@ function openPillEditor(labelId, rowId, pillId) {
 }
 
 // Render builder rows for a label
+/**
+ * Generates HTML for builder rows including pills, gaps, and action buttons.
+ * @param {Object} label - Label configuration object with builderConfig
+ * @returns {string} HTML string for the rows
+ */
 function renderBuilderRows(label) {
   const config = label.builderConfig || { rows: [] };
   if (!config.rows || config.rows.length === 0) {
@@ -7081,6 +7106,11 @@ function renderBuilderRows(label) {
 }
 
 // Render filter panel for a label
+/**
+ * Generates HTML for the filter panel including mode selection, rules, and match count.
+ * @param {Object} label - Label configuration object with builderConfig.filters
+ * @returns {string} HTML string for the filter panel
+ */
 function renderFilterPanel(label) {
   const filters = label.builderConfig?.filters || { mode: 'includeOnly', rules: [] };
   
@@ -7106,6 +7136,13 @@ function renderFilterPanel(label) {
 }
 
 // Render individual filter rule
+/**
+ * Generates HTML for a single filter rule with field, operator, value, and case-sensitivity controls.
+ * @param {string} labelId - ID of the label this rule belongs to
+ * @param {Object} rule - Filter rule configuration object
+ * @param {number} index - Index of this rule in the rules array
+ * @returns {string} HTML string for the filter rule
+ */
 function renderFilterRule(labelId, rule, index) {
   return `
     <div class="filterRule" data-rule-index="${index}" style="background:rgba(255,255,255,0.05);padding:6px;border-radius:4px;margin-bottom:6px;display:flex;gap:4px;flex-wrap:wrap;align-items:center;">
