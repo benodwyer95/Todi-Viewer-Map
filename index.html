@@ -2978,12 +2978,16 @@ function evaluateFieldsWithFallback(candidate, fields) {
  * Filters an array of candidates based on configured filter rules.
  * @param {Array} candidates - Array of candidate objects to filter
  * @param {Object} filters - Filter configuration object
- * @param {string} filters.mode - 'includeOnly' to keep only matching candidates, 'exclude' to remove matching candidates
+ * @param {string} filters.mode - 'all' to show all candidates, 'includeOnly' to keep only matching candidates, 'exclude' to remove matching candidates
  * @param {Array} filters.rules - Array of filter rule objects
  * @returns {Array} Filtered array of candidates
  */
 function applyFilters(candidates, filters) {
-  if (!filters || !filters.rules || filters.rules.length === 0) return candidates;
+  // ALL mode: show all candidates regardless of filter rules
+  if (!filters || filters.mode === 'all') return candidates;
+  
+  // No rules defined: show all candidates
+  if (!filters.rules || filters.rules.length === 0) return candidates;
   
   const matchesRules = (cand) => {
     return filters.rules.some(rule => {
@@ -7751,10 +7755,14 @@ function renderBuilderRows(label) {
  * @returns {string} HTML string for the filter panel
  */
 function renderFilterPanel(label) {
-  const filters = label.builderConfig?.filters || { mode: 'includeOnly', rules: [] };
+  const filters = label.builderConfig?.filters || { mode: 'all', rules: [] };
   
   return `
-    <div style="display:flex;gap:8px;margin-bottom:8px;">
+    <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
+      <label style="font-size:10px;cursor:pointer;">
+        <input type="radio" name="filterMode_${label.id}" value="all" ${filters.mode === 'all' || !filters.mode ? 'checked' : ''} data-id="${label.id}" data-prop="builderConfig.filters.mode">
+        <span>All</span>
+      </label>
       <label style="font-size:10px;cursor:pointer;">
         <input type="radio" name="filterMode_${label.id}" value="includeOnly" ${filters.mode === 'includeOnly' ? 'checked' : ''} data-id="${label.id}" data-prop="builderConfig.filters.mode">
         <span>Include Only</span>
