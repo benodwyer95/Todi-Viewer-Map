@@ -6952,21 +6952,21 @@ function renderLabelFXList() {
     });
   });
   
-  // Builder UI event handlers
+  // Simplified Builder UI event handlers
   container.querySelectorAll('.addRowBtn').forEach(btn => {
     btn.addEventListener('click', (e) => {
-      const labelId = e.target.dataset.id;
+      const labelId = e.target.dataset.labelId;
       const label = activeLabels.find(l => l.id === labelId);
-      if (label) {
-        if (!label.builderConfig) label.builderConfig = { rows: [], rowGap: 4, pillGap: 8, globalStyle: {}, filters: { mode: 'includeOnly', rules: [] } };
-        if (!label.builderConfig.rows) label.builderConfig.rows = [];
-        label.builderConfig.rows.push({
-          id: `row${rowIdCounter++}`,
-          pills: [],
-          style: {},
-          layout: 'horizontal'
-        });
-        renderLabelFXList();
+      if (label && label.builderConfig) {
+        if (label.builderConfig.rows.length < 3) {
+          label.builderConfig.rows.push({
+            pills: [{ rule: 'name', textStyle: {} }],
+            columnWidth: 'auto',
+            columnColor: null,
+            columnOpacity: null
+          });
+          renderLabelFXList();
+        }
       }
     });
   });
@@ -6974,10 +6974,10 @@ function renderLabelFXList() {
   container.querySelectorAll('.removeRowBtn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       const labelId = e.target.dataset.labelId;
-      const rowId = e.target.dataset.rowId;
+      const rowIndex = parseInt(e.target.dataset.rowIndex);
       const label = activeLabels.find(l => l.id === labelId);
-      if (label && label.builderConfig && label.builderConfig.rows) {
-        label.builderConfig.rows = label.builderConfig.rows.filter(r => r.id !== rowId);
+      if (label && label.builderConfig) {
+        label.builderConfig.rows.splice(rowIndex, 1);
         renderLabelFXList();
       }
     });
@@ -6986,30 +6986,39 @@ function renderLabelFXList() {
   container.querySelectorAll('.addPillBtn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       const labelId = e.target.dataset.labelId;
-      const rowId = e.target.dataset.rowId;
+      const rowIndex = parseInt(e.target.dataset.rowIndex);
       const label = activeLabels.find(l => l.id === labelId);
-      if (label && label.builderConfig && label.builderConfig.rows) {
-        const row = label.builderConfig.rows.find(r => r.id === rowId);
-        if (row) {
-          row.pills.push({
-            id: `pill${pillIdCounter++}`,
-            fields: [{ name: 'name', priority: 1 }],
-            texture: { enabled: false, name: 'White Paper', opacity: 0.8, scale: 1.0, offsetX: 0, offsetY: 0, fitMode: 'cover' },
-            style: {},
-            layout: 'horizontal'
-          });
-          renderLabelFXList();
-        }
+      if (label && label.builderConfig && label.builderConfig.rows[rowIndex]) {
+        label.builderConfig.rows[rowIndex].pills.push({ rule: 'name', textStyle: {} });
+        renderLabelFXList();
       }
     });
   });
   
-  container.querySelectorAll('.pillSlot').forEach(btn => {
+  container.querySelectorAll('.removePillBtn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       const labelId = e.target.dataset.labelId;
-      const rowId = e.target.dataset.rowId;
-      const pillId = e.target.dataset.pillId;
-      openPillEditor(labelId, rowId, pillId);
+      const rowIndex = parseInt(e.target.dataset.rowIndex);
+      const pillIndex = parseInt(e.target.dataset.pillIndex);
+      const label = activeLabels.find(l => l.id === labelId);
+      if (label && label.builderConfig && label.builderConfig.rows[rowIndex]) {
+        label.builderConfig.rows[rowIndex].pills.splice(pillIndex, 1);
+        renderLabelFXList();
+      }
+    });
+  });
+  
+  // Pill rule change
+  container.querySelectorAll('.pillRuleSelect').forEach(select => {
+    select.addEventListener('change', (e) => {
+      const labelId = e.target.dataset.labelId;
+      const rowIndex = parseInt(e.target.dataset.rowIndex);
+      const pillIndex = parseInt(e.target.dataset.pillIndex);
+      const label = activeLabels.find(l => l.id === labelId);
+      if (label && label.builderConfig && label.builderConfig.rows[rowIndex] && label.builderConfig.rows[rowIndex].pills[pillIndex]) {
+        label.builderConfig.rows[rowIndex].pills[pillIndex].rule = e.target.value;
+        applyAllLabelFX();
+      }
     });
   });
   
