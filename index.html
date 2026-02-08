@@ -2444,7 +2444,7 @@ function setSelected(m){
     const row = listEl.querySelector(`.item[data-idx="${m.userData.idx}"]`);
     if (row){
       row.classList.add('sel');
-      row.scrollIntoView({ block:'nearest' });
+      // REMOVED: row.scrollIntoView({ block:'nearest' }); - Caused unwanted auto-scroll
     }
   }
   selIdEl.textContent = m ? (m.userData.candKey || '—') : '—';
@@ -3050,50 +3050,36 @@ function renderLabelFromBuilder(defaultText, candidate, worldSize, config) {
     return makePillLabelSprite(defaultText, worldSize, 0x000000, config);
   }
   
-  // Apply filters first
-  if (builderConfig.filters && builderConfig.filters.rules && builderConfig.filters.rules.length > 0) {
-    const filtered = applyFilters([candidate], builderConfig.filters);
-    if (filtered.length === 0) {
-      // Candidate doesn't match filters - return empty sprite
-      return makePillLabelSprite('', worldSize, 0x000000, config);
-    }
-  }
-  
-  // Build pills from rows
+  // Build text from rules
   const rowTexts = [];
   for (const row of builderConfig.rows) {
     const rowPills = [];
     for (const pill of row.pills) {
-      const text = evaluateFieldsWithFallback(candidate, pill.fields);
-      if (text) {
-        rowPills.push(text);
+      const rule = FIELD_RULES[pill.rule];
+      if (rule) {
+        const text = rule.evaluate(candidate);
+        if (text) {
+          rowPills.push(text);
+        }
       }
     }
     if (rowPills.length > 0) {
-      // PHASE 5: Use builderConfig.pillGap for spacing
-      // Convert pixel gap to character spaces (approximate: 1 space ≈ 2 pixels)
-      const PIXELS_PER_SPACE = 2;
-      const gapSpaces = Math.max(1, Math.round((builderConfig.pillGap || 8) / PIXELS_PER_SPACE));
-      rowTexts.push(rowPills.join(' '.repeat(gapSpaces)));
+      rowTexts.push(rowPills.join('  '));
     }
   }
   
   if (rowTexts.length === 0) {
-    // All pills evaluated to NULL - return empty
     return makePillLabelSprite('', worldSize, 0x000000, config);
   }
   
-  // For now, join rows with newlines and use multi-line rendering
-  // TODO: Full texture and advanced layout rendering
-  const lines = rowTexts.map((text, i) => ({
+  // Create multi-line sprite with texture applied to entire label
+  const lines = rowTexts.map(text => ({
     text,
     fontSize: builderConfig.globalStyle?.fontSize || 12,
     fontFamily: builderConfig.globalStyle?.fontFamily || 'helvetica',
     bold: builderConfig.globalStyle?.fontWeight >= 600,
-    italic: builderConfig.globalStyle?.italic || false,
-    underline: builderConfig.globalStyle?.underline || false,
-    strikethrough: builderConfig.globalStyle?.strikethrough || false,
-    alignment: builderConfig.globalStyle?.alignment || 'center'
+    italic: false,
+    alignment: 'center'
   }));
   
   return makeMultiLinePillSprite(lines, worldSize, 0x000000, config);
@@ -3366,6 +3352,14 @@ function makeCalloutAnimated(root, name, isVisible=true, typeHex=0x00c8ff, lineC
   
   label.position.set(finalLabelX, finalLabelY, 0);
   label.material.opacity = 0.0;
+  
+  // Z-INDEX FIX: Hover tips should appear above labels
+  // Labels = renderOrder 10006 (default from sprite functions)
+  // Hover tips = renderOrder 10010 (higher priority)
+  if (config?.type === 'hover') {
+    label.renderOrder = 10010;
+  }
+  
   call.add(label);
 
   // init hidden
@@ -6582,6 +6576,66 @@ const PILL_TEXTURES = {
   'Protractor Grid': './assets/pill_textures/Protractor_Grid.png'
 };
 
+// Field mapping rules for label pills - Simplified Builder System
+const FIELD_RULES = {
+  'name': {
+    label: 'Name',
+    description: 'dst_lm_name → dst_name → dst_type (first non-null)',
+    evaluate: (cand) => {
+      if (!cand) return '';
+      return cand.dst_lm_name && cand.dst_lm_name !== 'NULL' ? cand.dst_lm_name :
+             cand.dst_name && cand.dst_name !== 'NULL' ? cand.dst_name :
+             cand.dst_type || '';
+    }
+  },
+  'type': {
+    label: 'Type/Category',
+    description: 'Landmark: [_landmark_cl] OR [dst_subtype capitalized]',
+    evaluate: (cand) => {
+      if (!cand) return '';
+      if (cand.LMID_ && cand.LMID_ !== 'NULL' && cand._landmark_cl) {
+        return 'Landmark: ' + cand._landmark_cl;
+      } else if (cand.dst_subtype && cand.dst_subtype !== '') {
+        return cand.dst_subtype
+          .split('_')
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+          .join(' ');
+      }
+      return '';
+    }
+  },
+  'bearing': {
+    label: 'Bearing',
+    description: 'Bearing: [azimuth]°',
+    evaluate: (cand) => {
+      if (!cand) return '';
+      return cand.azimuth !== undefined && cand.azimuth !== null 
+        ? `Bearing: ${Math.round(cand.azimuth)}°` 
+        : '';
+    }
+  },
+  'distance': {
+    label: 'Distance',
+    description: 'Distance: [dist_m]m',
+    evaluate: (cand) => {
+      if (!cand) return '';
+      return cand.dist_m !== undefined && cand.dist_m !== null
+        ? `Distance: ${Math.round(cand.dist_m)}m`
+        : '';
+    }
+  },
+  'visibility': {
+    label: 'Visibility',
+    description: 'Visibility: [vis_pct]%',
+    evaluate: (cand) => {
+      if (!cand) return '';
+      return cand.vis_pct !== undefined && cand.vis_pct !== null
+        ? `Visibility: ${Math.round(cand.vis_pct)}%`
+        : '';
+    }
+  }
+};
+
 const textureCache = {};
 
 async function preloadPillTextures() {
@@ -6633,62 +6687,42 @@ const labelTypeDefaults = {
     pillTextColor: "#ffffff",
     pillColorMode: "single",
     
-    // Builder Configuration (new LabelFX Builder system)
+    // SIMPLIFIED Builder Configuration
     builderConfig: {
-      rows: [
-        {
-          id: 'row1',
-          pills: [
-            { 
-              id: 'pill1',
-              fields: [
-                { name: 'name', priority: 1 },
-                { name: 'dst_name', priority: 2 }
-              ],
-              texture: {
-                enabled: false,
-                name: 'White Paper',
-                opacity: 0.8,
-                scale: 1.0,
-                offsetX: 0,
-                offsetY: 0,
-                fitMode: 'cover'
-              },
-              style: {},
-              layout: "horizontal"
-            }
-          ],
-          style: {},
-          layout: "horizontal"
-        }
-      ],
-      rowGap: 4,
-      pillGap: 8,
+      layout: 'lines',  // 'lines' or 'columns'
+      numRows: 1,
+      texture: {
+        enabled: false,
+        name: 'White Paper',
+        opacity: 0.8,
+        scale: 1.0,
+        offsetX: 0,
+        offsetY: 0,
+        fitMode: 'cover'
+      },
       globalStyle: {
-        fillColor: 'rgba(0,0,0,0.55)',
-        strokeColor: 'rgba(255,255,255,0.98)',
-        strokeWidth: 2.5,
-        cornerRadius: 10,
         fontFamily: 'helvetica',
         fontSize: 12,
         fontWeight: 400,
-        italic: false,
-        underline: false,
-        strikethrough: false,
-        textTransform: 'none',
-        alignment: 'center',
+        fillColor: 'rgba(0,0,0,0.55)',
+        strokeColor: 'rgba(255,255,255,0.98)',
+        textColor: 'rgba(255,255,255,1)',
+        cornerRadius: 10,
         paddingTop: 12,
         paddingRight: 18,
         paddingBottom: 12,
-        paddingLeft: 18,
-        lineHeight: 1.4,
-        letterSpacing: 0,
-        wordSpacing: 0
+        paddingLeft: 18
       },
-      filters: {
-        mode: 'includeOnly',
-        rules: []
-      }
+      rows: [
+        {
+          pills: [
+            { rule: 'name', textStyle: {} }
+          ],
+          columnWidth: 'auto',
+          columnColor: null,
+          columnOpacity: null
+        }
+      ]
     },
     
     // Pill positioning
@@ -6741,62 +6775,42 @@ const labelTypeDefaults = {
     pillTextColor: "#ffffff",
     pillColorMode: "single",
     
-    // Builder Configuration (new LabelFX Builder system)
+    // SIMPLIFIED Builder Configuration
     builderConfig: {
-      rows: [
-        {
-          id: 'row1',
-          pills: [
-            { 
-              id: 'pill1',
-              fields: [
-                { name: 'name', priority: 1 },
-                { name: 'dst_name', priority: 2 }
-              ],
-              texture: {
-                enabled: false,
-                name: 'White Paper',
-                opacity: 0.8,
-                scale: 1.0,
-                offsetX: 0,
-                offsetY: 0,
-                fitMode: 'cover'
-              },
-              style: {},
-              layout: "horizontal"
-            }
-          ],
-          style: {},
-          layout: "horizontal"
-        }
-      ],
-      rowGap: 4,
-      pillGap: 8,
+      layout: 'lines',  // 'lines' or 'columns'
+      numRows: 1,
+      texture: {
+        enabled: false,
+        name: 'White Paper',
+        opacity: 0.8,
+        scale: 1.0,
+        offsetX: 0,
+        offsetY: 0,
+        fitMode: 'cover'
+      },
       globalStyle: {
-        fillColor: 'rgba(0,0,0,0.55)',
-        strokeColor: 'rgba(255,255,255,0.98)',
-        strokeWidth: 2.5,
-        cornerRadius: 10,
         fontFamily: 'helvetica',
         fontSize: 12,
         fontWeight: 400,
-        italic: false,
-        underline: false,
-        strikethrough: false,
-        textTransform: 'none',
-        alignment: 'center',
+        fillColor: 'rgba(0,0,0,0.55)',
+        strokeColor: 'rgba(255,255,255,0.98)',
+        textColor: 'rgba(255,255,255,1)',
+        cornerRadius: 10,
         paddingTop: 12,
         paddingRight: 18,
         paddingBottom: 12,
-        paddingLeft: 18,
-        lineHeight: 1.4,
-        letterSpacing: 0,
-        wordSpacing: 0
+        paddingLeft: 18
       },
-      filters: {
-        mode: 'includeOnly',
-        rules: []
-      }
+      rows: [
+        {
+          pills: [
+            { rule: 'name', textStyle: {} }
+          ],
+          columnWidth: 'auto',
+          columnColor: null,
+          columnOpacity: null
+        }
+      ]
     },
     
     // Pill positioning
