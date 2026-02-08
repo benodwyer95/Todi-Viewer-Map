@@ -6357,38 +6357,62 @@ const labelTypeDefaults = {
     pillTextColor: "#ffffff",
     pillColorMode: "single",
     
-    // Multi-line text configuration (Issues 7 & 8)
-    useMultiLine: false, // Enable multi-line pill labels
-    lineSpacing: 4, // Spacing between lines in pixels
-    line1: {
-      content: "name", // name | type | custom
-      fontSize: 14,
-      fontFamily: "helvetica",
-      bold: true,
-      italic: false,
-      underline: false,
-      strikethrough: false,
-      alignment: "left" // left | center | right
-    },
-    line2: {
-      content: "category", // category | subtype | landmark | custom
-      fontSize: 11,
-      fontFamily: "helvetica",
-      bold: false,
-      italic: false,
-      underline: false,
-      strikethrough: false,
-      alignment: "left"
-    },
-    line3: {
-      content: "distance", // distance | bearing | visibility | elevation | custom
-      fontSize: 9,
-      fontFamily: "helvetica",
-      bold: false,
-      italic: false,
-      underline: false,
-      strikethrough: false,
-      alignment: "left"
+    // Builder Configuration (new LabelFX Builder system)
+    builderConfig: {
+      rows: [
+        {
+          id: 'row1',
+          pills: [
+            { 
+              id: 'pill1',
+              fields: [
+                { name: 'name', priority: 1 },
+                { name: 'dst_name', priority: 2 }
+              ],
+              texture: {
+                enabled: false,
+                name: 'White Paper',
+                opacity: 0.8,
+                scale: 1.0,
+                offsetX: 0,
+                offsetY: 0,
+                fitMode: 'cover'
+              },
+              style: {},
+              layout: "horizontal"
+            }
+          ],
+          style: {},
+          layout: "horizontal"
+        }
+      ],
+      rowGap: 4,
+      pillGap: 8,
+      globalStyle: {
+        fillColor: 'rgba(0,0,0,0.55)',
+        strokeColor: 'rgba(255,255,255,0.98)',
+        strokeWidth: 2.5,
+        cornerRadius: 10,
+        fontFamily: 'helvetica',
+        fontSize: 12,
+        fontWeight: 400,
+        italic: false,
+        underline: false,
+        strikethrough: false,
+        textTransform: 'none',
+        alignment: 'center',
+        paddingTop: 12,
+        paddingRight: 18,
+        paddingBottom: 12,
+        paddingLeft: 18,
+        lineHeight: 1.4,
+        letterSpacing: 0,
+        wordSpacing: 0
+      },
+      filters: {
+        mode: 'includeOnly',
+        rules: []
+      }
     },
     
     // Pill positioning
@@ -6441,38 +6465,62 @@ const labelTypeDefaults = {
     pillTextColor: "#ffffff",
     pillColorMode: "single",
     
-    // Multi-line text configuration (Issues 7 & 8)
-    useMultiLine: false,
-    lineSpacing: 4,
-    line1: {
-      content: "name",
-      fontSize: 12,
-      fontFamily: "helvetica",
-      bold: true,
-      italic: false,
-      underline: false,
-      strikethrough: false,
-      alignment: "left"
-    },
-    line2: {
-      content: "category",
-      fontSize: 10,
-      fontFamily: "helvetica",
-      bold: false,
-      italic: false,
-      underline: false,
-      strikethrough: false,
-      alignment: "left"
-    },
-    line3: {
-      content: "distance",
-      fontSize: 8,
-      fontFamily: "helvetica",
-      bold: false,
-      italic: false,
-      underline: false,
-      strikethrough: false,
-      alignment: "left"
+    // Builder Configuration (new LabelFX Builder system)
+    builderConfig: {
+      rows: [
+        {
+          id: 'row1',
+          pills: [
+            { 
+              id: 'pill1',
+              fields: [
+                { name: 'name', priority: 1 },
+                { name: 'dst_name', priority: 2 }
+              ],
+              texture: {
+                enabled: false,
+                name: 'White Paper',
+                opacity: 0.8,
+                scale: 1.0,
+                offsetX: 0,
+                offsetY: 0,
+                fitMode: 'cover'
+              },
+              style: {},
+              layout: "horizontal"
+            }
+          ],
+          style: {},
+          layout: "horizontal"
+        }
+      ],
+      rowGap: 4,
+      pillGap: 8,
+      globalStyle: {
+        fillColor: 'rgba(0,0,0,0.55)',
+        strokeColor: 'rgba(255,255,255,0.98)',
+        strokeWidth: 2.5,
+        cornerRadius: 10,
+        fontFamily: 'helvetica',
+        fontSize: 12,
+        fontWeight: 400,
+        italic: false,
+        underline: false,
+        strikethrough: false,
+        textTransform: 'none',
+        alignment: 'center',
+        paddingTop: 12,
+        paddingRight: 18,
+        paddingBottom: 12,
+        paddingLeft: 18,
+        lineHeight: 1.4,
+        letterSpacing: 0,
+        wordSpacing: 0
+      },
+      filters: {
+        mode: 'includeOnly',
+        rules: []
+      }
     },
     
     // Pill positioning
@@ -6855,121 +6903,85 @@ function renderLabelFXControls(label) {
       </div>
       ` : ''}
       
-      <!-- Pill Label Controls -->
-      <hr style="border:none;border-top:1px solid rgba(255,255,255,.12);margin:12px 0;">
-      <div style="font-weight:700;margin-bottom:8px;">Pill Label</div>
-      
-      <!-- Multi-line Toggle -->
-      <div class="ctrlRow" style="align-items:center;">
-        <label style="flex:1;">
-          <input type="checkbox" data-id="${label.id}" data-prop="useMultiLine" ${label.useMultiLine ? 'checked' : ''}>
-          <span>Enable Multi-line Text</span>
-        </label>
-      </div>
-      
-      <!-- Multi-line Configuration (shown when useMultiLine is true) -->
-      ${label.useMultiLine ? `
-      <div style="margin: 8px 0; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 4px;">
-        <div style="font-size: 11px; opacity: 0.8; margin-bottom: 8px;">Multi-line Text Configuration</div>
+      <!-- PILL LAYOUT BUILDER -->
+      <div style="font-weight:700;margin:16px 0 8px 0;border-top:1px solid rgba(255,255,255,0.1);padding-top:16px;">Pill Layout Builder</div>
+
+      <div id="labelBuilder_${label.id}" style="background:rgba(255,255,255,0.03);padding:12px;border-radius:8px;margin-bottom:12px;">
         
-        <!-- Line 1 -->
-        <details open style="margin-bottom: 8px;">
-          <summary style="cursor: pointer; font-weight: 600; font-size: 11px; padding: 4px; background: rgba(255,255,255,0.1); border-radius: 3px;">Line 1 (Title)</summary>
-          <div style="padding: 8px 4px; display: flex; flex-direction: column; gap: 6px;">
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Content</label>
-              <select data-id="\${label.id}" data-prop="line1.content" style="font-size: 10px;">
-                <option value="name" \${label.line1?.content === 'name' ? 'selected' : ''}>Name</option>
-                <option value="type" \${label.line1?.content === 'type' ? 'selected' : ''}>Type</option>
-                <option value="category" \${label.line1?.content === 'category' ? 'selected' : ''}>Category</option>
-              </select>
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Font Size</label>
-              <input type="number" data-id="\${label.id}" data-prop="line1.fontSize" value="\${label.line1?.fontSize || 14}" min="8" max="24" step="1" style="font-size: 10px;">
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Alignment</label>
-              <select data-id="\${label.id}" data-prop="line1.alignment" style="font-size: 10px;">
-                <option value="left" \${(label.line1?.alignment || 'left') === 'left' ? 'selected' : ''}>Left</option>
-                <option value="center" \${label.line1?.alignment === 'center' ? 'selected' : ''}>Center</option>
-                <option value="right" \${label.line1?.alignment === 'right' ? 'selected' : ''}>Right</option>
-              </select>
-            </div>
-            <div class="ctrlRow" style="gap: 8px;">
-              <label style="font-size: 10px; cursor: pointer;">
-                <input type="checkbox" data-id="\${label.id}" data-prop="line1.bold" \${label.line1?.bold ? 'checked' : ''}>
-                <span>Bold</span>
-              </label>
-              <label style="font-size: 10px; cursor: pointer;">
-                <input type="checkbox" data-id="\${label.id}" data-prop="line1.italic" \${label.line1?.italic ? 'checked' : ''}>
-                <span>Italic</span>
-              </label>
-            </div>
-          </div>
-        </details>
-        
-        <!-- Line 2 -->
-        <details open style="margin-bottom: 8px;">
-          <summary style="cursor: pointer; font-weight: 600; font-size: 11px; padding: 4px; background: rgba(255,255,255,0.1); border-radius: 3px;">Line 2 (Category)</summary>
-          <div style="padding: 8px 4px; display: flex; flex-direction: column; gap: 6px;">
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Content</label>
-              <select data-id="\${label.id}" data-prop="line2.content" style="font-size: 10px;">
-                <option value="category" \${(label.line2?.content || 'category') === 'category' ? 'selected' : ''}>Category</option>
-                <option value="subtype" \${label.line2?.content === 'subtype' ? 'selected' : ''}>Subtype</option>
-                <option value="landmark" \${label.line2?.content === 'landmark' ? 'selected' : ''}>Landmark</option>
-              </select>
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Font Size</label>
-              <input type="number" data-id="\${label.id}" data-prop="line2.fontSize" value="\${label.line2?.fontSize || 11}" min="8" max="24" step="1" style="font-size: 10px;">
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Alignment</label>
-              <select data-id="\${label.id}" data-prop="line2.alignment" style="font-size: 10px;">
-                <option value="left" \${(label.line2?.alignment || 'left') === 'left' ? 'selected' : ''}>Left</option>
-                <option value="center" \${label.line2?.alignment === 'center' ? 'selected' : ''}>Center</option>
-                <option value="right" \${label.line2?.alignment === 'right' ? 'selected' : ''}>Right</option>
-              </select>
-            </div>
-          </div>
-        </details>
-        
-        <!-- Line 3 -->
-        <details open style="margin-bottom: 8px;">
-          <summary style="cursor: pointer; font-weight: 600; font-size: 11px; padding: 4px; background: rgba(255,255,255,0.1); border-radius: 3px;">Line 3 (Details)</summary>
-          <div style="padding: 8px 4px; display: flex; flex-direction: column; gap: 6px;">
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Content</label>
-              <select data-id="\${label.id}" data-prop="line3.content" style="font-size: 10px;">
-                <option value="distance" \${(label.line3?.content || 'distance') === 'distance' ? 'selected' : ''}>Distance</option>
-                <option value="bearing" \${label.line3?.content === 'bearing' ? 'selected' : ''}>Bearing</option>
-                <option value="visibility" \${label.line3?.content === 'visibility' ? 'selected' : ''}>Visibility</option>
-                <option value="combined" \${label.line3?.content === 'combined' ? 'selected' : ''}>Combined</option>
-              </select>
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Font Size</label>
-              <input type="number" data-id="\${label.id}" data-prop="line3.fontSize" value="\${label.line3?.fontSize || 9}" min="8" max="24" step="1" style="font-size: 10px;">
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Alignment</label>
-              <select data-id="\${label.id}" data-prop="line3.alignment" style="font-size: 10px;">
-                <option value="left" \${(label.line3?.alignment || 'left') === 'left' ? 'selected' : ''}>Left</option>
-                <option value="center" \${label.line3?.alignment === 'center' ? 'selected' : ''}>Center</option>
-                <option value="right" \${label.line3?.alignment === 'right' ? 'selected' : ''}>Right</option>
-              </select>
-            </div>
-          </div>
-        </details>
-        
-        <div class="ctrlRow">
-          <label style="font-size: 10px;">Line Spacing (px)</label>
-          <input type="number" data-id="\${label.id}" data-prop="lineSpacing" value="\${label.lineSpacing || 4}" min="0" max="20" step="1" style="font-size: 10px;">
+        <!-- Builder Header -->
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <span style="font-size:11px;opacity:0.9;">Build custom pill layouts with field fallbacks</span>
+          <button class="addRowBtn" data-id="${label.id}" style="padding:4px 10px;font-size:10px;background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:4px;cursor:pointer;">+ Add Row</button>
         </div>
+        
+        <!-- Rows Container -->
+        <div id="builderRows_${label.id}">
+          ${renderBuilderRows(label)}
+        </div>
+        
+        <!-- Global Style Controls -->
+        <details style="margin-top:12px;">
+          <summary style="cursor:pointer;font-weight:600;font-size:11px;padding:6px;background:rgba(255,255,255,0.1);border-radius:4px;">Global Style</summary>
+          <div style="padding:8px 4px;display:flex;flex-direction:column;gap:8px;">
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Font Family</label>
+              <select data-id="${label.id}" data-prop="builderConfig.globalStyle.fontFamily" style="font-size:10px;">
+                <option value="helvetica" ${(label.builderConfig?.globalStyle?.fontFamily || 'helvetica') === 'helvetica' ? 'selected' : ''}>Helvetica</option>
+                <option value="times" ${label.builderConfig?.globalStyle?.fontFamily === 'times' ? 'selected' : ''}>Times New Roman</option>
+                <option value="caslon" ${label.builderConfig?.globalStyle?.fontFamily === 'caslon' ? 'selected' : ''}>Caslon</option>
+              </select>
+            </div>
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Font Size</label>
+              <input type="number" data-id="${label.id}" data-prop="builderConfig.globalStyle.fontSize" value="${label.builderConfig?.globalStyle?.fontSize || 12}" min="6" max="48" step="0.5" style="font-size:10px;">
+            </div>
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Font Weight</label>
+              <input type="number" data-id="${label.id}" data-prop="builderConfig.globalStyle.fontWeight" value="${label.builderConfig?.globalStyle?.fontWeight || 400}" min="100" max="900" step="100" style="font-size:10px;">
+            </div>
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Corner Radius</label>
+              <input type="number" data-id="${label.id}" data-prop="builderConfig.globalStyle.cornerRadius" value="${label.builderConfig?.globalStyle?.cornerRadius || 10}" min="0" max="50" step="1" style="font-size:10px;">
+            </div>
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Stroke Width</label>
+              <input type="number" data-id="${label.id}" data-prop="builderConfig.globalStyle.strokeWidth" value="${label.builderConfig?.globalStyle?.strokeWidth || 2.5}" min="0" max="10" step="0.5" style="font-size:10px;">
+            </div>
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Row Gap (px)</label>
+              <input type="number" data-id="${label.id}" data-prop="builderConfig.rowGap" value="${label.builderConfig?.rowGap || 4}" min="0" max="50" step="1" style="font-size:10px;">
+            </div>
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Pill Gap (px)</label>
+              <input type="number" data-id="${label.id}" data-prop="builderConfig.pillGap" value="${label.builderConfig?.pillGap || 8}" min="0" max="50" step="1" style="font-size:10px;">
+            </div>
+          </div>
+        </details>
+        
+        <!-- Filter Controls -->
+        <details style="margin-top:12px;">
+          <summary style="cursor:pointer;font-weight:600;font-size:11px;padding:6px;background:rgba(255,255,255,0.1);border-radius:4px;">Effect Filters</summary>
+          <div id="filterPanel_${label.id}" style="padding:8px 4px;">
+            ${renderFilterPanel(label)}
+          </div>
+        </details>
+        
+        <!-- Live Preview -->
+        <details open style="margin-top:12px;">
+          <summary style="cursor:pointer;font-weight:600;font-size:11px;padding:6px;background:rgba(255,255,255,0.1);border-radius:4px;">Live Preview</summary>
+          <div style="padding:8px 4px;">
+            <div id="previewCanvas_${label.id}" style="width:100%;height:200px;background:rgba(0,0,0,0.3);border-radius:4px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;">
+              <span style="color:rgba(255,255,255,0.5);font-size:11px;">Preview will appear here</span>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:8px;align-items:center;">
+              <button class="prevSampleBtn" data-id="${label.id}" style="padding:4px 8px;font-size:10px;background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:4px;cursor:pointer;">← Prev</button>
+              <span id="sampleName_${label.id}" style="flex:1;text-align:center;font-size:10px;opacity:0.8;">Sample 1</span>
+              <button class="nextSampleBtn" data-id="${label.id}" style="padding:4px 8px;font-size:10px;background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:4px;cursor:pointer;">Next →</button>
+            </div>
+          </div>
+        </details>
+        
       </div>
-      ` : ''}
 
       
       
@@ -7280,121 +7292,85 @@ function renderLabelFXControls(label) {
       </div>
       ` : ''}
       
-      <!-- Pill Label Controls -->
-      <hr style="border:none;border-top:1px solid rgba(255,255,255,.12);margin:12px 0;">
-      <div style="font-weight:700;margin-bottom:8px;">Pill Label</div>
-      
-      <!-- Multi-line Toggle -->
-      <div class="ctrlRow" style="align-items:center;">
-        <label style="flex:1;">
-          <input type="checkbox" data-id="${label.id}" data-prop="useMultiLine" ${label.useMultiLine ? 'checked' : ''}>
-          <span>Enable Multi-line Text</span>
-        </label>
-      </div>
-      
-      <!-- Multi-line Configuration (shown when useMultiLine is true) -->
-      ${label.useMultiLine ? `
-      <div style="margin: 8px 0; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 4px;">
-        <div style="font-size: 11px; opacity: 0.8; margin-bottom: 8px;">Multi-line Text Configuration</div>
+      <!-- PILL LAYOUT BUILDER -->
+      <div style="font-weight:700;margin:16px 0 8px 0;border-top:1px solid rgba(255,255,255,0.1);padding-top:16px;">Pill Layout Builder</div>
+
+      <div id="labelBuilder_${label.id}" style="background:rgba(255,255,255,0.03);padding:12px;border-radius:8px;margin-bottom:12px;">
         
-        <!-- Line 1 -->
-        <details open style="margin-bottom: 8px;">
-          <summary style="cursor: pointer; font-weight: 600; font-size: 11px; padding: 4px; background: rgba(255,255,255,0.1); border-radius: 3px;">Line 1 (Title)</summary>
-          <div style="padding: 8px 4px; display: flex; flex-direction: column; gap: 6px;">
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Content</label>
-              <select data-id="\${label.id}" data-prop="line1.content" style="font-size: 10px;">
-                <option value="name" \${label.line1?.content === 'name' ? 'selected' : ''}>Name</option>
-                <option value="type" \${label.line1?.content === 'type' ? 'selected' : ''}>Type</option>
-                <option value="category" \${label.line1?.content === 'category' ? 'selected' : ''}>Category</option>
-              </select>
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Font Size</label>
-              <input type="number" data-id="\${label.id}" data-prop="line1.fontSize" value="\${label.line1?.fontSize || 14}" min="8" max="24" step="1" style="font-size: 10px;">
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Alignment</label>
-              <select data-id="\${label.id}" data-prop="line1.alignment" style="font-size: 10px;">
-                <option value="left" \${(label.line1?.alignment || 'left') === 'left' ? 'selected' : ''}>Left</option>
-                <option value="center" \${label.line1?.alignment === 'center' ? 'selected' : ''}>Center</option>
-                <option value="right" \${label.line1?.alignment === 'right' ? 'selected' : ''}>Right</option>
-              </select>
-            </div>
-            <div class="ctrlRow" style="gap: 8px;">
-              <label style="font-size: 10px; cursor: pointer;">
-                <input type="checkbox" data-id="\${label.id}" data-prop="line1.bold" \${label.line1?.bold ? 'checked' : ''}>
-                <span>Bold</span>
-              </label>
-              <label style="font-size: 10px; cursor: pointer;">
-                <input type="checkbox" data-id="\${label.id}" data-prop="line1.italic" \${label.line1?.italic ? 'checked' : ''}>
-                <span>Italic</span>
-              </label>
-            </div>
-          </div>
-        </details>
-        
-        <!-- Line 2 -->
-        <details open style="margin-bottom: 8px;">
-          <summary style="cursor: pointer; font-weight: 600; font-size: 11px; padding: 4px; background: rgba(255,255,255,0.1); border-radius: 3px;">Line 2 (Category)</summary>
-          <div style="padding: 8px 4px; display: flex; flex-direction: column; gap: 6px;">
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Content</label>
-              <select data-id="\${label.id}" data-prop="line2.content" style="font-size: 10px;">
-                <option value="category" \${(label.line2?.content || 'category') === 'category' ? 'selected' : ''}>Category</option>
-                <option value="subtype" \${label.line2?.content === 'subtype' ? 'selected' : ''}>Subtype</option>
-                <option value="landmark" \${label.line2?.content === 'landmark' ? 'selected' : ''}>Landmark</option>
-              </select>
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Font Size</label>
-              <input type="number" data-id="\${label.id}" data-prop="line2.fontSize" value="\${label.line2?.fontSize || 11}" min="8" max="24" step="1" style="font-size: 10px;">
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Alignment</label>
-              <select data-id="\${label.id}" data-prop="line2.alignment" style="font-size: 10px;">
-                <option value="left" \${(label.line2?.alignment || 'left') === 'left' ? 'selected' : ''}>Left</option>
-                <option value="center" \${label.line2?.alignment === 'center' ? 'selected' : ''}>Center</option>
-                <option value="right" \${label.line2?.alignment === 'right' ? 'selected' : ''}>Right</option>
-              </select>
-            </div>
-          </div>
-        </details>
-        
-        <!-- Line 3 -->
-        <details open style="margin-bottom: 8px;">
-          <summary style="cursor: pointer; font-weight: 600; font-size: 11px; padding: 4px; background: rgba(255,255,255,0.1); border-radius: 3px;">Line 3 (Details)</summary>
-          <div style="padding: 8px 4px; display: flex; flex-direction: column; gap: 6px;">
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Content</label>
-              <select data-id="\${label.id}" data-prop="line3.content" style="font-size: 10px;">
-                <option value="distance" \${(label.line3?.content || 'distance') === 'distance' ? 'selected' : ''}>Distance</option>
-                <option value="bearing" \${label.line3?.content === 'bearing' ? 'selected' : ''}>Bearing</option>
-                <option value="visibility" \${label.line3?.content === 'visibility' ? 'selected' : ''}>Visibility</option>
-                <option value="combined" \${label.line3?.content === 'combined' ? 'selected' : ''}>Combined</option>
-              </select>
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Font Size</label>
-              <input type="number" data-id="\${label.id}" data-prop="line3.fontSize" value="\${label.line3?.fontSize || 9}" min="8" max="24" step="1" style="font-size: 10px;">
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Alignment</label>
-              <select data-id="\${label.id}" data-prop="line3.alignment" style="font-size: 10px;">
-                <option value="left" \${(label.line3?.alignment || 'left') === 'left' ? 'selected' : ''}>Left</option>
-                <option value="center" \${label.line3?.alignment === 'center' ? 'selected' : ''}>Center</option>
-                <option value="right" \${label.line3?.alignment === 'right' ? 'selected' : ''}>Right</option>
-              </select>
-            </div>
-          </div>
-        </details>
-        
-        <div class="ctrlRow">
-          <label style="font-size: 10px;">Line Spacing (px)</label>
-          <input type="number" data-id="\${label.id}" data-prop="lineSpacing" value="\${label.lineSpacing || 4}" min="0" max="20" step="1" style="font-size: 10px;">
+        <!-- Builder Header -->
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <span style="font-size:11px;opacity:0.9;">Build custom pill layouts with field fallbacks</span>
+          <button class="addRowBtn" data-id="${label.id}" style="padding:4px 10px;font-size:10px;background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:4px;cursor:pointer;">+ Add Row</button>
         </div>
+        
+        <!-- Rows Container -->
+        <div id="builderRows_${label.id}">
+          ${renderBuilderRows(label)}
+        </div>
+        
+        <!-- Global Style Controls -->
+        <details style="margin-top:12px;">
+          <summary style="cursor:pointer;font-weight:600;font-size:11px;padding:6px;background:rgba(255,255,255,0.1);border-radius:4px;">Global Style</summary>
+          <div style="padding:8px 4px;display:flex;flex-direction:column;gap:8px;">
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Font Family</label>
+              <select data-id="${label.id}" data-prop="builderConfig.globalStyle.fontFamily" style="font-size:10px;">
+                <option value="helvetica" ${(label.builderConfig?.globalStyle?.fontFamily || 'helvetica') === 'helvetica' ? 'selected' : ''}>Helvetica</option>
+                <option value="times" ${label.builderConfig?.globalStyle?.fontFamily === 'times' ? 'selected' : ''}>Times New Roman</option>
+                <option value="caslon" ${label.builderConfig?.globalStyle?.fontFamily === 'caslon' ? 'selected' : ''}>Caslon</option>
+              </select>
+            </div>
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Font Size</label>
+              <input type="number" data-id="${label.id}" data-prop="builderConfig.globalStyle.fontSize" value="${label.builderConfig?.globalStyle?.fontSize || 12}" min="6" max="48" step="0.5" style="font-size:10px;">
+            </div>
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Font Weight</label>
+              <input type="number" data-id="${label.id}" data-prop="builderConfig.globalStyle.fontWeight" value="${label.builderConfig?.globalStyle?.fontWeight || 400}" min="100" max="900" step="100" style="font-size:10px;">
+            </div>
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Corner Radius</label>
+              <input type="number" data-id="${label.id}" data-prop="builderConfig.globalStyle.cornerRadius" value="${label.builderConfig?.globalStyle?.cornerRadius || 10}" min="0" max="50" step="1" style="font-size:10px;">
+            </div>
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Stroke Width</label>
+              <input type="number" data-id="${label.id}" data-prop="builderConfig.globalStyle.strokeWidth" value="${label.builderConfig?.globalStyle?.strokeWidth || 2.5}" min="0" max="10" step="0.5" style="font-size:10px;">
+            </div>
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Row Gap (px)</label>
+              <input type="number" data-id="${label.id}" data-prop="builderConfig.rowGap" value="${label.builderConfig?.rowGap || 4}" min="0" max="50" step="1" style="font-size:10px;">
+            </div>
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Pill Gap (px)</label>
+              <input type="number" data-id="${label.id}" data-prop="builderConfig.pillGap" value="${label.builderConfig?.pillGap || 8}" min="0" max="50" step="1" style="font-size:10px;">
+            </div>
+          </div>
+        </details>
+        
+        <!-- Filter Controls -->
+        <details style="margin-top:12px;">
+          <summary style="cursor:pointer;font-weight:600;font-size:11px;padding:6px;background:rgba(255,255,255,0.1);border-radius:4px;">Effect Filters</summary>
+          <div id="filterPanel_${label.id}" style="padding:8px 4px;">
+            ${renderFilterPanel(label)}
+          </div>
+        </details>
+        
+        <!-- Live Preview -->
+        <details open style="margin-top:12px;">
+          <summary style="cursor:pointer;font-weight:600;font-size:11px;padding:6px;background:rgba(255,255,255,0.1);border-radius:4px;">Live Preview</summary>
+          <div style="padding:8px 4px;">
+            <div id="previewCanvas_${label.id}" style="width:100%;height:200px;background:rgba(0,0,0,0.3);border-radius:4px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;">
+              <span style="color:rgba(255,255,255,0.5);font-size:11px;">Preview will appear here</span>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:8px;align-items:center;">
+              <button class="prevSampleBtn" data-id="${label.id}" style="padding:4px 8px;font-size:10px;background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:4px;cursor:pointer;">← Prev</button>
+              <span id="sampleName_${label.id}" style="flex:1;text-align:center;font-size:10px;opacity:0.8;">Sample 1</span>
+              <button class="nextSampleBtn" data-id="${label.id}" style="padding:4px 8px;font-size:10px;background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:4px;cursor:pointer;">Next →</button>
+            </div>
+          </div>
+        </details>
+        
       </div>
-      ` : ''}
 
       
       
