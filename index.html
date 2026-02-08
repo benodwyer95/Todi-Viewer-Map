@@ -7548,33 +7548,44 @@ function cyclePreviewSample(direction) {
  * @returns {string} HTML string for the rows
  */
 function renderBuilderRows(label) {
-  const config = label.builderConfig || { rows: [] };
+  const config = label.builderConfig || { rows: [{ pills: [{ rule: 'name', textStyle: {} }], columnWidth: 'auto', columnColor: null, columnOpacity: null }] };
   if (!config.rows || config.rows.length === 0) {
-    // Initialize with one default row
-    config.rows = [{
-      id: 'row1',
-      pills: [],
-      style: {},
-      layout: 'horizontal'
-    }];
+    config.rows = [{ pills: [{ rule: 'name', textStyle: {} }], columnWidth: 'auto', columnColor: null, columnOpacity: null }];
   }
   
   return config.rows.map((row, rowIndex) => `
-    <div class="builderRow" data-row-id="${row.id}" style="background:rgba(255,255,255,0.05);padding:8px;border-radius:4px;margin-bottom:8px;">
+    <div style="background:rgba(255,255,255,0.05);padding:8px;border-radius:4px;margin-bottom:8px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
         <span style="font-size:10px;font-weight:600;">Row ${rowIndex + 1}</span>
-        <button class="removeRowBtn" data-label-id="${label.id}" data-row-id="${row.id}" style="padding:2px 6px;font-size:10px;background:rgba(255,0,0,0.3);border:none;color:#fff;border-radius:3px;cursor:pointer;">×</button>
+        ${config.rows.length > 1 ? `<button class="removeRowBtn" data-label-id="${label.id}" data-row-index="${rowIndex}" style="padding:2px 6px;font-size:10px;background:rgba(255,0,0,0.3);border:none;color:#fff;border-radius:3px;cursor:pointer;">×</button>` : ''}
       </div>
-      <div class="pillSlots" style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;">
+      
+      <!-- Pills in this row -->
+      <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;">
         ${row.pills.map((pill, pillIndex) => `
-          <button class="pillSlot" data-label-id="${label.id}" data-row-id="${row.id}" data-pill-id="${pill.id}" style="padding:4px 8px;font-size:9px;background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.3);color:#fff;border-radius:8px;cursor:pointer;">
-            ${pill.fields.map(f => f.name).join(' | ')}
-          </button>
-        `).join('<span style="opacity:0.5;font-size:9px;">gap</span>')}
-        <button class="addPillBtn" data-label-id="${label.id}" data-row-id="${row.id}" style="padding:4px 8px;font-size:9px;background:rgba(255,255,255,0.1);border:1px dashed rgba(255,255,255,0.3);color:#fff;border-radius:8px;cursor:pointer;">( + )</button>
+          <div style="padding:4px 8px;font-size:9px;background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.3);color:#fff;border-radius:8px;display:flex;align-items:center;gap:4px;">
+            <select class="pillRuleSelect" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" style="font-size:9px;background:rgba(0,0,0,0.3);border:none;color:#fff;padding:2px;">
+              ${Object.keys(FIELD_RULES).map(ruleKey => 
+                `<option value="${ruleKey}" ${pill.rule === ruleKey ? 'selected' : ''}>${FIELD_RULES[ruleKey].label}</option>`
+              ).join('')}
+            </select>
+            <button class="removePillBtn" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" style="padding:0 4px;font-size:10px;background:rgba(255,0,0,0.5);border:none;color:#fff;border-radius:3px;cursor:pointer;line-height:1;">×</button>
+          </div>
+        `).join('')}
+        <button class="addPillBtn" data-label-id="${label.id}" data-row-index="${rowIndex}" style="padding:4px 8px;font-size:9px;background:rgba(255,255,255,0.1);border:1px dashed rgba(255,255,255,0.3);color:#fff;border-radius:8px;cursor:pointer;">( + )</button>
       </div>
+      
+      <!-- Column-specific settings for horizontal layout -->
+      ${config.layout === 'columns' ? `
+      <div class="ctrlRow">
+        <label style="font-size:9px;">Column Width</label>
+        <input type="text" data-id="${label.id}" data-prop="builderConfig.rows.${rowIndex}.columnWidth" value="${row.columnWidth || 'auto'}" placeholder="auto" style="font-size:9px;width:60px;">
+      </div>
+      ` : ''}
     </div>
-  `).join('');
+  `).join('') + (config.rows.length < 3 ? `
+    <button class="addRowBtn" data-label-id="${label.id}" style="padding:4px 8px;font-size:10px;background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:4px;cursor:pointer;width:100%;">+ Add Row</button>
+  ` : '');
 }
 
 // Render filter panel for a label
@@ -7764,24 +7775,66 @@ function renderLabelFXControls(label) {
       </div>
       ` : ''}
       
-      <!-- PILL LAYOUT BUILDER -->
-      <div style="font-weight:700;margin:16px 0 8px 0;border-top:1px solid rgba(255,255,255,0.1);padding-top:16px;">Pill Layout Builder</div>
+      <!-- SIMPLIFIED PILL LAYOUT BUILDER -->
+      <div style="font-weight:700;margin:16px 0 8px 0;border-top:1px solid rgba(255,255,255,0.1);padding-top:16px;">Simplified Label Builder</div>
 
       <div id="labelBuilder_${label.id}" style="background:rgba(255,255,255,0.03);padding:12px;border-radius:8px;margin-bottom:12px;">
         
-        <!-- Builder Header -->
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-          <span style="font-size:11px;opacity:0.9;">Build custom pill layouts with field fallbacks</span>
-          <div style="display:flex;gap:6px;">
-            <button class="exportConfigBtn" data-id="${label.id}" style="padding:4px 8px;font-size:10px;background:rgba(100,150,255,0.15);border:none;color:#fff;border-radius:4px;cursor:pointer;" title="Export config to clipboard">📋 Export</button>
-            <button class="importConfigBtn" data-id="${label.id}" style="padding:4px 8px;font-size:10px;background:rgba(100,200,100,0.15);border:none;color:#fff;border-radius:4px;cursor:pointer;" title="Import config from clipboard">📥 Import</button>
-            <button class="addRowBtn" data-id="${label.id}" style="padding:4px 10px;font-size:10px;background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:4px;cursor:pointer;">+ Add Row</button>
-          </div>
+        <!-- Layout Mode -->
+        <div class="ctrlRow">
+          <label style="font-size:10px;">Layout</label>
+          <select data-id="${label.id}" data-prop="builderConfig.layout" style="font-size:10px;">
+            <option value="lines" ${(label.builderConfig?.layout || 'lines') === 'lines' ? 'selected' : ''}>Lines (Vertical)</option>
+            <option value="columns" ${label.builderConfig?.layout === 'columns' ? 'selected' : ''}>Columns (Horizontal)</option>
+          </select>
         </div>
         
-        <!-- Rows Container -->
+        <!-- Number of Rows -->
+        <div class="ctrlRow">
+          <label style="font-size:10px;">Number of Rows</label>
+          <select data-id="${label.id}" data-prop="builderConfig.numRows" style="font-size:10px;">
+            <option value="1" ${(label.builderConfig?.numRows || 1) === 1 ? 'selected' : ''}>1</option>
+            <option value="2" ${label.builderConfig?.numRows === 2 ? 'selected' : ''}>2</option>
+            <option value="3" ${label.builderConfig?.numRows === 3 ? 'selected' : ''}>3</option>
+          </select>
+        </div>
+        
+        <!-- Texture (for entire label) -->
+        <details style="margin:12px 0;">
+          <summary style="cursor:pointer;font-weight:600;font-size:11px;padding:6px;background:rgba(255,255,255,0.1);border-radius:4px;">Label Texture</summary>
+          <div style="padding:8px 4px;">
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Enable Texture</label>
+              <input type="checkbox" data-id="${label.id}" data-prop="builderConfig.texture.enabled" ${label.builderConfig?.texture?.enabled ? 'checked' : ''}>
+            </div>
+            ${label.builderConfig?.texture?.enabled ? `
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Texture</label>
+              <select data-id="${label.id}" data-prop="builderConfig.texture.name" style="font-size:10px;">
+                ${Object.keys(PILL_TEXTURES).map(name => 
+                  `<option value="${name}" ${label.builderConfig?.texture?.name === name ? 'selected' : ''}>${name}</option>`
+                ).join('')}
+              </select>
+            </div>
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Opacity</label>
+              <input type="range" data-id="${label.id}" data-prop="builderConfig.texture.opacity" value="${(label.builderConfig?.texture?.opacity || 0.8) * 100}" min="0" max="100" style="flex:1;">
+              <span style="font-size:10px;margin-left:6px;">${Math.round((label.builderConfig?.texture?.opacity || 0.8) * 100)}%</span>
+            </div>
+            ` : ''}
+          </div>
+        </details>
+        
+        <!-- Rows -->
+        <div style="font-weight:600;font-size:11px;margin:12px 0 6px 0;">Rows</div>
         <div id="builderRows_${label.id}">
           ${renderBuilderRows(label)}
+        </div>
+        
+        <!-- Builder Header (moved to bottom) -->
+        <div style="display:flex;justify-content:flex-end;align-items:center;margin-top:12px;gap:6px;">
+          <button class="exportConfigBtn" data-id="${label.id}" style="padding:4px 8px;font-size:10px;background:rgba(100,150,255,0.15);border:none;color:#fff;border-radius:4px;cursor:pointer;" title="Export config to clipboard">📋 Export</button>
+          <button class="importConfigBtn" data-id="${label.id}" style="padding:4px 8px;font-size:10px;background:rgba(100,200,100,0.15);border:none;color:#fff;border-radius:4px;cursor:pointer;" title="Import config from clipboard">📥 Import</button>
         </div>
         
         <!-- Global Style Controls -->
@@ -8266,24 +8319,66 @@ function renderLabelFXControls(label) {
       </div>
       ` : ''}
       
-      <!-- PILL LAYOUT BUILDER -->
-      <div style="font-weight:700;margin:16px 0 8px 0;border-top:1px solid rgba(255,255,255,0.1);padding-top:16px;">Pill Layout Builder</div>
+      <!-- SIMPLIFIED PILL LAYOUT BUILDER -->
+      <div style="font-weight:700;margin:16px 0 8px 0;border-top:1px solid rgba(255,255,255,0.1);padding-top:16px;">Simplified Label Builder</div>
 
       <div id="labelBuilder_${label.id}" style="background:rgba(255,255,255,0.03);padding:12px;border-radius:8px;margin-bottom:12px;">
         
-        <!-- Builder Header -->
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-          <span style="font-size:11px;opacity:0.9;">Build custom pill layouts with field fallbacks</span>
-          <div style="display:flex;gap:6px;">
-            <button class="exportConfigBtn" data-id="${label.id}" style="padding:4px 8px;font-size:10px;background:rgba(100,150,255,0.15);border:none;color:#fff;border-radius:4px;cursor:pointer;" title="Export config to clipboard">📋 Export</button>
-            <button class="importConfigBtn" data-id="${label.id}" style="padding:4px 8px;font-size:10px;background:rgba(100,200,100,0.15);border:none;color:#fff;border-radius:4px;cursor:pointer;" title="Import config from clipboard">📥 Import</button>
-            <button class="addRowBtn" data-id="${label.id}" style="padding:4px 10px;font-size:10px;background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:4px;cursor:pointer;">+ Add Row</button>
-          </div>
+        <!-- Layout Mode -->
+        <div class="ctrlRow">
+          <label style="font-size:10px;">Layout</label>
+          <select data-id="${label.id}" data-prop="builderConfig.layout" style="font-size:10px;">
+            <option value="lines" ${(label.builderConfig?.layout || 'lines') === 'lines' ? 'selected' : ''}>Lines (Vertical)</option>
+            <option value="columns" ${label.builderConfig?.layout === 'columns' ? 'selected' : ''}>Columns (Horizontal)</option>
+          </select>
         </div>
         
-        <!-- Rows Container -->
+        <!-- Number of Rows -->
+        <div class="ctrlRow">
+          <label style="font-size:10px;">Number of Rows</label>
+          <select data-id="${label.id}" data-prop="builderConfig.numRows" style="font-size:10px;">
+            <option value="1" ${(label.builderConfig?.numRows || 1) === 1 ? 'selected' : ''}>1</option>
+            <option value="2" ${label.builderConfig?.numRows === 2 ? 'selected' : ''}>2</option>
+            <option value="3" ${label.builderConfig?.numRows === 3 ? 'selected' : ''}>3</option>
+          </select>
+        </div>
+        
+        <!-- Texture (for entire label) -->
+        <details style="margin:12px 0;">
+          <summary style="cursor:pointer;font-weight:600;font-size:11px;padding:6px;background:rgba(255,255,255,0.1);border-radius:4px;">Label Texture</summary>
+          <div style="padding:8px 4px;">
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Enable Texture</label>
+              <input type="checkbox" data-id="${label.id}" data-prop="builderConfig.texture.enabled" ${label.builderConfig?.texture?.enabled ? 'checked' : ''}>
+            </div>
+            ${label.builderConfig?.texture?.enabled ? `
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Texture</label>
+              <select data-id="${label.id}" data-prop="builderConfig.texture.name" style="font-size:10px;">
+                ${Object.keys(PILL_TEXTURES).map(name => 
+                  `<option value="${name}" ${label.builderConfig?.texture?.name === name ? 'selected' : ''}>${name}</option>`
+                ).join('')}
+              </select>
+            </div>
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Opacity</label>
+              <input type="range" data-id="${label.id}" data-prop="builderConfig.texture.opacity" value="${(label.builderConfig?.texture?.opacity || 0.8) * 100}" min="0" max="100" style="flex:1;">
+              <span style="font-size:10px;margin-left:6px;">${Math.round((label.builderConfig?.texture?.opacity || 0.8) * 100)}%</span>
+            </div>
+            ` : ''}
+          </div>
+        </details>
+        
+        <!-- Rows -->
+        <div style="font-weight:600;font-size:11px;margin:12px 0 6px 0;">Rows</div>
         <div id="builderRows_${label.id}">
           ${renderBuilderRows(label)}
+        </div>
+        
+        <!-- Builder Header (moved to bottom) -->
+        <div style="display:flex;justify-content:flex-end;align-items:center;margin-top:12px;gap:6px;">
+          <button class="exportConfigBtn" data-id="${label.id}" style="padding:4px 8px;font-size:10px;background:rgba(100,150,255,0.15);border:none;color:#fff;border-radius:4px;cursor:pointer;" title="Export config to clipboard">📋 Export</button>
+          <button class="importConfigBtn" data-id="${label.id}" style="padding:4px 8px;font-size:10px;background:rgba(100,200,100,0.15);border:none;color:#fff;border-radius:4px;cursor:pointer;" title="Import config from clipboard">📥 Import</button>
         </div>
         
         <!-- Global Style Controls -->
