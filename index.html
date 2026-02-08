@@ -6901,6 +6901,9 @@ function renderLabelFXList() {
       const pillId = e.target.dataset.pillId;
       openPillEditor(labelId, rowId, pillId);
     });
+    // Style as disabled/coming soon
+    btn.style.opacity = '0.6';
+    btn.title = 'Pill editor coming soon - shows field configuration interface';
   });
   
   container.querySelectorAll('.addFilterRuleBtn').forEach(btn => {
@@ -6936,10 +6939,14 @@ function renderLabelFXList() {
   
   container.querySelectorAll('.prevSampleBtn, .nextSampleBtn').forEach(btn => {
     btn.addEventListener('click', (e) => {
-      const labelId = e.target.dataset.id;
-      // TODO: Implement preview sample cycling
+      e.preventDefault();
+      // Feature not yet implemented
       console.warn('Preview navigation not yet implemented');
     });
+    // Style as disabled/coming soon
+    btn.style.opacity = '0.5';
+    btn.style.cursor = 'not-allowed';
+    btn.title = 'Preview navigation coming soon';
   });
   
   // Wire up control changes
@@ -7066,7 +7073,9 @@ function updateLabelFXProperty(id, prop, value) {
 // Pill Editor Modal (simplified placeholder)
 function openPillEditor(labelId, rowId, pillId) {
   // TODO: Implement full pill editor modal with field selection, texture controls, etc.
-  alert(`Pill editor for ${pillId} - Full modal UI to be implemented\n\nThis will allow:\n- Adding/removing fields with priorities\n- Configuring textures\n- Setting pill-level style overrides`);
+  // For now, just log to console to avoid disruptive alerts
+  console.info(`Pill editor for ${pillId} in row ${rowId} - Full modal UI to be implemented`);
+  console.info('Future features: field selection, priorities, textures, per-pill styles');
 }
 
 // Render builder rows for a label

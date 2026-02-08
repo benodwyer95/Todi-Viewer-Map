@@ -189,11 +189,12 @@ To migrate an existing multi-line label to the builder system:
 
 ## Known Limitations
 
-1. **Preview**: Live preview is not yet functional (placeholder UI only)
-2. **Pill Editor**: Full modal UI not yet implemented (alert placeholder)
+1. **Preview**: Live preview is not yet functional (buttons styled as disabled)
+2. **Pill Editor**: Full modal UI not yet implemented (console logging instead of alert)
 3. **Texture Rendering**: Textures are loaded but not yet rendered in canvas
 4. **Pill Gap**: Currently uses hardcoded double-space in text join (TODO: use `builderConfig.pillGap`)
 5. **Real Textures**: Only placeholder 1x1 PNGs exist; real texture assets needed
+6. **ID Generation**: Row/pill IDs use simple counters which could theoretically collide after deletions (low risk in practice, can be enhanced with UUIDs if needed)
 
 ## File Changes Summary
 
