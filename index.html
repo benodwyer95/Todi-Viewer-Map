@@ -1808,12 +1808,7 @@ let currentLabelFontStack = FONT_STACKS.helvetica;
 const exportOffsetsBtn = document.getElementById('exportOffsets');
 const importOffsetsIn  = document.getElementById('importOffsets');
 
-// Legacy callout control elements - removed, now using Label FX system
-// const calloutsIn = document.getElementById('calloutsIn');
-// const loopCalloutIn = document.getElementById('loopCalloutIn');
-// const allCalloutsIn = document.getElementById('allCalloutsIn');
-// const animSecondsIn = document.getElementById('animSecondsIn');
-
+// Tooltip elements (still used for UI state tracking, not legacy tooltip system)
 const tip = document.getElementById('tip');
 const tipTitle = document.getElementById('tipTitle');
 const tipMeta = document.getElementById('tipMeta');
@@ -1823,22 +1818,6 @@ const reticleA = document.getElementById('reticleA');
 const reticleB = document.getElementById('reticleB');
 
 function setStatus(msg){ statusEl.textContent = msg; }
-
-const ovOn = document.getElementById('ovOn');
-const ovType = document.getElementById('ovType');
-const ovOpacity = document.getElementById('ovOpacity');
-
-// LEGACY TOOLTIP FUNCTIONS - Replaced by new hover mode
-/*
-function showTooltip(x,y,title,meta){
-  tip.style.display='block';
-  tip.style.left = x+'px';
-  tip.style.top  = y+'px';
-  tipTitle.textContent = title || '';
-  tipMeta.textContent  = meta || '';
-}
-function hideTooltip(){ tip.style.display='none'; }
-*/
 
 // --------------------
 // Three: 2 scenes (pano + overlay markers)
@@ -2393,8 +2372,11 @@ let hovered=null;
 let selected=null;
 
 function rebuildLabels(){
-  disposeLabels();
-  return; // hard-disable old point labels
+  // REMOVED: Old point label system completely disabled
+  // Labels are now exclusively managed by Label FX system
+  // This function is kept as a no-op to avoid breaking call sites
+  // All callouts are managed by applyAllLabelFX() and updateCalloutsVisibility()
+  return;
 }
 
 function updateCalloutsVisibility(){
@@ -2449,20 +2431,19 @@ function setSelected(m){
     }
   }
   selIdEl.textContent = m ? (m.userData.candKey || '—') : '—';
-  rebuildLabels();
+  // REMOVED: rebuildLabels() - no longer creates labels, only Label FX system does
   updateCalloutsVisibility();
 }
 
 function setHovered(m, x, y){
   hovered = m;
   if (!m){
-    // No longer using legacy tooltip
-    rebuildLabels();
+    // REMOVED: rebuildLabels() - no longer creates labels, only Label FX system does
     updateCalloutsVisibility();
     return;
   }
-  // No longer using legacy tooltip - hover tip will be shown via 3D label system
-  rebuildLabels();
+  // Hover tip will be shown via 3D label system (hover mode)
+  // REMOVED: rebuildLabels() - no longer creates labels, only Label FX system does
   updateCalloutsVisibility();
 }
 
@@ -3666,7 +3647,6 @@ function rebuildMarkersAndList(){
   currentMarkers = [];
   hovered = null;
   selected = null;
-  // hideTooltip(); // Removed - legacy tooltip system has been replaced
   selIdEl.textContent='—';
 
   const source = currentSource();
@@ -3674,6 +3654,9 @@ function rebuildMarkersAndList(){
 
   const cands = getFilteredCandidates(source);
 
+  // CRITICAL FIX: Preserve scroll position before clearing
+  const scrollTop = listEl.scrollTop || 0;
+  
   listEl.innerHTML='';
   if (!cands.length){
     const empty=document.createElement('div');
@@ -3685,8 +3668,13 @@ function rebuildMarkersAndList(){
     addDebugMarker();
     updateHeader();
     setStatus(`Loaded: ${source.id} • markers: ${markerGroup.children.length} (debug may be shown)`);
-    rebuildLabels();
+    // REMOVED: rebuildLabels() - no longer creates labels
     updateCalloutsVisibility();
+    
+    // Restore scroll position
+    requestAnimationFrame(() => {
+      listEl.scrollTop = scrollTop;
+    });
     return;
   }
 
@@ -3775,6 +3763,11 @@ function rebuildMarkersAndList(){
   // Apply labels
   applyAllLabelFX();
   updateCalloutsVisibility();
+
+  // CRITICAL FIX: Restore scroll position after rebuild
+  requestAnimationFrame(() => {
+    listEl.scrollTop = scrollTop;
+  });
 
   // if we had a previously selected candKey and it still exists, restore selection
 }
@@ -6015,9 +6008,24 @@ function renderMarkerFXList() {
   const container = document.getElementById('activeMarkersList');
   if (!container) return;
   
-  // Preserve scroll position to prevent auto-scroll bug (Issue #13)
+  // CRITICAL FIX: Preserve scroll position AND active element focus
   const scrollParent = container.parentElement;
   const scrollTop = scrollParent ? scrollParent.scrollTop : 0;
+  
+  // Capture active element info before rebuild
+  const activeEl = document.activeElement;
+  let focusInfo = null;
+  if (activeEl && container.contains(activeEl)) {
+    focusInfo = {
+      id: activeEl.id,
+      dataId: activeEl.dataset?.id,
+      dataProp: activeEl.dataset?.prop,
+      tagName: activeEl.tagName,
+      type: activeEl.type,
+      selectionStart: activeEl.selectionStart,
+      selectionEnd: activeEl.selectionEnd
+    };
+  }
   
   container.innerHTML = '';
   
@@ -6037,10 +6045,38 @@ function renderMarkerFXList() {
     container.appendChild(markerDiv);
   });
   
-  // Restore scroll position after rebuilding UI (use requestAnimationFrame to ensure DOM is updated)
+  // Restore scroll position and focus after rebuilding UI
   if (scrollParent) {
     requestAnimationFrame(() => {
       scrollParent.scrollTop = scrollTop;
+      
+      // Restore focus if we had one
+      if (focusInfo) {
+        let targetEl = null;
+        
+        // Try to find element by ID first
+        if (focusInfo.id) {
+          targetEl = document.getElementById(focusInfo.id);
+        }
+        
+        // Fall back to finding by data attributes
+        if (!targetEl && focusInfo.dataId && focusInfo.dataProp) {
+          targetEl = container.querySelector(`[data-id="${focusInfo.dataId}"][data-prop="${focusInfo.dataProp}"]`);
+        }
+        
+        // Restore focus with preventScroll to avoid jumping
+        if (targetEl && typeof targetEl.focus === 'function') {
+          targetEl.focus({ preventScroll: true });
+          
+          // Restore cursor position for text inputs
+          if (focusInfo.selectionStart !== undefined && typeof targetEl.setSelectionRange === 'function') {
+            targetEl.setSelectionRange(focusInfo.selectionStart, focusInfo.selectionEnd);
+          }
+        }
+        
+        // Ensure scroll position is maintained after focus
+        scrollParent.scrollTop = scrollTop;
+      }
     });
   }
   
@@ -6885,9 +6921,24 @@ function renderLabelFXList() {
   const container = document.getElementById('activeLabelsList');
   if (!container) return;
   
-  // Preserve scroll position to prevent auto-scroll bug (Issue #13)
+  // CRITICAL FIX: Preserve scroll position AND active element focus
   const scrollParent = container.parentElement;
   const scrollTop = scrollParent ? scrollParent.scrollTop : 0;
+  
+  // Capture active element info before rebuild
+  const activeEl = document.activeElement;
+  let focusInfo = null;
+  if (activeEl && container.contains(activeEl)) {
+    focusInfo = {
+      id: activeEl.id,
+      dataId: activeEl.dataset?.id,
+      dataProp: activeEl.dataset?.prop,
+      tagName: activeEl.tagName,
+      type: activeEl.type,
+      selectionStart: activeEl.selectionStart,
+      selectionEnd: activeEl.selectionEnd
+    };
+  }
   
   container.innerHTML = '';
   
@@ -6907,10 +6958,38 @@ function renderLabelFXList() {
     container.appendChild(labelDiv);
   });
   
-  // Restore scroll position after rebuilding UI (use requestAnimationFrame to ensure DOM is updated)
+  // Restore scroll position and focus after rebuilding UI
   if (scrollParent) {
     requestAnimationFrame(() => {
       scrollParent.scrollTop = scrollTop;
+      
+      // Restore focus if we had one
+      if (focusInfo) {
+        let targetEl = null;
+        
+        // Try to find element by ID first
+        if (focusInfo.id) {
+          targetEl = document.getElementById(focusInfo.id);
+        }
+        
+        // Fall back to finding by data attributes
+        if (!targetEl && focusInfo.dataId && focusInfo.dataProp) {
+          targetEl = container.querySelector(`[data-id="${focusInfo.dataId}"][data-prop="${focusInfo.dataProp}"]`);
+        }
+        
+        // Restore focus with preventScroll to avoid jumping
+        if (targetEl && typeof targetEl.focus === 'function') {
+          targetEl.focus({ preventScroll: true });
+          
+          // Restore cursor position for text inputs
+          if (focusInfo.selectionStart !== undefined && typeof targetEl.setSelectionRange === 'function') {
+            targetEl.setSelectionRange(focusInfo.selectionStart, focusInfo.selectionEnd);
+          }
+        }
+        
+        // Ensure scroll position is maintained after focus
+        scrollParent.scrollTop = scrollTop;
+      }
     });
   }
   
@@ -8732,24 +8811,26 @@ function applyAllLabelFX() {
 }
 
 function applyLabelConfigToMarkers(config) {
-  // This function is called when Label FX configs change
-  // But we don't want to recreate all callouts here - they're created once per marker
-  // The actual showing/hiding is handled by updateCalloutsVisibility
-  // This function can be used to update global label text/colors if needed in the future
+  // CRITICAL FIX: Only create callouts when LabelFX OR HoverTipFX is explicitly active
+  // This prevents residual label creation and verifier panel overrides
   
-  // For now, just ensure all markers have callouts created
+  const labelConfig = activeLabels.find(l => l.type === 'label');
+  const hoverConfig = activeLabels.find(l => l.type === 'hover');
+  
+  // EARLY RETURN: If no LabelFX/HoverTipFX is active, do NOT create any callouts
+  if (!labelConfig && !hoverConfig) {
+    return;
+  }
+  
+  const useConfig = labelConfig || hoverConfig;
   const markers = _getVerifierMarkers();
   
   markers.forEach(m => {
     const cand = m.userData?.cand;
     if (!cand) return;
     
-    // If marker doesn't have a callout yet, create one with default config
+    // If marker doesn't have a callout yet, create one
     if (!m.userData?.callout) {
-      const labelConfig = activeLabels.find(l => l.type === 'label');
-      const hoverConfig = activeLabels.find(l => l.type === 'hover');
-      const useConfig = labelConfig || hoverConfig;
-      
       // Resolve line color
       let lineColorHex = null;
       if (useConfig && useConfig.type === 'label' && useConfig.showLine) {
@@ -8757,15 +8838,24 @@ function applyLabelConfigToMarkers(config) {
         lineColorHex = parseInt(lineColorStr.replace('#', ''), 16);
       }
       
+      // REMOVED FALLBACK: No longer use ['name'] as fallback
+      // Labels must come from explicit LabelFX configuration
+      const labelText = getLabelText(useConfig.content, cand);
+      
       // Build callout with config parameters
       const callout = makeCalloutAnimated(
         m,
-        getLabelText(useConfig?.content || ['name'], cand),
+        labelText,
         isVisibleCandidate(cand),
         m.userData.colorHex || 0x00c8ff,
         lineColorHex,
         useConfig
       );
+      
+      // CRITICAL: Start hidden, updateCalloutsVisibility will show when appropriate
+      if (callout && callout.userData) {
+        callout.userData.target = 0;
+      }
     }
   });
 }
