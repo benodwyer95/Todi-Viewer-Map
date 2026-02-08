@@ -7718,10 +7718,25 @@ function renderBuilderRows(label) {
       
       <!-- Column-specific settings for horizontal layout -->
       ${config.layout === 'columns' ? `
-      <div class="ctrlRow">
-        <label style="font-size:9px;">Column Width</label>
-        <input type="text" data-id="${label.id}" data-prop="builderConfig.rows.${rowIndex}.columnWidth" value="${row.columnWidth || 'auto'}" placeholder="auto" style="font-size:9px;width:60px;">
-      </div>
+      <details style="margin-top:8px;">
+        <summary style="cursor:pointer;font-size:10px;font-weight:600;padding:4px;background:rgba(255,255,255,0.08);border-radius:4px;">Column Settings</summary>
+        <div style="padding:8px 4px;display:flex;flex-direction:column;gap:6px;">
+          <div class="ctrlRow">
+            <label style="font-size:9px;">Column Width</label>
+            <input type="text" data-id="${label.id}" data-prop="builderConfig.rows.${rowIndex}.columnWidth" value="${row.columnWidth || 'auto'}" placeholder="auto" style="font-size:9px;width:60px;">
+          </div>
+          <div class="ctrlRow">
+            <label style="font-size:9px;">Column Color</label>
+            ${renderColorSwatch(label.id, `builderConfig.rows.${rowIndex}.columnColor`, row.columnColor || 'rgba(255,255,255,0)', true)}
+          </div>
+          <div class="ctrlRow">
+            <label style="font-size:9px;">Column Opacity</label>
+            <input type="range" data-id="${label.id}" data-prop="builderConfig.rows.${rowIndex}.columnOpacity" value="${(row.columnOpacity !== undefined ? row.columnOpacity : 0) * 100}" min="0" max="100" style="flex:1;font-size:9px;" oninput="this.nextElementSibling.textContent = Math.round(this.value) + '%'">
+            <span style="font-size:9px;margin-left:6px;min-width:35px;text-align:right;">${Math.round((row.columnOpacity !== undefined ? row.columnOpacity : 0) * 100)}%</span>
+          </div>
+          <small style="font-size:8px;opacity:0.7;margin-top:2px;">Column color overlays the global pill background when set</small>
+        </div>
+      </details>
       ` : ''}
     </div>
   `).join('') + (config.rows.length < 3 ? `
