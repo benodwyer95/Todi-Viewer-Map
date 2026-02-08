@@ -3061,6 +3061,8 @@ function renderLabelFromBuilder(defaultText, candidate, worldSize, config) {
         if (text) {
           rowPills.push(text);
         }
+      } else {
+        console.warn(`Invalid or missing rule for pill:`, pill);
       }
     }
     if (rowPills.length > 0) {
@@ -7152,16 +7154,29 @@ function updateLabelFXProperty(id, prop, value) {
   const label = activeLabels.find(l => l.id === id);
   if (!label) return;
   
-  // Handle nested properties (e.g., categoryColors.landmark, line1.bold)
+  // Handle nested properties (e.g., categoryColors.landmark, line1.bold, builderConfig.rows.0.columnWidth)
   if (prop.includes('.')) {
     const parts = prop.split('.');
     let obj = label;
     for (let i = 0; i < parts.length - 1; i++) {
-      // Create intermediate object if it doesn't exist, but only if current value isn't already a non-object
-      if (!obj[parts[i]] || obj[parts[i]] === null || typeof obj[parts[i]] !== 'object') {
-        obj[parts[i]] = {};
+      const part = parts[i];
+      const isArrayIndex = /^\d+$/.test(part);
+      
+      if (isArrayIndex) {
+        // Handle array index
+        const index = parseInt(part);
+        if (!Array.isArray(obj)) {
+          console.warn(`Expected array at path ${parts.slice(0, i).join('.')}, got:`, obj);
+          return;
+        }
+        obj = obj[index];
+      } else {
+        // Create intermediate object if it doesn't exist
+        if (!obj[part] || obj[part] === null || typeof obj[part] !== 'object') {
+          obj[part] = {};
+        }
+        obj = obj[part];
       }
-      obj = obj[parts[i]];
     }
     // Handle value types for nested properties
     const finalProp = parts[parts.length - 1];
