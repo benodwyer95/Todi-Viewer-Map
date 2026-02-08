@@ -3076,7 +3076,7 @@ function renderLabelFromBuilder(defaultText, candidate, worldSize, config) {
     return {
       text,
       fontSize: firstPillStyle.fontSize || builderConfig.globalStyle?.fontSize || 12,
-      fontFamily: 'helvetica', // NOTE: Pills override via textStyle.fontFamily - no global font per spec
+      fontFamily: builderConfig.globalStyle?.fontFamily || 'helvetica',
       bold: bold,
       italic: firstPillStyle.italic || false,
       underline: firstPillStyle.underline || false,
@@ -6757,7 +6757,7 @@ const labelTypeDefaults = {
         fitMode: 'cover'
       },
       globalStyle: {
-        // NOTE: No fontFamily per spec 'Typography is pill-level only'
+        fontFamily: 'helvetica',
         fontSize: 12,
         fontWeight: 400,
         fillColor: 'rgba(0,0,0,0.55)',
@@ -6845,7 +6845,7 @@ const labelTypeDefaults = {
         fitMode: 'cover'
       },
       globalStyle: {
-        // NOTE: No fontFamily per spec 'Typography is pill-level only'
+        fontFamily: 'helvetica',
         fontSize: 12,
         fontWeight: 400,
         fillColor: 'rgba(0,0,0,0.55)',
@@ -7997,7 +7997,14 @@ function renderLabelFXControls(label) {
         <details style="margin-top:12px;">
           <summary style="cursor:pointer;font-weight:600;font-size:11px;padding:6px;background:rgba(255,255,255,0.1);border-radius:4px;">Global Style</summary>
           <div style="padding:8px 4px;display:flex;flex-direction:column;gap:8px;">
-            <!-- NOTE: Per spec "Typography is pill-level only" - Font Family removed -->
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Font Family</label>
+              <select data-id="${label.id}" data-prop="builderConfig.globalStyle.fontFamily" style="font-size:10px;">
+                <option value="helvetica" ${(label.builderConfig?.globalStyle?.fontFamily || 'helvetica') === 'helvetica' ? 'selected' : ''}>Helvetica</option>
+                <option value="times" ${label.builderConfig?.globalStyle?.fontFamily === 'times' ? 'selected' : ''}>Times New Roman</option>
+                <option value="caslon" ${label.builderConfig?.globalStyle?.fontFamily === 'caslon' ? 'selected' : ''}>Caslon</option>
+              </select>
+            </div>
             <div class="ctrlRow">
               <label style="font-size:10px;">Font Size</label>
               <input type="number" data-id="${label.id}" data-prop="builderConfig.globalStyle.fontSize" value="${label.builderConfig?.globalStyle?.fontSize || 12}" min="6" max="48" step="0.5" style="font-size:10px;">
@@ -8488,7 +8495,14 @@ function renderLabelFXControls(label) {
         <details style="margin-top:12px;">
           <summary style="cursor:pointer;font-weight:600;font-size:11px;padding:6px;background:rgba(255,255,255,0.1);border-radius:4px;">Global Style</summary>
           <div style="padding:8px 4px;display:flex;flex-direction:column;gap:8px;">
-            <!-- NOTE: Per spec "Typography is pill-level only" - Font Family removed -->
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Font Family</label>
+              <select data-id="${label.id}" data-prop="builderConfig.globalStyle.fontFamily" style="font-size:10px;">
+                <option value="helvetica" ${(label.builderConfig?.globalStyle?.fontFamily || 'helvetica') === 'helvetica' ? 'selected' : ''}>Helvetica</option>
+                <option value="times" ${label.builderConfig?.globalStyle?.fontFamily === 'times' ? 'selected' : ''}>Times New Roman</option>
+                <option value="caslon" ${label.builderConfig?.globalStyle?.fontFamily === 'caslon' ? 'selected' : ''}>Caslon</option>
+              </select>
+            </div>
             <div class="ctrlRow">
               <label style="font-size:10px;">Font Size</label>
               <input type="number" data-id="${label.id}" data-prop="builderConfig.globalStyle.fontSize" value="${label.builderConfig?.globalStyle?.fontSize || 12}" min="6" max="48" step="0.5" style="font-size:10px;">
