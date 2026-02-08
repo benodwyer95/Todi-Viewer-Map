@@ -3071,7 +3071,9 @@ function renderLabelFromBuilder(defaultText, candidate, worldSize, config) {
     }
     if (rowPills.length > 0) {
       // PHASE 5: Use builderConfig.pillGap for spacing
-      const gapSpaces = Math.max(1, Math.round((builderConfig.pillGap || 8) / 2));
+      // Convert pixel gap to character spaces (approximate: 1 space ≈ 2 pixels)
+      const PIXELS_PER_SPACE = 2;
+      const gapSpaces = Math.max(1, Math.round((builderConfig.pillGap || 8) / PIXELS_PER_SPACE));
       rowTexts.push(rowPills.join(' '.repeat(gapSpaces)));
     }
   }
@@ -7328,10 +7330,12 @@ function setupFieldDragAndDrop() {
   items.forEach(item => {
     item.addEventListener('dragstart', (e) => {
       draggedItem = item;
+      item.classList.add('dragging');
       item.style.opacity = '0.4';
     });
     
     item.addEventListener('dragend', (e) => {
+      item.classList.remove('dragging');
       item.style.opacity = '1';
       draggedItem = null;
     });
@@ -7339,7 +7343,7 @@ function setupFieldDragAndDrop() {
     item.addEventListener('dragover', (e) => {
       e.preventDefault();
       const afterElement = getDragAfterElement(container, e.clientY);
-      if (afterElement == null) {
+      if (afterElement === null) {
         container.appendChild(draggedItem);
       } else {
         container.insertBefore(draggedItem, afterElement);
@@ -7459,8 +7463,8 @@ function updatePillPreview() {
   const label = activeLabels.find(l => l.id === labelId);
   if (!label) return;
   
-  // Use the first preview sample as test data
-  const testData = PREVIEW_SAMPLES[0].data;
+  // Use current preview sample for consistency
+  const testData = PREVIEW_SAMPLES[currentPreviewSample].data;
   
   // Evaluate pill with test data
   const resolvedFields = pill.fields
@@ -7468,11 +7472,15 @@ function updatePillPreview() {
     .filter(f => f.value !== null && f.value !== undefined)
     .sort((a, b) => (a.priority || 1) - (b.priority || 1));
   
-  const pillText = resolvedFields.length > 0 
-    ? (pill.layout === 'vertical' 
-        ? resolvedFields.map(f => String(f.value)).join('\n')
-        : resolvedFields.map(f => String(f.value)).join(' '))
-    : 'NULL';
+  // Format based on layout
+  let pillText;
+  if (resolvedFields.length === 0) {
+    pillText = 'NULL';
+  } else if (pill.layout === 'vertical') {
+    pillText = resolvedFields.map(f => String(f.value)).join('\n');
+  } else {
+    pillText = resolvedFields.map(f => String(f.value)).join(' ');
+  }
   
   const nullFallback = resolvedFields.length === 0 
     ? '<div style="margin-top:8px;padding:6px;background:rgba(255,100,100,0.2);border:1px solid rgba(255,100,100,0.5);border-radius:4px;font-size:9px;">⚠️ All fields NULL - pill will not render</div>'
@@ -7506,12 +7514,17 @@ function updateLivePreview(labelId) {
 }
 
 function cyclePreviewSample(direction) {
+  // Wrap around: ensures index stays within bounds for both forward and backward navigation
   currentPreviewSample = (currentPreviewSample + direction + PREVIEW_SAMPLES.length) % PREVIEW_SAMPLES.length;
   activeLabels.forEach(label => {
     if (label.useBuilder) {
       updateLivePreview(label.id);
     }
   });
+  // Also update pill editor preview if it's open
+  if (currentPillEdit) {
+    updatePillPreview();
+  }
 }
 
 // Render builder rows for a label
