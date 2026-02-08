@@ -1517,6 +1517,7 @@ window.colorToRgba = colorToRgba;
 // Initialize color swatch component system
 window.addEventListener('DOMContentLoaded', () => {
   setupColorSwatchListeners();
+  preloadPillTextures();
 });
 
 // ============ End Color Swatch Component ============
@@ -2934,6 +2935,117 @@ function makeMultiLinePillSprite(lines, worldSize=18, strokeHex=0x000000, config
 
 // ========== END MULTI-LINE SYSTEM ==========
 
+// Evaluate fields with NULL fallback logic for builder system
+function evaluateFieldsWithFallback(candidate, fields) {
+  if (!Array.isArray(fields) || fields.length === 0) return null;
+  
+  for (const field of fields) {
+    const value = candidate[field.name];
+    // Skip NULL, undefined, empty string, or "NULL" string
+    if (value === null || value === undefined || value === "" || value === "NULL") {
+      continue;
+    }
+    // Return first valid value as string
+    return String(value);
+  }
+  
+  return null; // All fields were NULL
+}
+
+// Apply filters to candidates for builder system
+function applyFilters(candidates, filters) {
+  if (!filters || !filters.rules || filters.rules.length === 0) return candidates;
+  
+  const matchesRules = (cand) => {
+    return filters.rules.some(rule => {
+      const fieldValue = cand[rule.field];
+      if (fieldValue === null || fieldValue === undefined) return false;
+      
+      const strValue = String(fieldValue);
+      const ruleValue = String(rule.value || '');
+      
+      switch(rule.operator) {
+        case 'equals': 
+          return rule.caseSensitive 
+            ? strValue === ruleValue
+            : strValue.toLowerCase() === ruleValue.toLowerCase();
+        case 'contains':
+          return rule.caseSensitive
+            ? strValue.includes(ruleValue)
+            : strValue.toLowerCase().includes(ruleValue.toLowerCase());
+        case 'startsWith':
+          return rule.caseSensitive
+            ? strValue.startsWith(ruleValue)
+            : strValue.toLowerCase().startsWith(ruleValue.toLowerCase());
+        case 'regex':
+          try {
+            const regex = new RegExp(ruleValue, rule.caseSensitive ? '' : 'i');
+            return regex.test(strValue);
+          } catch (e) {
+            return false;
+          }
+      }
+      return false;
+    });
+  };
+  
+  return filters.mode === 'includeOnly'
+    ? candidates.filter(matchesRules)
+    : candidates.filter(c => !matchesRules(c));
+}
+
+// Render label from builder configuration
+function renderLabelFromBuilder(defaultText, candidate, worldSize, config) {
+  const builderConfig = config.builderConfig;
+  if (!builderConfig || !builderConfig.rows || builderConfig.rows.length === 0) {
+    return makePillLabelSprite(defaultText, worldSize, 0x000000, config);
+  }
+  
+  // Apply filters first
+  if (builderConfig.filters && builderConfig.filters.rules && builderConfig.filters.rules.length > 0) {
+    const filtered = applyFilters([candidate], builderConfig.filters);
+    if (filtered.length === 0) {
+      // Candidate doesn't match filters - return empty sprite
+      return makePillLabelSprite('', worldSize, 0x000000, config);
+    }
+  }
+  
+  // Build pills from rows
+  const rowTexts = [];
+  for (const row of builderConfig.rows) {
+    const rowPills = [];
+    for (const pill of row.pills) {
+      const text = evaluateFieldsWithFallback(candidate, pill.fields);
+      if (text) {
+        rowPills.push(text);
+      }
+    }
+    if (rowPills.length > 0) {
+      rowTexts.push(rowPills.join('  '));  // Join pills with gap
+    }
+  }
+  
+  if (rowTexts.length === 0) {
+    // All pills evaluated to NULL - return empty
+    return makePillLabelSprite('', worldSize, 0x000000, config);
+  }
+  
+  // For now, join rows with newlines and use multi-line rendering
+  // TODO: Full texture and advanced layout rendering
+  const lines = rowTexts.map((text, i) => ({
+    text,
+    fontSize: builderConfig.globalStyle?.fontSize || 12,
+    fontFamily: builderConfig.globalStyle?.fontFamily || 'helvetica',
+    bold: builderConfig.globalStyle?.fontWeight >= 600,
+    italic: builderConfig.globalStyle?.italic || false,
+    underline: builderConfig.globalStyle?.underline || false,
+    strikethrough: builderConfig.globalStyle?.strikethrough || false,
+    alignment: builderConfig.globalStyle?.alignment || 'center'
+  }));
+  
+  return makeMultiLinePillSprite(lines, worldSize, 0x000000, config);
+}
+
 // Helper function to build lines array from config for multi-line pills
 function buildLinesFromConfig(config, defaultText, cand) {
   const lines = [];
@@ -3125,13 +3237,17 @@ function makeCalloutAnimated(root, name, isVisible=true, typeHex=0x00c8ff, lineC
   }
 
   // pill label - CRITICAL: Position based on FINAL positions (computed before animation)
-  // Check if multi-line mode is enabled
+  // Check for builder config first, fall back to old multi-line or single-line
   let label;
-  if (config?.useMultiLine) {
-    // Build lines array from config
+  if (config?.builderConfig && config.builderConfig.rows && config.builderConfig.rows.length > 0) {
+    // NEW BUILDER SYSTEM
+    label = renderLabelFromBuilder(name, root?.userData?.cand, lblW, config);
+  } else if (config?.useMultiLine) {
+    // OLD MULTI-LINE SYSTEM (legacy fallback)
     const lines = buildLinesFromConfig(config, name, root?.userData?.cand);
     label = makeMultiLinePillSprite(lines, lblW, 0x000000, config);
   } else {
+    // SINGLE-LINE SYSTEM
     label = makePillLabelSprite(name, lblW, 0x000000, config);
   }
   
@@ -6328,6 +6444,50 @@ function initModularMarkerSystem() {
 let activeLabels = [];
 let labelIdCounter = 0;
 
+// Pill texture definitions and loading system
+const PILL_TEXTURES = {
+  'White Paper': './assets/pill_textures/White_Paper.png',
+  'Yellowed Paper': './assets/pill_textures/Yellowed_Paper.png',
+  'Brown Chiselled Stone': './assets/pill_textures/Brown_Chiselled_Stone.png',
+  'Boxed Paper Design': './assets/pill_textures/Boxed_Paper_Design.png',
+  'White Diagonal Paper': './assets/pill_textures/White_Diagonal_Paper.png',
+  'Yellowed Diagonal Paper': './assets/pill_textures/Yellowed_Diagonal_Paper.png',
+  'Olive White Tiles': './assets/pill_textures/Olive_White_Tiles.png',
+  'Peach Tiles': './assets/pill_textures/Peach_Tiles.png',
+  'Olive Tiles': './assets/pill_textures/Olive_Tiles.png',
+  'Red Small Tiles': './assets/pill_textures/Red_Small_Tiles.png',
+  'Vertical Green Tiles': './assets/pill_textures/Vertical_Green_Tiles.png',
+  'Light Green Tiles': './assets/pill_textures/Light_Green_Tiles.png',
+  'Rock Plaster': './assets/pill_textures/Rock_Plaster.png',
+  'Slim White Bricks': './assets/pill_textures/Slim_White_Bricks.png',
+  'Blue Stone': './assets/pill_textures/Blue_Stone.png',
+  'Blue Print Grid': './assets/pill_textures/Blue_Print_Grid.png',
+  'Folded Grid': './assets/pill_textures/Folded_Grid.png',
+  'Protractor Grid': './assets/pill_textures/Protractor_Grid.png'
+};
+
+const textureCache = {};
+
+async function preloadPillTextures() {
+  const promises = Object.entries(PILL_TEXTURES).map(([name, path]) => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        textureCache[name] = img;
+        resolve();
+      };
+      img.onerror = () => {
+        console.warn(`Failed to load texture: ${name}`);
+        resolve();
+      };
+      img.src = path;
+    });
+  });
+  
+  await Promise.all(promises);
+  console.log('All pill textures loaded');
+}
+
 // Label type definitions with default properties
 const labelTypeDefaults = {
   label: {
@@ -6662,6 +6822,106 @@ function renderLabelFXList() {
     });
   });
   
+  // Builder UI event handlers
+  container.querySelectorAll('.addRowBtn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const labelId = e.target.dataset.id;
+      const label = activeLabels.find(l => l.id === labelId);
+      if (label) {
+        if (!label.builderConfig) label.builderConfig = { rows: [], rowGap: 4, pillGap: 8, globalStyle: {}, filters: { mode: 'includeOnly', rules: [] } };
+        if (!label.builderConfig.rows) label.builderConfig.rows = [];
+        label.builderConfig.rows.push({
+          id: `row${Date.now()}`,
+          pills: [],
+          style: {},
+          layout: 'horizontal'
+        });
+        renderLabelFXList();
+      }
+    });
+  });
+  
+  container.querySelectorAll('.removeRowBtn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const labelId = e.target.dataset.labelId;
+      const rowId = e.target.dataset.rowId;
+      const label = activeLabels.find(l => l.id === labelId);
+      if (label && label.builderConfig && label.builderConfig.rows) {
+        label.builderConfig.rows = label.builderConfig.rows.filter(r => r.id !== rowId);
+        renderLabelFXList();
+      }
+    });
+  });
+  
+  container.querySelectorAll('.addPillBtn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const labelId = e.target.dataset.labelId;
+      const rowId = e.target.dataset.rowId;
+      const label = activeLabels.find(l => l.id === labelId);
+      if (label && label.builderConfig && label.builderConfig.rows) {
+        const row = label.builderConfig.rows.find(r => r.id === rowId);
+        if (row) {
+          row.pills.push({
+            id: `pill${Date.now()}`,
+            fields: [{ name: 'name', priority: 1 }],
+            texture: { enabled: false, name: 'White Paper', opacity: 0.8, scale: 1.0, offsetX: 0, offsetY: 0, fitMode: 'cover' },
+            style: {},
+            layout: 'horizontal'
+          });
+          renderLabelFXList();
+        }
+      }
+    });
+  });
+  
+  container.querySelectorAll('.pillSlot').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const labelId = e.target.dataset.labelId;
+      const rowId = e.target.dataset.rowId;
+      const pillId = e.target.dataset.pillId;
+      openPillEditor(labelId, rowId, pillId);
+    });
+  });
+  
+  container.querySelectorAll('.addFilterRuleBtn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const labelId = e.target.dataset.id;
+      const label = activeLabels.find(l => l.id === labelId);
+      if (label) {
+        if (!label.builderConfig) label.builderConfig = { filters: { mode: 'includeOnly', rules: [] } };
+        if (!label.builderConfig.filters) label.builderConfig.filters = { mode: 'includeOnly', rules: [] };
+        if (!label.builderConfig.filters.rules) label.builderConfig.filters.rules = [];
+        label.builderConfig.filters.rules.push({
+          field: 'dst_type',
+          operator: 'equals',
+          value: '',
+          caseSensitive: false
+        });
+        renderLabelFXList();
+      }
+    });
+  });
+  
+  container.querySelectorAll('.removeFilterRuleBtn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const labelId = e.target.dataset.id;
+      const ruleIndex = parseInt(e.target.dataset.ruleIndex);
+      const label = activeLabels.find(l => l.id === labelId);
+      if (label && label.builderConfig && label.builderConfig.filters && label.builderConfig.filters.rules) {
+        label.builderConfig.filters.rules.splice(ruleIndex, 1);
+        renderLabelFXList();
+      }
+    });
+  });
+  
+  container.querySelectorAll('.prevSampleBtn, .nextSampleBtn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const labelId = e.target.dataset.id;
+      // TODO: Implement preview sample cycling
+      console.log('Preview navigation not yet implemented');
+    });
+  });
+  
   // Wire up control changes
   container.querySelectorAll('[data-id][data-prop]').forEach(input => {
     const inputType = input.type;
@@ -6775,11 +7035,103 @@ function updateLabelFXProperty(id, prop, value) {
   // Re-render if certain properties change
   if (prop === 'format' || prop === 'content' || prop === 'type' || 
       prop === 'lineColorMode' || prop === 'displayShapeColorMode' || prop === 'pillColorMode' ||
-      prop === 'useMultiLine' || prop.startsWith('line1.') || prop.startsWith('line2.') || prop.startsWith('line3.')) {
+      prop === 'useMultiLine' || prop.startsWith('line1.') || prop.startsWith('line2.') || prop.startsWith('line3.') ||
+      prop.startsWith('builderConfig.')) {
     renderLabelFXList();
   }
   
   applyAllLabelFX();
+}
+
+// Pill Editor Modal (simplified placeholder)
+function openPillEditor(labelId, rowId, pillId) {
+  // TODO: Implement full pill editor modal with field selection, texture controls, etc.
+  alert(`Pill editor for ${pillId} - Full modal UI to be implemented\n\nThis will allow:\n- Adding/removing fields with priorities\n- Configuring textures\n- Setting pill-level style overrides`);
+}
+
+// Render builder rows for a label
+function renderBuilderRows(label) {
+  const config = label.builderConfig || { rows: [] };
+  if (!config.rows || config.rows.length === 0) {
+    // Initialize with one default row
+    config.rows = [{
+      id: 'row1',
+      pills: [],
+      style: {},
+      layout: 'horizontal'
+    }];
+  }
+  
+  return config.rows.map((row, rowIndex) => `
+    <div class="builderRow" data-row-id="${row.id}" style="background:rgba(255,255,255,0.05);padding:8px;border-radius:4px;margin-bottom:8px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <span style="font-size:10px;font-weight:600;">Row ${rowIndex + 1}</span>
+        <button class="removeRowBtn" data-label-id="${label.id}" data-row-id="${row.id}" style="padding:2px 6px;font-size:10px;background:rgba(255,0,0,0.3);border:none;color:#fff;border-radius:3px;cursor:pointer;">×</button>
+      </div>
+      <div class="pillSlots" style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;">
+        ${row.pills.map((pill, pillIndex) => `
+          <button class="pillSlot" data-label-id="${label.id}" data-row-id="${row.id}" data-pill-id="${pill.id}" style="padding:4px 8px;font-size:9px;background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.3);color:#fff;border-radius:8px;cursor:pointer;">
+            ${pill.fields.map(f => f.name).join(' | ')}
+          </button>
+        `).join('<span style="opacity:0.5;font-size:9px;">gap</span>')}
+        <button class="addPillBtn" data-label-id="${label.id}" data-row-id="${row.id}" style="padding:4px 8px;font-size:9px;background:rgba(255,255,255,0.1);border:1px dashed rgba(255,255,255,0.3);color:#fff;border-radius:8px;cursor:pointer;">( + )</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// Render filter panel for a label
+function renderFilterPanel(label) {
+  const filters = label.builderConfig?.filters || { mode: 'includeOnly', rules: [] };
+  
+  return `
+    <div style="display:flex;gap:8px;margin-bottom:8px;">
+      <label style="font-size:10px;cursor:pointer;">
+        <input type="radio" name="filterMode_${label.id}" value="includeOnly" ${filters.mode === 'includeOnly' ? 'checked' : ''} data-id="${label.id}" data-prop="builderConfig.filters.mode">
+        <span>Include Only</span>
+      </label>
+      <label style="font-size:10px;cursor:pointer;">
+        <input type="radio" name="filterMode_${label.id}" value="exclude" ${filters.mode === 'exclude' ? 'checked' : ''} data-id="${label.id}" data-prop="builderConfig.filters.mode">
+        <span>Exclude</span>
+      </label>
+    </div>
+    <div id="filterRules_${label.id}">
+      ${filters.rules.map((rule, index) => renderFilterRule(label.id, rule, index)).join('')}
+    </div>
+    <button class="addFilterRuleBtn" data-id="${label.id}" style="padding:4px 8px;font-size:10px;background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:4px;cursor:pointer;margin-top:8px;">+ Add Filter Rule</button>
+    <div style="font-size:9px;opacity:0.7;margin-top:8px;">
+      <span id="filterMatchCount_${label.id}">0</span> candidates match these filters
+    </div>
+  `;
+}
+
+// Render individual filter rule
+function renderFilterRule(labelId, rule, index) {
+  return `
+    <div class="filterRule" data-rule-index="${index}" style="background:rgba(255,255,255,0.05);padding:6px;border-radius:4px;margin-bottom:6px;display:flex;gap:4px;flex-wrap:wrap;align-items:center;">
+      <select data-id="${labelId}" data-prop="builderConfig.filters.rules.${index}.field" style="font-size:9px;flex:1;min-width:80px;">
+        <option value="dst_type" ${rule.field === 'dst_type' ? 'selected' : ''}>Type</option>
+        <option value="name" ${rule.field === 'name' ? 'selected' : ''}>Name</option>
+        <option value="dst_name" ${rule.field === 'dst_name' ? 'selected' : ''}>Dst Name</option>
+        <option value="amenity" ${rule.field === 'amenity' ? 'selected' : ''}>Amenity</option>
+        <option value="leisure" ${rule.field === 'leisure' ? 'selected' : ''}>Leisure</option>
+        <option value="place" ${rule.field === 'place' ? 'selected' : ''}>Place</option>
+        <option value="landmark" ${rule.field === 'landmark' ? 'selected' : ''}>Landmark</option>
+      </select>
+      <select data-id="${labelId}" data-prop="builderConfig.filters.rules.${index}.operator" style="font-size:9px;flex:1;min-width:80px;">
+        <option value="equals" ${rule.operator === 'equals' ? 'selected' : ''}>Equals</option>
+        <option value="contains" ${rule.operator === 'contains' ? 'selected' : ''}>Contains</option>
+        <option value="startsWith" ${rule.operator === 'startsWith' ? 'selected' : ''}>Starts With</option>
+        <option value="regex" ${rule.operator === 'regex' ? 'selected' : ''}>Regex</option>
+      </select>
+      <input type="text" data-id="${labelId}" data-prop="builderConfig.filters.rules.${index}.value" value="${rule.value || ''}" placeholder="Value" style="font-size:9px;flex:1;min-width:80px;">
+      <label style="font-size:9px;cursor:pointer;white-space:nowrap;">
+        <input type="checkbox" data-id="${labelId}" data-prop="builderConfig.filters.rules.${index}.caseSensitive" ${rule.caseSensitive ? 'checked' : ''}>
+        <span>Case</span>
+      </label>
+      <button class="removeFilterRuleBtn" data-id="${labelId}" data-rule-index="${index}" style="padding:2px 6px;font-size:9px;background:rgba(255,0,0,0.3);border:none;color:#fff;border-radius:3px;cursor:pointer;">×</button>
+    </div>
+  `;
 }
 
 // Render individual label controls
