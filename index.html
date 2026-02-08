@@ -338,17 +338,7 @@ hr.ovSep{border:none;border-top:1px solid rgba(255,255,255,.12);margin:10px 0}
   .tag{padding:2px 6px;border:1px solid rgba(255,255,255,.16);border-radius:999px;opacity:.9}
   #status{font-size:11px;opacity:.85;margin-top:8px;line-height:1.25}
 
-  /* LEGACY TOOLTIP - Replaced by new hover tip mode
-  #tip{
-    position:fixed;z-index:20;pointer-events:none;transform:translate(10px,10px);
-    padding:8px 10px;background:rgba(0,0,0,.75);
-    border:1px solid rgba(255,255,255,.18);border-radius:10px;
-    color:#fff;font-size:12px;max-width:340px;display:none;backdrop-filter: blur(6px);
-  }
-  #tip .t1{font-weight:800;margin-bottom:2px}
-  #tip .t2{font-size:11px;opacity:.85}
-  */
-
+  
   /* --- Mouse magnifier reticle (overlay DOM) --- */
   #reticleWrap{
     position:fixed;z-index:10000;pointer-events:none;
@@ -8218,33 +8208,12 @@ function renderLabelFXControls(label) {
       </div>
       
       
-      <div class="ctrlRow">
-        <label>Pill Color Mode</label>
-        <select data-id="${label.id}" data-prop="pillColorMode">
-          <option value="single" ${(label.pillColorMode || 'single') === 'single' ? 'selected' : ''}>Single Color</option>
-          <option value="category" ${label.pillColorMode === 'category' ? 'selected' : ''}>Category</option>
-          <option value="visibility" ${label.pillColorMode === 'visibility' ? 'selected' : ''}>Visibility %</option>
-        </select>
-      </div>
+      <!-- REMOVED: Legacy pill color controls (duplicate system)
+           Use LabelFX Builder for unified color pipeline:
+           Global Background → Row Overlay → Column Overlay → Pill
+           All color controls are now in the Builder section above.
+      -->
       
-      ${label.pillColorMode === 'single' ? `
-      <div class="ctrlRow">
-        <label>Pill Background</label>
-        ${renderColorSwatch(label.id, 'pillBackgroundColor', label.pillBackgroundColor || 'rgba(0,0,0,0.75)', true)}
-      </div>
-      
-      <div class="ctrlRow">
-        <label>Pill Border</label>
-        ${renderColorSwatch(label.id, 'pillBorderColor', label.pillBorderColor || 'rgba(255,255,255,0.18)', true)}
-      </div>
-      ` : ''}
-      
-      <div class="ctrlRow">
-        <label>Text Color</label>
-        ${renderColorSwatch(label.id, 'pillTextColor', label.pillTextColor || '#ffffff', false)}
-      </div>
-      
-      <div class="ctrlRow">
         <label>Font Size</label>
         <input type="number" data-id="${label.id}" data-prop="fontSize" value="${label.fontSize || 12}" step="1" min="8" max="24">
       </div>
@@ -8709,33 +8678,12 @@ function renderLabelFXControls(label) {
       </div>
       
       
-      <div class="ctrlRow">
-        <label>Pill Color Mode</label>
-        <select data-id="${label.id}" data-prop="pillColorMode">
-          <option value="single" ${(label.pillColorMode || 'single') === 'single' ? 'selected' : ''}>Single Color</option>
-          <option value="category" ${label.pillColorMode === 'category' ? 'selected' : ''}>Category</option>
-          <option value="visibility" ${label.pillColorMode === 'visibility' ? 'selected' : ''}>Visibility %</option>
-        </select>
-      </div>
+      <!-- REMOVED: Legacy pill color controls (duplicate system)
+           Use LabelFX Builder for unified color pipeline:
+           Global Background → Row Overlay → Column Overlay → Pill
+           All color controls are now in the Builder section above.
+      -->
       
-      ${label.pillColorMode === 'single' ? `
-      <div class="ctrlRow">
-        <label>Pill Background</label>
-        ${renderColorSwatch(label.id, 'pillBackgroundColor', label.pillBackgroundColor || 'rgba(0,0,0,0.75)', true)}
-      </div>
-      
-      <div class="ctrlRow">
-        <label>Pill Border</label>
-        ${renderColorSwatch(label.id, 'pillBorderColor', label.pillBorderColor || 'rgba(255,255,255,0.18)', true)}
-      </div>
-      ` : ''}
-      
-      <div class="ctrlRow">
-        <label>Text Color</label>
-        ${renderColorSwatch(label.id, 'pillTextColor', label.pillTextColor || '#ffffff', false)}
-      </div>
-      
-      <div class="ctrlRow">
         <label>Font Size</label>
         <input type="number" data-id="${label.id}" data-prop="fontSize" value="${label.fontSize || 12}" step="1" min="8" max="24">
       </div>
