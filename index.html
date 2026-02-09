@@ -2610,6 +2610,9 @@ function roundRect(ctx, x, y, w, h, r){
 
 // Black translucent fill + stroke that animates from black -> type color
 function makePillLabelSprite(text, worldSize=18, strokeHex=0x000000, config=null){
+  // DISABLED: Old label system removed - use builder system only
+  console.error('makePillLabelSprite() is DISABLED - use LabelFX Builder system');
+  return null;
   const txt = safeStr(text);
 
   // ---- styling knobs ----
@@ -2769,6 +2772,9 @@ function updateAllPillFonts(){
 // ========== MULTI-LINE PILL SPRITE SYSTEM (Issues 7 & 8) ==========
 
 function makeMultiLinePillSprite(lines, worldSize=18, strokeHex=0x000000, config=null){
+  // DISABLED: Old label system removed - use builder system only
+  console.error('makeMultiLinePillSprite() is DISABLED - use LabelFX Builder system');
+  return null;
   // lines is an array of line objects: [{ text, fontSize, fontFamily, bold, italic, underline, strikethrough, alignment }]
   if (!Array.isArray(lines) || lines.length === 0) {
     // Fallback to single-line sprite
@@ -3314,19 +3320,19 @@ function makeCalloutAnimated(root, name, isVisible=true, typeHex=0x00c8ff, lineC
     call.add(sq2);
   }
 
-  // pill label - CRITICAL: Position based on FINAL positions (computed before animation)
-  // Check for builder config first, fall back to old multi-line or single-line
-  let label;
-  if (config?.builderConfig && config.builderConfig.rows && config.builderConfig.rows.length > 0) {
-    // NEW BUILDER SYSTEM
-    label = renderLabelFromBuilder(name, root?.userData?.cand, lblW, config);
-  } else if (config?.useMultiLine) {
-    // OLD MULTI-LINE SYSTEM (legacy fallback)
-    const lines = buildLinesFromConfig(config, name, root?.userData?.cand);
-    label = makeMultiLinePillSprite(lines, lblW, 0x000000, config);
-  } else {
-    // SINGLE-LINE SYSTEM
-    label = makePillLabelSprite(name, lblW, 0x000000, config);
+  // pill label - Builder system REQUIRED
+  // Require builderConfig - no fallback to old systems
+  if (!config?.builderConfig || !config.builderConfig.rows || config.builderConfig.rows.length === 0) {
+    console.warn('makeCalloutAnimated: builderConfig required, skipping label creation');
+    return null;
+  }
+  
+  // ONLY BUILDER SYSTEM
+  const label = renderLabelFromBuilder(name, root?.userData?.cand, lblW, config);
+  
+  if (!label) {
+    console.warn('makeCalloutAnimated: renderLabelFromBuilder returned null');
+    return null;
   }
   
   const labelHalfH = (label.userData?.baseScale ? (label.userData.baseScale.y*0.5) : (label.scale.y*0.5));
@@ -8847,15 +8853,14 @@ function applyLabelConfigToMarkers(config) {
       // CRITICAL FIX: Check if builder config exists
       // If builder config exists, pass candidate name and let builder system extract text
       // If not, use legacy content system
-      let labelText;
-      if (useConfig.builderConfig && useConfig.builderConfig.rows && useConfig.builderConfig.rows.length > 0) {
-        // Builder system will extract text from candidate using FIELD_RULES and pills
-        // Just pass the candidate name as a fallback/identifier
-        labelText = candidateName(cand);
-      } else {
-        // Legacy system: use content property (checkboxes)
-        labelText = getLabelText(useConfig.content, cand);
+      // BUILDER SYSTEM REQUIRED - no fallback
+      if (!useConfig.builderConfig || !useConfig.builderConfig.rows || useConfig.builderConfig.rows.length === 0) {
+        console.warn('applyLabelConfigToMarkers: builderConfig required, skipping label for', candidateName(cand));
+        return; // Skip this candidate
       }
+      
+      // Builder system will extract text using FIELD_RULES
+      const labelText = candidateName(cand);
       
       // Build callout with config parameters
       const callout = makeCalloutAnimated(
@@ -8876,6 +8881,9 @@ function applyLabelConfigToMarkers(config) {
 }
 
 function getLabelText(contentType, cand) {
+  // DISABLED: Old label system removed - use builder system only
+  console.error('getLabelText() is DISABLED - use LabelFX Builder system');
+  return '';
   // Handle array of content types (checkbox selections)
   if (Array.isArray(contentType)) {
     const parts = contentType.map(type => {
