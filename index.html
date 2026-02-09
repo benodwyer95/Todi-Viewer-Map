@@ -158,8 +158,6 @@
 #dockPanelOverlay #uiOverlay{ display:flex; flex-direction:column; overflow:hidden; }
 #dockPanelOverlay #ovBody{ overflow:auto; }
 
-
-
 /* ================= Overlay panel (ported) ================= */
 
 #uiOverlay{
@@ -280,7 +278,6 @@ hr.ovSep{border:none;border-top:1px solid rgba(255,255,255,.12);margin:10px 0}
 #uiOverlay.collapsed #ovBody,
 #uiOverlay.collapsed #ovFooter{ display:none; }
 
-
   html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:Arial,Helvetica,sans-serif;scroll-behavior:auto}
   * {scroll-behavior:auto !important;} /* Prevent auto-smooth scrolling on all elements */
   #app{position:fixed;inset:0;z-index:1}
@@ -338,7 +335,6 @@ hr.ovSep{border:none;border-top:1px solid rgba(255,255,255,.12);margin:10px 0}
   .tag{padding:2px 6px;border:1px solid rgba(255,255,255,.16);border-radius:999px;opacity:.9}
   #status{font-size:11px;opacity:.85;margin-top:8px;line-height:1.25}
 
-  
   /* --- Mouse magnifier reticle (overlay DOM) --- */
   #reticleWrap{
     position:fixed;z-index:10000;pointer-events:none;
@@ -414,7 +410,6 @@ hr.ovSep{border:none;border-top:1px solid rgba(255,255,255,.12);margin:10px 0}
 /* verifier collapse */
 #ui.collapsed #uiBody, #ui.collapsed #uiFooter{ display:none !important; }
 #ui.collapsed{ width:320px; }
-
 
 /* ===== Dual dock layout (Verifier left, Overlay right) ===== */
 .dock{ position:fixed; top:10px; bottom:10px;
@@ -785,7 +780,6 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
 </style>
 </head>
 <body>
-
 
 <div id="leftDock" class="dock">
   <div class="dockHeader">
@@ -1602,8 +1596,6 @@ function overlayPathForSource(source, kind){
   return `./images/Overlays/${base}_${kind}.png`;
 }
 
-
-
 function candidateName(c){
   // Label priority:
   // 1) dst_lm_name when present (real landmark name)
@@ -1639,7 +1631,6 @@ function candidateName(c){
   st = prettyTitle(st);
   return `${t} - ${st}`;
 }
-
 
 function candidateStableId(c){
   // stable-ish key used for per-point offsets
@@ -1853,7 +1844,6 @@ const overlayMesh = new THREE.Mesh(
 );
 overlayMesh.visible = true;
 scenePano.add(overlayMesh);
-
 
 const markerGroup = new THREE.Group();
 sceneOverlay.add(markerGroup);
@@ -3320,18 +3310,18 @@ function makeCalloutAnimated(root, name, isVisible=true, typeHex=0x00c8ff, lineC
     call.add(sq2);
   }
 
-  // pill label - Builder system REQUIRED
-  // Require builderConfig - no fallback to old systems
-  if (!config?.builderConfig || !config.builderConfig.rows || config.builderConfig.rows.length === 0) {
-    console.warn('makeCalloutAnimated: builderConfig required, skipping label creation');
-    return null;
+  // pill label - Builder system preferred, fallback for initialization
+  // Allow rendering even if builderConfig not fully set up yet (for new labels)
+  let label = null;
+  
+  if (config?.builderConfig && config.builderConfig.rows && config.builderConfig.rows.length > 0) {
+    // BUILDER SYSTEM - primary path
+    label = renderLabelFromBuilder(name, root?.userData?.cand, lblW, config);
   }
   
-  // ONLY BUILDER SYSTEM
-  const label = renderLabelFromBuilder(name, root?.userData?.cand, lblW, config);
-  
   if (!label) {
-    console.warn('makeCalloutAnimated: renderLabelFromBuilder returned null');
+    // No valid label generated - skip this callout
+    // (UI can still show for configuration even without label rendering)
     return null;
   }
   
@@ -3861,13 +3851,11 @@ function loadPanoImage(source){
   });
 }
 
-
 function syncOverlayUI(){
   if (!overlayMesh) return;
   const op = ovOpacity ? parseFloat(ovOpacity.value) : 0.65;
   overlayMesh.material.opacity = Number.isFinite(op) ? op : 0.65;
 }
-
 
 /* ===========================
    Overlay (Rules + Presets)
@@ -4095,7 +4083,6 @@ function buildOverlayMaterial(edgeTex, maskTex){
   edgeTex.magFilter = THREE.LinearFilter;
   edgeTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
 
-
   if(maskTex){
     if(maskTex.colorSpace !== undefined) maskTex.colorSpace = THREE.SRGBColorSpace;
     maskTex.generateMipmaps = false;
@@ -4189,7 +4176,6 @@ function buildOverlayMaterial(edgeTex, maskTex){
 
         float a = maskCrisp(rawMask(t));
 
-        
         int N = int(clamp(uWidth, 0.0, 6.0) + 0.5);
         float m = a;
 
@@ -4902,7 +4888,6 @@ function hookOverlayUI(){
   };
 }
 
-
 function loadOverlayForSource(source){
   return new Promise((resolve)=>{
     try{
@@ -4987,9 +4972,6 @@ function loadOverlayForSource(source){
   });
 }
 
-
-
-
 // --------------------
 // Navigation
 // --------------------
@@ -5004,7 +4986,6 @@ const s=currentSource();
 
   await loadOverlayForSource(s);
 
-  
   loadSkyMaskForSource(s);
 yaw = 0; pitch = 0; animating = false;
 
@@ -5498,7 +5479,6 @@ function buildExportObject(){
   return out;
 }
 
-
 exportOffsetsBtn.addEventListener('click', ()=> {
   const out = buildExportObject();
 
@@ -5591,7 +5571,6 @@ importOffsetsIn.addEventListener('change', async ()=> {
   }
 });
 
-
 // --------------------
 // Resize
 // --------------------
@@ -5615,9 +5594,6 @@ function computeMaxDistanceFromData(){
   }
   return Math.min(2000, Math.ceil(maxD));
 }
-
-
-
 
 // ================= Marker FX (wired to currentMarkers from verifier) =================
 let markerFxMode = "loading";
@@ -7383,7 +7359,6 @@ function updateLabelFXProperty(id, prop, value) {
   applyAllLabelFX();
 }
 
-
 // PHASE 7: Pill Editor Modal Implementation
 let currentPillEdit = null;
 
@@ -7673,7 +7648,6 @@ function updatePillPreview() {
     <div style="margin-top:6px;font-size:9px;opacity:0.7;">Field resolution: ${resolvedFields.map(f => `${f.name}(${f.priority})`).join(' → ')}</div>
   `;
 }
-
 
 // PHASE 9: Live Preview Functions
 function updateLivePreview(labelId) {
@@ -7995,7 +7969,6 @@ function renderLabelFXControls(label) {
       </div>
       <small style="display:block;opacity:0.7;font-size:10px;margin:-4px 0 8px 0;">Extends line to sky mask horizon + line height</small>
       
-      
       <!-- Display Shape Controls -->
       <hr style="border:none;border-top:1px solid rgba(255,255,255,.12);margin:12px 0;">
       <div class="ctrlRow" style="align-items:center;">
@@ -8122,7 +8095,7 @@ function renderLabelFXControls(label) {
         
         <!-- Global Style Controls -->
         <details style="margin-top:12px;">
-          <summary style="cursor:pointer;font-weight:600;font-size:11px;padding:6px;background:rgba(255,255,255,0.1);border-radius:4px;">Pill Shape & Style</summary>
+          <summary style="cursor:pointer;font-weight:600;font-size:11px;padding:6px;background:rgba(255,255,255,0.1);border-radius:4px;">Label Shape & Style</summary>
           <div style="padding:8px 4px;display:flex;flex-direction:column;gap:8px;">
           <div style="padding:8px 4px;display:flex;flex-direction:column;gap:8px;">
             <!-- NOTE: Typography is pill-level only (use ✏️ button on each pill) -->
@@ -8131,12 +8104,6 @@ function renderLabelFXControls(label) {
             <div class="ctrlRow">
               <label style="font-size:10px;">Pill Color</label>
               ${renderColorSwatch(label.id, 'builderConfig.globalStyle.pillColor', label.builderConfig?.globalStyle?.pillColor || 'rgba(0,0,0,0.55)', true)}
-            </div>
-            
-            <!-- Unified Pill Opacity -->
-            <div class="ctrlRow">
-              <label style="font-size:10px;">Pill Opacity: <span id="pillOpacityVal_${label.id}">${Math.round((label.builderConfig?.globalStyle?.pillOpacity ?? 1) * 100)}%</span></label>
-              <input type="range" data-id="${label.id}" data-prop="builderConfig.globalStyle.pillOpacity" min="0" max="100" value="${(label.builderConfig?.globalStyle?.pillOpacity ?? 1) * 100}" style="width:100%;" oninput="document.getElementById('pillOpacityVal_${label.id}').textContent = this.value + '%'">
             </div>
             
             <div class="ctrlRow">
@@ -8170,18 +8137,9 @@ function renderLabelFXControls(label) {
             <!-- PHASE 6: Color Controls -->
             <div style="font-size:10px;font-weight:600;margin-top:4px;opacity:0.8;">Colors</div>
             <div class="ctrlRow">
-              <label style="font-size:10px;">Fill Color</label>
-              ${renderColorSwatch(label.id, 'builderConfig.globalStyle.fillColor', label.builderConfig?.globalStyle?.fillColor || 'rgba(0,0,0,0.55)', true)}
-            </div>
-            <div class="ctrlRow">
               <label style="font-size:10px;">Stroke Color</label>
               ${renderColorSwatch(label.id, 'builderConfig.globalStyle.strokeColor', label.builderConfig?.globalStyle?.strokeColor || 'rgba(255,255,255,0.98)', true)}
             </div>
-            <div class="ctrlRow">
-              <label style="font-size:10px;">Text Color</label>
-              ${renderColorSwatch(label.id, 'builderConfig.globalStyle.textColor', label.builderConfig?.globalStyle?.textColor || 'rgba(255,255,255,1)', true)}
-            </div>
-            
             <!-- PHASE 8: Stroke Quality Controls -->
             <div style="font-size:10px;font-weight:600;margin-top:4px;opacity:0.8;">Stroke Style</div>
             <div class="ctrlRow">
@@ -8245,19 +8203,8 @@ function renderLabelFXControls(label) {
         
       </div>
 
-      
-      
       <div class="ctrlRow">
-        <label>Pill Shape</label>
-        <select data-id="${label.id}" data-prop="pillShape">
-          <option value="rounded" ${(label.pillShape || 'rounded') === 'rounded' ? 'selected' : ''}>Rounded</option>
-          <option value="soft-rounded" ${label.pillShape === 'soft-rounded' ? 'selected' : ''}>Soft-rounded</option>
-          <option value="square" ${label.pillShape === 'square' ? 'selected' : ''}>Square</option>
-        </select>
-      </div>
-      
-      <div class="ctrlRow">
-        <label>Pill Position</label>
+        <label>Label Position</label>
         <select data-id="${label.id}" data-prop="pillPosition">
           <option value="top-center" ${(label.pillPosition || 'top-center') === 'top-center' ? 'selected' : ''}>Top Center</option>
           <option value="top-left" ${label.pillPosition === 'top-left' ? 'selected' : ''}>Top Left</option>
@@ -8266,13 +8213,6 @@ function renderLabelFXControls(label) {
           <option value="side-right" ${label.pillPosition === 'side-right' ? 'selected' : ''}>Side Right</option>
         </select>
       </div>
-      
-      ${(label.pillPosition || 'top-center').startsWith('top') ? `
-      <div class="ctrlRow">
-        <label>Pill Top Gap</label>
-        <input type="number" data-id="${label.id}" data-prop="pillTopGap" value="${label.pillTopGap !== undefined ? label.pillTopGap : 2.0}" step="0.5" min="0" max="10">
-      </div>
-      ` : ''}
       
       ${(label.pillPosition || 'top-center').startsWith('side') ? `
       <div class="ctrlRow">
@@ -8295,41 +8235,11 @@ function renderLabelFXControls(label) {
         <small style="opacity:0.7;font-size:10px;margin-left:4px;">+higher, -lower</small>
       </div>
       
-      
       <!-- REMOVED: Legacy pill color controls (duplicate system)
            Use LabelFX Builder for unified color pipeline:
            Global Background → Row Overlay → Column Overlay → Pill
            All color controls are now in the Builder section above.
       -->
-      
-        <label>Font Size</label>
-        <input type="number" data-id="${label.id}" data-prop="fontSize" value="${label.fontSize || 12}" step="1" min="8" max="24">
-      </div>
-      
-      <div class="ctrlRow">
-        <label>Font</label>
-        <select data-id="${label.id}" data-prop="font">
-          <option value="helvetica" ${(label.font || 'helvetica') === 'helvetica' ? 'selected' : ''}>Helvetica</option>
-          <option value="times" ${label.font === 'times' ? 'selected' : ''}>Times New Roman</option>
-          <option value="caslon" ${label.font === 'caslon' ? 'selected' : ''}>Caslon</option>
-          <option value="inter" ${label.font === 'inter' ? 'selected' : ''}>Inter</option>
-          <option value="manrope" ${label.font === 'manrope' ? 'selected' : ''}>Manrope</option>
-          <option value="ibmplex" ${label.font === 'ibmplex' ? 'selected' : ''}>IBM Plex Sans</option>
-          <option value="spacegrotesk" ${label.font === 'spacegrotesk' ? 'selected' : ''}>Space Grotesk</option>
-          <option value="system" ${label.font === 'system' ? 'selected' : ''}>System UI</option>
-        </select>
-      </div>
-      
-      <div class="ctrlRow">
-        <label>Padding X</label>
-        <input type="number" data-id="${label.id}" data-prop="paddingX" value="${label.paddingX || 18}" step="1" min="0" max="40">
-      </div>
-      
-      <div class="ctrlRow">
-        <label>Padding Y</label>
-        <input type="number" data-id="${label.id}" data-prop="paddingY" value="${label.paddingY || 12}" step="1" min="0" max="40">
-      </div>
-      
       ${usesCategoryColors ? `
       <!-- Category Colors -->
       <hr style="border:none;border-top:1px solid rgba(255,255,255,.12);margin:12px 0;">
@@ -8424,7 +8334,6 @@ function renderLabelFXControls(label) {
       </div>
       <small style="display:block;opacity:0.7;font-size:10px;margin:-4px 0 8px 0;">Extends line to sky mask horizon + line height</small>
       
-      
       <!-- Display Shape Controls -->
       <hr style="border:none;border-top:1px solid rgba(255,255,255,.12);margin:12px 0;">
       <div class="ctrlRow" style="align-items:center;">
@@ -8551,7 +8460,7 @@ function renderLabelFXControls(label) {
         
         <!-- Global Style Controls -->
         <details style="margin-top:12px;">
-          <summary style="cursor:pointer;font-weight:600;font-size:11px;padding:6px;background:rgba(255,255,255,0.1);border-radius:4px;">Pill Shape & Style</summary>
+          <summary style="cursor:pointer;font-weight:600;font-size:11px;padding:6px;background:rgba(255,255,255,0.1);border-radius:4px;">Label Shape & Style</summary>
           <div style="padding:8px 4px;display:flex;flex-direction:column;gap:8px;">
           <div style="padding:8px 4px;display:flex;flex-direction:column;gap:8px;">
             <!-- NOTE: Typography is pill-level only (use ✏️ button on each pill) -->
@@ -8560,12 +8469,6 @@ function renderLabelFXControls(label) {
             <div class="ctrlRow">
               <label style="font-size:10px;">Pill Color</label>
               ${renderColorSwatch(label.id, 'builderConfig.globalStyle.pillColor', label.builderConfig?.globalStyle?.pillColor || 'rgba(0,0,0,0.55)', true)}
-            </div>
-            
-            <!-- Unified Pill Opacity -->
-            <div class="ctrlRow">
-              <label style="font-size:10px;">Pill Opacity: <span id="pillOpacityVal_${label.id}">${Math.round((label.builderConfig?.globalStyle?.pillOpacity ?? 1) * 100)}%</span></label>
-              <input type="range" data-id="${label.id}" data-prop="builderConfig.globalStyle.pillOpacity" min="0" max="100" value="${(label.builderConfig?.globalStyle?.pillOpacity ?? 1) * 100}" style="width:100%;" oninput="document.getElementById('pillOpacityVal_${label.id}').textContent = this.value + '%'">
             </div>
             
             <div class="ctrlRow">
@@ -8599,18 +8502,9 @@ function renderLabelFXControls(label) {
             <!-- PHASE 6: Color Controls -->
             <div style="font-size:10px;font-weight:600;margin-top:4px;opacity:0.8;">Colors</div>
             <div class="ctrlRow">
-              <label style="font-size:10px;">Fill Color</label>
-              ${renderColorSwatch(label.id, 'builderConfig.globalStyle.fillColor', label.builderConfig?.globalStyle?.fillColor || 'rgba(0,0,0,0.55)', true)}
-            </div>
-            <div class="ctrlRow">
               <label style="font-size:10px;">Stroke Color</label>
               ${renderColorSwatch(label.id, 'builderConfig.globalStyle.strokeColor', label.builderConfig?.globalStyle?.strokeColor || 'rgba(255,255,255,0.98)', true)}
             </div>
-            <div class="ctrlRow">
-              <label style="font-size:10px;">Text Color</label>
-              ${renderColorSwatch(label.id, 'builderConfig.globalStyle.textColor', label.builderConfig?.globalStyle?.textColor || 'rgba(255,255,255,1)', true)}
-            </div>
-            
             <!-- PHASE 8: Stroke Quality Controls -->
             <div style="font-size:10px;font-weight:600;margin-top:4px;opacity:0.8;">Stroke Style</div>
             <div class="ctrlRow">
@@ -8674,19 +8568,8 @@ function renderLabelFXControls(label) {
         
       </div>
 
-      
-      
       <div class="ctrlRow">
-        <label>Pill Shape</label>
-        <select data-id="${label.id}" data-prop="pillShape">
-          <option value="rounded" ${(label.pillShape || 'rounded') === 'rounded' ? 'selected' : ''}>Rounded</option>
-          <option value="soft-rounded" ${label.pillShape === 'soft-rounded' ? 'selected' : ''}>Soft-rounded</option>
-          <option value="square" ${label.pillShape === 'square' ? 'selected' : ''}>Square</option>
-        </select>
-      </div>
-      
-      <div class="ctrlRow">
-        <label>Pill Position</label>
+        <label>Label Position</label>
         <select data-id="${label.id}" data-prop="pillPosition">
           <option value="top-center" ${(label.pillPosition || 'top-center') === 'top-center' ? 'selected' : ''}>Top Center</option>
           <option value="top-left" ${label.pillPosition === 'top-left' ? 'selected' : ''}>Top Left</option>
@@ -8697,12 +8580,6 @@ function renderLabelFXControls(label) {
       </div>
       
       ${(label.pillPosition || 'top-center').startsWith('top') ? `
-      <div class="ctrlRow">
-        <label>Pill Top Gap</label>
-        <input type="number" data-id="${label.id}" data-prop="pillTopGap" value="${label.pillTopGap !== undefined ? label.pillTopGap : 2.0}" step="0.5" min="0" max="10">
-      </div>
-      ` : ''}
-      
       ${(label.pillPosition || 'top-center').startsWith('side') ? `
       <div class="ctrlRow">
         <label>Pill Side Gap</label>
@@ -8724,41 +8601,14 @@ function renderLabelFXControls(label) {
         <small style="opacity:0.7;font-size:10px;margin-left:4px;">+higher, -lower</small>
       </div>
       
-      
       <!-- REMOVED: Legacy pill color controls (duplicate system)
            Use LabelFX Builder for unified color pipeline:
            Global Background → Row Overlay → Column Overlay → Pill
            All color controls are now in the Builder section above.
       -->
       
-        <label>Font Size</label>
-        <input type="number" data-id="${label.id}" data-prop="fontSize" value="${label.fontSize || 12}" step="1" min="8" max="24">
-      </div>
-      
       <div class="ctrlRow">
-        <label>Font</label>
-        <select data-id="${label.id}" data-prop="font">
-          <option value="helvetica" ${(label.font || 'helvetica') === 'helvetica' ? 'selected' : ''}>Helvetica</option>
-          <option value="times" ${label.font === 'times' ? 'selected' : ''}>Times New Roman</option>
-          <option value="caslon" ${label.font === 'caslon' ? 'selected' : ''}>Caslon</option>
-          <option value="inter" ${label.font === 'inter' ? 'selected' : ''}>Inter</option>
-          <option value="manrope" ${label.font === 'manrope' ? 'selected' : ''}>Manrope</option>
-          <option value="ibmplex" ${label.font === 'ibmplex' ? 'selected' : ''}>IBM Plex Sans</option>
-          <option value="spacegrotesk" ${label.font === 'spacegrotesk' ? 'selected' : ''}>Space Grotesk</option>
-          <option value="system" ${label.font === 'system' ? 'selected' : ''}>System UI</option>
-        </select>
-      </div>
-      
       <div class="ctrlRow">
-        <label>Padding X</label>
-        <input type="number" data-id="${label.id}" data-prop="paddingX" value="${label.paddingX || 10}" step="1" min="0" max="40">
-      </div>
-      
-      <div class="ctrlRow">
-        <label>Padding Y</label>
-        <input type="number" data-id="${label.id}" data-prop="paddingY" value="${label.paddingY || 8}" step="1" min="0" max="40">
-      </div>
-      
       ${usesCategoryColors ? `
       <!-- Category Colors -->
       <hr style="border:none;border-top:1px solid rgba(255,255,255,.12);margin:12px 0;">
@@ -9061,14 +8911,12 @@ async function init(){
   // Initialize default label
   addLabelFX('hover');
 
-
     hookSkyGroundUI();
 // Overlay UI hooks
   if (ovOpacity) ovOpacity.addEventListener('input', syncOverlayUI);
   if (ovOn) ovOn.addEventListener('change', ()=> loadOverlayForSource(currentSource()));
   if (ovType) ovType.addEventListener('change', ()=> loadOverlayForSource(currentSource()));
   syncOverlayUI();
-
 
   const srcs = Array.isArray(DATA.sources) ? DATA.sources : [];
   SOURCES = srcs.map(s=>({
@@ -9116,7 +8964,6 @@ function animate(){
   updateCamera();
   updateCalloutAnims();
 
-  
   // animate / control loading circle markers (mode-aware)
   const nowSpin = performance.now();
   const dtSpin = Math.min(0.05, (nowSpin - lastSpinT)/1000);
@@ -9166,7 +9013,6 @@ function animate(){
   renderer.render(scenePano, camera);
   renderer.render(sceneOverlay, camera);
 }
-
 
 // ================= SKY / GROUND MASK OVERLAY (module-scope) =================
 let sgMesh=null, sgTex=null;
@@ -9329,8 +9175,6 @@ function hookSkyGroundUI(){
   apply();
 }
 // ============================================================================
-
-
 
 // --- Edge reopen buttons (hardfix, no guessing) ---
 if(!window.__edgeHardInit){
@@ -9507,7 +9351,6 @@ init().then(()=>animate()).catch(err=>{
     </div>
   </div>
 
-
     <div class="ovRow">
       <span>Mode</span>
       <select id="modeSel">
@@ -9589,13 +9432,10 @@ init().then(()=>animate()).catch(err=>{
 }
 #uiOverlay select, #uiOverlay input[type="range"]{ accent-color:#fff; }
 
-
 </style>
-
 
 <button id="edgeReopenLeft" class="edgeReopen" title="Open verifier">▶</button>
 <button id="edgeReopenRight" class="edgeReopen" title="Open overlays">◀</button>
-
 
 <!-- PHASE 7: Pill Editor Modal -->
 <div id="pillEditorModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:10000;align-items:center;justify-content:center;">
