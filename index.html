@@ -8579,7 +8579,6 @@ function renderLabelFXControls(label) {
         </select>
       </div>
       
-      ${(label.pillPosition || 'top-center').startsWith('top') ? `
       ${(label.pillPosition || 'top-center').startsWith('side') ? `
       <div class="ctrlRow">
         <label>Pill Side Gap</label>
@@ -8607,8 +8606,6 @@ function renderLabelFXControls(label) {
            All color controls are now in the Builder section above.
       -->
       
-      <div class="ctrlRow">
-      <div class="ctrlRow">
       ${usesCategoryColors ? `
       <!-- Category Colors -->
       <hr style="border:none;border-top:1px solid rgba(255,255,255,.12);margin:12px 0;">
