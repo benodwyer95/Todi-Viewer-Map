@@ -8679,6 +8679,48 @@ function applyLabelConfigToMarkers(config) {
   }
   
   const useConfig = labelConfig || hoverConfig;
+  
+  // AUTO-MIGRATE: Initialize builderConfig for old configs that don't have it
+  if (!useConfig.builderConfig) {
+    console.log('Auto-migrating old label config to builder system');
+    useConfig.builderConfig = {
+      layout: 'lines',
+      numRows: 1,
+      rows: [{
+        pills: [{
+          rule: 'name',
+          textStyle: {
+            fontFamily: 'helvetica',
+            fontSize: 14,
+            fontWeight: 400,
+            textColor: '#ffffff'
+          }
+        }],
+        columnWidth: 'auto',
+        columnColor: null,
+        columnOpacity: null
+      }],
+      globalStyle: {
+        pillColor: 'rgba(0,0,0,0.55)',
+        pillOpacity: 1,
+        cornerRadius: 10,
+        strokeWidth: 2.5,
+        paddingTop: 12,
+        paddingRight: 18,
+        paddingBottom: 12,
+        paddingLeft: 18,
+        strokeColor: 'rgba(255,255,255,0.98)',
+        strokeStyle: 'solid',
+        lineJoin: 'round',
+        lineCap: 'round'
+      },
+      filters: {
+        mode: 'all',
+        rules: []
+      }
+    };
+  }
+  
   const markers = _getVerifierMarkers();
   
   markers.forEach(m => {
@@ -8694,15 +8736,10 @@ function applyLabelConfigToMarkers(config) {
         lineColorHex = parseInt(lineColorStr.replace('#', ''), 16);
       }
       
-      // REMOVED FALLBACK: No longer use ['name'] as fallback
-      // Labels must come from explicit LabelFX configuration
-      
-      // CRITICAL FIX: Check if builder config exists
-      // If builder config exists, pass candidate name and let builder system extract text
-      // If not, use legacy content system
-      // BUILDER SYSTEM REQUIRED - no fallback
+      // Builder system extracts text using FIELD_RULES
+      // builderConfig is now guaranteed to exist due to auto-migration above
       if (!useConfig.builderConfig || !useConfig.builderConfig.rows || useConfig.builderConfig.rows.length === 0) {
-        console.warn('applyLabelConfigToMarkers: builderConfig required, skipping label for', candidateName(cand));
+        console.warn('applyLabelConfigToMarkers: builderConfig invalid, skipping label for', candidateName(cand));
         return; // Skip this candidate
       }
       
