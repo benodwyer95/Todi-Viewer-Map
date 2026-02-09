@@ -3074,7 +3074,8 @@ function applyFilters(candidates, filters) {
 function renderLabelFromBuilder(defaultText, candidate, worldSize, config) {
   const builderConfig = config.builderConfig;
   if (!builderConfig || !builderConfig.rows || builderConfig.rows.length === 0) {
-    return makePillLabelSprite(defaultText, worldSize, 0x000000, config);
+    console.warn('renderLabelFromBuilder: No builderConfig, returning null');
+    return null;
   }
   
   // Build text from rules with per-pill styling
@@ -3098,32 +3099,126 @@ function renderLabelFromBuilder(defaultText, candidate, worldSize, config) {
   }
   
   if (rowTexts.length === 0) {
-    return makePillLabelSprite('', worldSize, 0x000000, config);
+    console.warn('renderLabelFromBuilder: No valid row texts, returning null');
+    return null;
   }
   
-  // Create multi-line sprite with per-row pill data
+  // Create label sprite directly without calling disabled functions
+  // Get global styles
+  const globalStyle = builderConfig.globalStyle || {};
+  const pillColor = globalStyle.pillColor || 'rgba(0,0,0,0.55)';
+  const cornerRadius = globalStyle.cornerRadius || 10;
+  const paddingTop = globalStyle.paddingTop || 12;
+  const paddingRight = globalStyle.paddingRight || 18;
+  const paddingBottom = globalStyle.paddingBottom || 12;
+  const paddingLeft = globalStyle.paddingLeft || 18;
+  const strokeWidth = globalStyle.strokeWidth || 2.5;
+  const strokeColor = globalStyle.strokeColor || 'rgba(255,255,255,0.98)';
+  
+  // Prepare lines with styling
   const lines = rowTexts.map(pillsData => {
-    // For now, join text and use first pill's style if available, else use global
     const text = pillsData.map(p => p.text).join('  ');
     const firstPillStyle = pillsData[0]?.style || {};
     
-    // Use fontWeight if provided, otherwise derive from bold flag
-    const fontWeight = firstPillStyle.fontWeight || (builderConfig.globalStyle?.fontWeight) || 400;
-    const bold = fontWeight >= 600;
+    const fontWeight = firstPillStyle.fontWeight || 400;
+    const fontSize = firstPillStyle.fontSize || 14;
+    const fontFamily = firstPillStyle.fontFamily || 'helvetica';
+    const textColor = firstPillStyle.textColor || '#ffffff';
     
     return {
       text,
-      fontSize: firstPillStyle.fontSize || builderConfig.globalStyle?.fontSize || 12,
-      fontFamily: 'helvetica', // NOTE: Pills override via textStyle.fontFamily - no global font per spec
-      bold: bold,
+      fontSize,
+      fontFamily,
+      fontWeight,
+      textColor,
       italic: firstPillStyle.italic || false,
-      underline: firstPillStyle.underline || false,
-      textColor: firstPillStyle.textColor,
-      alignment: 'center'
+      underline: firstPillStyle.underline || false
     };
   });
   
-  return makeMultiLinePillSprite(lines, worldSize, 0x000000, config);
+  // Create canvas for rendering
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  
+  // Calculate dimensions
+  let maxWidth = 0;
+  let totalHeight = 0;
+  const lineHeights = [];
+  
+  lines.forEach(line => {
+    const font = `${line.italic ? 'italic ' : ''}${line.fontWeight} ${line.fontSize}px ${line.fontFamily}`;
+    ctx.font = font;
+    const metrics = ctx.measureText(line.text);
+    const width = metrics.width + paddingLeft + paddingRight;
+    const height = line.fontSize + paddingTop + paddingBottom;
+    maxWidth = Math.max(maxWidth, width);
+    lineHeights.push(height);
+    totalHeight += height;
+  });
+  
+  canvas.width = Math.ceil(maxWidth);
+  canvas.height = Math.ceil(totalHeight);
+  
+  // Draw background
+  ctx.fillStyle = pillColor;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+  // Draw stroke
+  if (strokeWidth > 0) {
+    ctx.strokeStyle = strokeColor;
+    ctx.lineWidth = strokeWidth;
+    ctx.strokeRect(strokeWidth/2, strokeWidth/2, canvas.width - strokeWidth, canvas.height - strokeWidth);
+  }
+  
+  // Draw text lines
+  let yOffset = 0;
+  lines.forEach((line, i) => {
+    const font = `${line.italic ? 'italic ' : ''}${line.fontWeight} ${line.fontSize}px ${line.fontFamily}`;
+    ctx.font = font;
+    ctx.fillStyle = line.textColor;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    
+    const centerX = canvas.width / 2;
+    const centerY = yOffset + lineHeights[i] / 2;
+    
+    ctx.fillText(line.text, centerX, centerY);
+    
+    if (line.underline) {
+      const textWidth = ctx.measureText(line.text).width;
+      ctx.strokeStyle = line.textColor;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(centerX - textWidth/2, centerY + line.fontSize/2);
+      ctx.lineTo(centerX + textWidth/2, centerY + line.fontSize/2);
+      ctx.stroke();
+    }
+    
+    yOffset += lineHeights[i];
+  });
+  
+  // Create THREE.js sprite
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.needsUpdate = true;
+  
+  const material = new THREE.SpriteMaterial({
+    map: texture,
+    transparent: true,
+    depthTest: false,
+    depthWrite: false
+  });
+  
+  const sprite = new THREE.Sprite(material);
+  const aspectRatio = canvas.width / canvas.height;
+  sprite.scale.set(worldSize * aspectRatio, worldSize, 1);
+  sprite.renderOrder = 10006;
+  
+  // Store original scale for positioning calculations
+  sprite.userData = {
+    baseScale: { x: worldSize * aspectRatio, y: worldSize, z: 1 }
+  };
+  
+  return sprite;
 }
 
 // Helper function to build lines array from config for multi-line pills
