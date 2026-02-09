@@ -2733,6 +2733,12 @@ function makePillLabelSprite(text, worldSize=18, strokeHex=0x000000, config=null
 }
 
 function updatePillSprite(sprite, text, worldSize, strokeHex, config=null){
+  // DISABLED: This function calls makePillLabelSprite which is disabled
+  // LabelFX Builder system handles label updates differently
+  // To prevent crashes from null returns, this function now does nothing
+  console.warn('updatePillSprite() is DISABLED - LabelFX Builder handles updates');
+  return;
+  
   // dispose old
   if (sprite.material?.map) sprite.material.map.dispose();
   if (sprite.material) sprite.material.dispose();
@@ -3672,8 +3678,9 @@ function updateCalloutAnims(){
     const strokeHex = (rr<<16) | (rg<<8) | rb;
 
     if (strokeHex !== ud.lastStrokeHex){
-      // Pass config to maintain styling
-      updatePillSprite(ud.label, ud.name, ud.lblW, strokeHex, ud.config);
+      // Note: updatePillSprite is disabled - LabelFX Builder handles updates
+      // Stroke color changes are managed by the builder system
+      // Skipping dynamic update to prevent crashes with disabled functions
       ud.lastStrokeHex = strokeHex;
     }
   });
