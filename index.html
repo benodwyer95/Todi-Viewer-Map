@@ -8667,18 +8667,13 @@ function applyAllLabelFX() {
 }
 
 function applyLabelConfigToMarkers(config) {
-  // CRITICAL FIX: Only create callouts when LabelFX OR HoverTipFX is explicitly active
-  // This prevents residual label creation and verifier panel overrides
-  
-  const labelConfig = activeLabels.find(l => l.type === 'label');
-  const hoverConfig = activeLabels.find(l => l.type === 'hover');
-  
-  // EARLY RETURN: If no LabelFX/HoverTipFX is active, do NOT create any callouts
-  if (!labelConfig && !hoverConfig) {
+  // Use the passed config parameter directly
+  // config is already from activeLabels via the forEach above
+  if (!config) {
     return;
   }
   
-  const useConfig = labelConfig || hoverConfig;
+  const useConfig = config;
   
   // AUTO-MIGRATE: Initialize builderConfig for old configs that don't have it
   if (!useConfig.builderConfig) {
