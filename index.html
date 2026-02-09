@@ -8074,62 +8074,21 @@ function renderLabelFXControls(label) {
         
         <!-- Global Style Controls -->
         <details style="margin-top:12px;">
-          <summary style="cursor:pointer;font-weight:600;font-size:11px;padding:6px;background:rgba(255,255,255,0.1);border-radius:4px;">Global Style</summary>
+          <summary style="cursor:pointer;font-weight:600;font-size:11px;padding:6px;background:rgba(255,255,255,0.1);border-radius:4px;">Pill Shape & Style</summary>
           <div style="padding:8px 4px;display:flex;flex-direction:column;gap:8px;">
-            <!-- NOTE: Per spec "Typography is pill-level only" - Font Family removed -->
+          <div style="padding:8px 4px;display:flex;flex-direction:column;gap:8px;">
+            <!-- NOTE: Typography is pill-level only (use ✏️ button on each pill) -->
+            
+            <!-- Unified Pill Color -->
             <div class="ctrlRow">
-              <label style="font-size:10px;">Font Size</label>
-              <input type="number" data-id="${label.id}" data-prop="builderConfig.globalStyle.fontSize" value="${label.builderConfig?.globalStyle?.fontSize || 12}" min="6" max="48" step="0.5" style="font-size:10px;">
+              <label style="font-size:10px;">Pill Color</label>
+              ${renderColorSwatch(label.id, 'builderConfig.globalStyle.pillColor', label.builderConfig?.globalStyle?.pillColor || 'rgba(0,0,0,0.55)', true)}
             </div>
             
-            <!-- PHASE 4: Typography Controls -->
+            <!-- Unified Pill Opacity -->
             <div class="ctrlRow">
-              <label style="font-size:10px;">Font Weight</label>
-              <input type="range" data-id="${label.id}" data-prop="builderConfig.globalStyle.fontWeight" value="${label.builderConfig?.globalStyle?.fontWeight || 400}" min="100" max="900" step="100" style="font-size:10px;flex:1;" oninput="this.nextElementSibling.textContent = this.value">
-              <span style="font-size:10px;margin-left:6px;min-width:30px;text-align:right;">${label.builderConfig?.globalStyle?.fontWeight || 400}</span>
-            </div>
-            <div class="ctrlRow" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
-              <label style="font-size:9px;display:flex;align-items:center;gap:4px;">
-                <input type="checkbox" data-id="${label.id}" data-prop="builderConfig.globalStyle.italic" ${label.builderConfig?.globalStyle?.italic ? 'checked' : ''}>
-                <span>Italic</span>
-              </label>
-              <label style="font-size:9px;display:flex;align-items:center;gap:4px;">
-                <input type="checkbox" data-id="${label.id}" data-prop="builderConfig.globalStyle.underline" ${label.builderConfig?.globalStyle?.underline ? 'checked' : ''}>
-                <span>Underline</span>
-              </label>
-              <label style="font-size:9px;display:flex;align-items:center;gap:4px;">
-                <input type="checkbox" data-id="${label.id}" data-prop="builderConfig.globalStyle.strikethrough" ${label.builderConfig?.globalStyle?.strikethrough ? 'checked' : ''}>
-                <span>Strike</span>
-              </label>
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size:10px;">Text Transform</label>
-              <select data-id="${label.id}" data-prop="builderConfig.globalStyle.textTransform" style="font-size:10px;">
-                <option value="none" ${(label.builderConfig?.globalStyle?.textTransform || 'none') === 'none' ? 'selected' : ''}>None</option>
-                <option value="uppercase" ${label.builderConfig?.globalStyle?.textTransform === 'uppercase' ? 'selected' : ''}>UPPERCASE</option>
-                <option value="lowercase" ${label.builderConfig?.globalStyle?.textTransform === 'lowercase' ? 'selected' : ''}>lowercase</option>
-                <option value="capitalize" ${label.builderConfig?.globalStyle?.textTransform === 'capitalize' ? 'selected' : ''}>Capitalize</option>
-              </select>
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size:10px;">Text Align</label>
-              <select data-id="${label.id}" data-prop="builderConfig.globalStyle.textAlign" style="font-size:10px;">
-                <option value="left" ${label.builderConfig?.globalStyle?.textAlign === 'left' ? 'selected' : ''}>Left</option>
-                <option value="center" ${(label.builderConfig?.globalStyle?.textAlign || 'center') === 'center' ? 'selected' : ''}>Center</option>
-                <option value="right" ${label.builderConfig?.globalStyle?.textAlign === 'right' ? 'selected' : ''}>Right</option>
-              </select>
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size:10px;">Line Height</label>
-              <input type="number" data-id="${label.id}" data-prop="builderConfig.globalStyle.lineHeight" value="${label.builderConfig?.globalStyle?.lineHeight || 1.4}" min="0.5" max="3" step="0.1" style="font-size:10px;">
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size:10px;">Letter Spacing</label>
-              <input type="number" data-id="${label.id}" data-prop="builderConfig.globalStyle.letterSpacing" value="${label.builderConfig?.globalStyle?.letterSpacing || 0}" min="-5" max="20" step="0.5" style="font-size:10px;">
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size:10px;">Word Spacing</label>
-              <input type="number" data-id="${label.id}" data-prop="builderConfig.globalStyle.wordSpacing" value="${label.builderConfig?.globalStyle?.wordSpacing || 0}" min="-10" max="50" step="1" style="font-size:10px;">
+              <label style="font-size:10px;">Pill Opacity: <span id="pillOpacityVal_${label.id}">${Math.round((label.builderConfig?.globalStyle?.pillOpacity ?? 1) * 100)}%</span></label>
+              <input type="range" data-id="${label.id}" data-prop="builderConfig.globalStyle.pillOpacity" min="0" max="100" value="${(label.builderConfig?.globalStyle?.pillOpacity ?? 1) * 100}" style="width:100%;" oninput="document.getElementById('pillOpacityVal_${label.id}').textContent = this.value + '%'">
             </div>
             
             <div class="ctrlRow">
@@ -8544,62 +8503,21 @@ function renderLabelFXControls(label) {
         
         <!-- Global Style Controls -->
         <details style="margin-top:12px;">
-          <summary style="cursor:pointer;font-weight:600;font-size:11px;padding:6px;background:rgba(255,255,255,0.1);border-radius:4px;">Global Style</summary>
+          <summary style="cursor:pointer;font-weight:600;font-size:11px;padding:6px;background:rgba(255,255,255,0.1);border-radius:4px;">Pill Shape & Style</summary>
           <div style="padding:8px 4px;display:flex;flex-direction:column;gap:8px;">
-            <!-- NOTE: Per spec "Typography is pill-level only" - Font Family removed -->
+          <div style="padding:8px 4px;display:flex;flex-direction:column;gap:8px;">
+            <!-- NOTE: Typography is pill-level only (use ✏️ button on each pill) -->
+            
+            <!-- Unified Pill Color -->
             <div class="ctrlRow">
-              <label style="font-size:10px;">Font Size</label>
-              <input type="number" data-id="${label.id}" data-prop="builderConfig.globalStyle.fontSize" value="${label.builderConfig?.globalStyle?.fontSize || 12}" min="6" max="48" step="0.5" style="font-size:10px;">
+              <label style="font-size:10px;">Pill Color</label>
+              ${renderColorSwatch(label.id, 'builderConfig.globalStyle.pillColor', label.builderConfig?.globalStyle?.pillColor || 'rgba(0,0,0,0.55)', true)}
             </div>
             
-            <!-- PHASE 4: Typography Controls -->
+            <!-- Unified Pill Opacity -->
             <div class="ctrlRow">
-              <label style="font-size:10px;">Font Weight</label>
-              <input type="range" data-id="${label.id}" data-prop="builderConfig.globalStyle.fontWeight" value="${label.builderConfig?.globalStyle?.fontWeight || 400}" min="100" max="900" step="100" style="font-size:10px;flex:1;" oninput="this.nextElementSibling.textContent = this.value">
-              <span style="font-size:10px;margin-left:6px;min-width:30px;text-align:right;">${label.builderConfig?.globalStyle?.fontWeight || 400}</span>
-            </div>
-            <div class="ctrlRow" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
-              <label style="font-size:9px;display:flex;align-items:center;gap:4px;">
-                <input type="checkbox" data-id="${label.id}" data-prop="builderConfig.globalStyle.italic" ${label.builderConfig?.globalStyle?.italic ? 'checked' : ''}>
-                <span>Italic</span>
-              </label>
-              <label style="font-size:9px;display:flex;align-items:center;gap:4px;">
-                <input type="checkbox" data-id="${label.id}" data-prop="builderConfig.globalStyle.underline" ${label.builderConfig?.globalStyle?.underline ? 'checked' : ''}>
-                <span>Underline</span>
-              </label>
-              <label style="font-size:9px;display:flex;align-items:center;gap:4px;">
-                <input type="checkbox" data-id="${label.id}" data-prop="builderConfig.globalStyle.strikethrough" ${label.builderConfig?.globalStyle?.strikethrough ? 'checked' : ''}>
-                <span>Strike</span>
-              </label>
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size:10px;">Text Transform</label>
-              <select data-id="${label.id}" data-prop="builderConfig.globalStyle.textTransform" style="font-size:10px;">
-                <option value="none" ${(label.builderConfig?.globalStyle?.textTransform || 'none') === 'none' ? 'selected' : ''}>None</option>
-                <option value="uppercase" ${label.builderConfig?.globalStyle?.textTransform === 'uppercase' ? 'selected' : ''}>UPPERCASE</option>
-                <option value="lowercase" ${label.builderConfig?.globalStyle?.textTransform === 'lowercase' ? 'selected' : ''}>lowercase</option>
-                <option value="capitalize" ${label.builderConfig?.globalStyle?.textTransform === 'capitalize' ? 'selected' : ''}>Capitalize</option>
-              </select>
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size:10px;">Text Align</label>
-              <select data-id="${label.id}" data-prop="builderConfig.globalStyle.textAlign" style="font-size:10px;">
-                <option value="left" ${label.builderConfig?.globalStyle?.textAlign === 'left' ? 'selected' : ''}>Left</option>
-                <option value="center" ${(label.builderConfig?.globalStyle?.textAlign || 'center') === 'center' ? 'selected' : ''}>Center</option>
-                <option value="right" ${label.builderConfig?.globalStyle?.textAlign === 'right' ? 'selected' : ''}>Right</option>
-              </select>
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size:10px;">Line Height</label>
-              <input type="number" data-id="${label.id}" data-prop="builderConfig.globalStyle.lineHeight" value="${label.builderConfig?.globalStyle?.lineHeight || 1.4}" min="0.5" max="3" step="0.1" style="font-size:10px;">
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size:10px;">Letter Spacing</label>
-              <input type="number" data-id="${label.id}" data-prop="builderConfig.globalStyle.letterSpacing" value="${label.builderConfig?.globalStyle?.letterSpacing || 0}" min="-5" max="20" step="0.5" style="font-size:10px;">
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size:10px;">Word Spacing</label>
-              <input type="number" data-id="${label.id}" data-prop="builderConfig.globalStyle.wordSpacing" value="${label.builderConfig?.globalStyle?.wordSpacing || 0}" min="-10" max="50" step="1" style="font-size:10px;">
+              <label style="font-size:10px;">Pill Opacity: <span id="pillOpacityVal_${label.id}">${Math.round((label.builderConfig?.globalStyle?.pillOpacity ?? 1) * 100)}%</span></label>
+              <input type="range" data-id="${label.id}" data-prop="builderConfig.globalStyle.pillOpacity" min="0" max="100" value="${(label.builderConfig?.globalStyle?.pillOpacity ?? 1) * 100}" style="width:100%;" oninput="document.getElementById('pillOpacityVal_${label.id}').textContent = this.value + '%'">
             </div>
             
             <div class="ctrlRow">
