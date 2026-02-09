@@ -8843,7 +8843,19 @@ function applyLabelConfigToMarkers(config) {
       
       // REMOVED FALLBACK: No longer use ['name'] as fallback
       // Labels must come from explicit LabelFX configuration
-      const labelText = getLabelText(useConfig.content, cand);
+      
+      // CRITICAL FIX: Check if builder config exists
+      // If builder config exists, pass candidate name and let builder system extract text
+      // If not, use legacy content system
+      let labelText;
+      if (useConfig.builderConfig && useConfig.builderConfig.rows && useConfig.builderConfig.rows.length > 0) {
+        // Builder system will extract text from candidate using FIELD_RULES and pills
+        // Just pass the candidate name as a fallback/identifier
+        labelText = candidateName(cand);
+      } else {
+        // Legacy system: use content property (checkboxes)
+        labelText = getLabelText(useConfig.content, cand);
+      }
       
       // Build callout with config parameters
       const callout = makeCalloutAnimated(
