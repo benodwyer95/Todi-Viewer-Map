@@ -16,43 +16,19 @@
 <style>
 
 /* ================= Font Face Definitions ================= */
-/* Note: Place actual font files in a /fonts directory */
-/* For demonstration, using web font fallbacks */
+/* Adobe Fonts (Typekit) - Replace with your project ID */
+/* To use your own Adobe Fonts project: */
+/* 1. Go to https://fonts.adobe.com */
+/* 2. Add fonts to a web project */
+/* 3. Get your project ID */
+/* 4. Replace 'XXXXXXX' below with your project ID */
+/* Example: <link rel="stylesheet" href="https://use.typekit.net/abc1234.css"> */
 
-/* Helvetica (using system Helvetica or Arial as fallback) */
-/* For real implementation, add: 
-   @font-face {
-     font-family: 'Helvetica';
-     src: url('./fonts/Helvetica.woff2') format('woff2'),
-          url('./fonts/Helvetica.woff') format('woff');
-     font-weight: normal;
-     font-style: normal;
-   }
-*/
+/* Google Fonts - Popular alternatives to Adobe Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Lato:ital,wght@0,300;0,400;0,700;1,400&family=Montserrat:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Merriweather:ital,wght@0,300;0,400;0,700;1,400&family=Raleway:ital,wght@0,300;0,400;0,600;0,700;1,400&family=PT+Sans:ital,wght@0,400;0,700;1,400&family=Poppins:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Oswald:wght@300;400;600;700&family=Nunito:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Archivo:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Josefin+Sans:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Inconsolata:wght@300;400;600;700&family=Work+Sans:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Bebas+Neue&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&display=swap');
 
-/* Times New Roman (using web-safe Times or serif fallback) */
-/* For real implementation, add:
-   @font-face {
-     font-family: 'Times New Roman';
-     src: url('./fonts/TimesNewRoman.woff2') format('woff2'),
-          url('./fonts/TimesNewRoman.woff') format('woff');
-     font-weight: normal;
-     font-style: normal;
-   }
-*/
-
-/* Caslon / Kasselin (using Libre Caslon Text from Google Fonts as open-source alternative) */
-@import url('https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&display=swap');
-
-/* For local implementation with actual Caslon files, use:
-   @font-face {
-     font-family: 'Caslon';
-     src: url('./fonts/Caslon.woff2') format('woff2'),
-          url('./fonts/Caslon.woff') format('woff');
-     font-weight: normal;
-     font-style: normal;
-   }
-*/
+/* System Fonts - Always available */
+/* These use fonts already installed on the user's system */
 
 /* ================= Right Dock ================= */
 #rightDock{
@@ -157,8 +133,6 @@
 
 #dockPanelOverlay #uiOverlay{ display:flex; flex-direction:column; overflow:hidden; }
 #dockPanelOverlay #ovBody{ overflow:auto; }
-
-
 
 /* ================= Overlay panel (ported) ================= */
 
@@ -280,8 +254,8 @@ hr.ovSep{border:none;border-top:1px solid rgba(255,255,255,.12);margin:10px 0}
 #uiOverlay.collapsed #ovBody,
 #uiOverlay.collapsed #ovFooter{ display:none; }
 
-
-  html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:Arial,Helvetica,sans-serif}
+  html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:Arial,Helvetica,sans-serif;scroll-behavior:auto}
+  * {scroll-behavior:auto !important;} /* Prevent auto-smooth scrolling on all elements */
   #app{position:fixed;inset:0;z-index:1}
   canvas{display:block}
 
@@ -336,17 +310,6 @@ hr.ovSep{border:none;border-top:1px solid rgba(255,255,255,.12);margin:10px 0}
   .item .meta{margin-top:3px;font-size:11px;opacity:.8;display:flex;flex-wrap:wrap;gap:8px}
   .tag{padding:2px 6px;border:1px solid rgba(255,255,255,.16);border-radius:999px;opacity:.9}
   #status{font-size:11px;opacity:.85;margin-top:8px;line-height:1.25}
-
-  /* LEGACY TOOLTIP - Replaced by new hover tip mode
-  #tip{
-    position:fixed;z-index:20;pointer-events:none;transform:translate(10px,10px);
-    padding:8px 10px;background:rgba(0,0,0,.75);
-    border:1px solid rgba(255,255,255,.18);border-radius:10px;
-    color:#fff;font-size:12px;max-width:340px;display:none;backdrop-filter: blur(6px);
-  }
-  #tip .t1{font-weight:800;margin-bottom:2px}
-  #tip .t2{font-size:11px;opacity:.85}
-  */
 
   /* --- Mouse magnifier reticle (overlay DOM) --- */
   #reticleWrap{
@@ -423,7 +386,6 @@ hr.ovSep{border:none;border-top:1px solid rgba(255,255,255,.12);margin:10px 0}
 /* verifier collapse */
 #ui.collapsed #uiBody, #ui.collapsed #uiFooter{ display:none !important; }
 #ui.collapsed{ width:320px; }
-
 
 /* ===== Dual dock layout (Verifier left, Overlay right) ===== */
 .dock{ position:fixed; top:10px; bottom:10px;
@@ -794,7 +756,6 @@ body.overlay-collapsed #edgeReopenRight{opacity:1;pointer-events:auto;}
 </style>
 </head>
 <body>
-
 
 <div id="leftDock" class="dock">
   <div class="dockHeader">
@@ -1223,6 +1184,38 @@ npx http-server . -a 127.0.0.1 -p 8000 -c-1</code>
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", mount);
   else mount();
 
+  // PHASE 7: Pill Editor Modal Event Handlers
+  const pillEditorModal = document.getElementById('pillEditorModal');
+  if (pillEditorModal) {
+    document.getElementById('closePillEditorBtn')?.addEventListener('click', closePillEditor);
+    document.getElementById('cancelPillEditorBtn')?.addEventListener('click', closePillEditor);
+    document.getElementById('savePillEditorBtn')?.addEventListener('click', savePillEditor);
+    
+    // Layout select
+    document.getElementById('pillLayoutSelect')?.addEventListener('change', (e) => {
+      if (currentPillEdit && currentPillEdit.pill) {
+        currentPillEdit.pill.layout = e.target.value;
+        updatePillPreview();
+      }
+    });
+    
+    // Close on outside click
+    pillEditorModal.addEventListener('click', (e) => {
+      if (e.target === pillEditorModal) {
+        closePillEditor();
+      }
+    });
+  }
+  
+  // Update pill slot styling (remove disabled look)
+  document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('pillSlot')) {
+      // Pill editor is now functional - remove disabled styling
+      e.target.style.opacity = '1';
+      e.target.title = 'Click to edit pill fields and styling';
+    }
+  });
+
   // Wire overlay Collapse button (from overlay panel) to right dock collapse
   try{
     const ovBtn = document.getElementById("ovCollapseBtn");
@@ -1274,6 +1267,12 @@ function upperSafe(s){ return safeStr(s).toUpperCase(); }
 // Parse color string to {r, g, b, a} object
 function parseColor(colorStr) {
   if (!colorStr) return {r: 255, g: 255, b: 255, a: 1};
+  
+  // Ensure colorStr is a string before calling trim
+  if (typeof colorStr !== 'string') {
+    console.warn('parseColor: received non-string value:', colorStr);
+    return {r: 255, g: 255, b: 255, a: 1};
+  }
   
   colorStr = colorStr.trim();
   
@@ -1517,6 +1516,7 @@ window.colorToRgba = colorToRgba;
 // Initialize color swatch component system
 window.addEventListener('DOMContentLoaded', () => {
   setupColorSwatchListeners();
+  preloadPillTextures();
 });
 
 // ============ End Color Swatch Component ============
@@ -1578,8 +1578,6 @@ function overlayPathForSource(source, kind){
   return `./images/Overlays/${base}_${kind}.png`;
 }
 
-
-
 function candidateName(c){
   // Label priority:
   // 1) dst_lm_name when present (real landmark name)
@@ -1615,7 +1613,6 @@ function candidateName(c){
   st = prettyTitle(st);
   return `${t} - ${st}`;
 }
-
 
 function candidateStableId(c){
   // stable-ish key used for per-point offsets
@@ -1760,9 +1757,39 @@ const distMaxLabel = document.getElementById('distMaxLabel');
 const debugDotIn   = document.getElementById('debugDot');
 
 const FONT_STACKS = {
+  // System Fonts
   helvetica: '"Helvetica Neue", Helvetica, Arial, sans-serif',
+  arial: 'Arial, "Helvetica Neue", Helvetica, sans-serif',
   times: '"Times New Roman", Times, Georgia, serif',
+  georgia: 'Georgia, "Times New Roman", Times, serif',
+  courier: '"Courier New", Courier, "Lucida Console", monospace',
+  verdana: 'Verdana, Geneva, sans-serif',
+  trebuchet: '"Trebuchet MS", "Lucida Grande", sans-serif',
+  
+  // Google Fonts (Loaded via @import above)
+  opensans: '"Open Sans", "Helvetica Neue", Arial, sans-serif',
+  roboto: 'Roboto, "Helvetica Neue", Arial, sans-serif',
+  lato: 'Lato, "Helvetica Neue", Arial, sans-serif',
+  montserrat: 'Montserrat, "Helvetica Neue", Arial, sans-serif',
+  playfair: '"Playfair Display", Georgia, "Times New Roman", serif',
+  sourcesans: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
+  merriweather: 'Merriweather, Georgia, "Times New Roman", serif',
+  raleway: 'Raleway, "Helvetica Neue", Arial, sans-serif',
+  ptsans: '"PT Sans", "Helvetica Neue", Arial, sans-serif',
+  poppins: 'Poppins, "Helvetica Neue", Arial, sans-serif',
+  oswald: 'Oswald, "Helvetica Neue", Arial, sans-serif',
+  nunito: 'Nunito, "Helvetica Neue", Arial, sans-serif',
+  ubuntu: 'Ubuntu, "Helvetica Neue", Arial, sans-serif',
+  crimson: '"Crimson Text", Georgia, "Times New Roman", serif',
+  librebaskerville: '"Libre Baskerville", Georgia, "Times New Roman", serif',
   caslon: '"Libre Caslon Text", "Caslon", "Big Caslon", Georgia, serif',
+  archivo: 'Archivo, "Helvetica Neue", Arial, sans-serif',
+  josefin: '"Josefin Sans", "Helvetica Neue", Arial, sans-serif',
+  inconsolata: 'Inconsolata, "Courier New", Courier, monospace',
+  worksans: '"Work Sans", "Helvetica Neue", Arial, sans-serif',
+  bebasneue: '"Bebas Neue", "Arial Black", Arial, sans-serif',
+  
+  // Legacy options
   inter: '"Inter", "Helvetica Neue", Helvetica, Arial, sans-serif',
   manrope: '"Manrope", "Helvetica Neue", Helvetica, Arial, sans-serif',
   ibmplex: '"IBM Plex Sans", "Helvetica Neue", Helvetica, Arial, sans-serif',
@@ -1774,12 +1801,7 @@ let currentLabelFontStack = FONT_STACKS.helvetica;
 const exportOffsetsBtn = document.getElementById('exportOffsets');
 const importOffsetsIn  = document.getElementById('importOffsets');
 
-// Legacy callout control elements - removed, now using Label FX system
-// const calloutsIn = document.getElementById('calloutsIn');
-// const loopCalloutIn = document.getElementById('loopCalloutIn');
-// const allCalloutsIn = document.getElementById('allCalloutsIn');
-// const animSecondsIn = document.getElementById('animSecondsIn');
-
+// Tooltip elements (still used for UI state tracking, not legacy tooltip system)
 const tip = document.getElementById('tip');
 const tipTitle = document.getElementById('tipTitle');
 const tipMeta = document.getElementById('tipMeta');
@@ -1790,21 +1812,10 @@ const reticleB = document.getElementById('reticleB');
 
 function setStatus(msg){ statusEl.textContent = msg; }
 
-const ovOn = document.getElementById('ovOn');
+// Overlay UI elements
+const ovOn = document.getElementById('toggleOverlay');
 const ovType = document.getElementById('ovType');
-const ovOpacity = document.getElementById('ovOpacity');
-
-// LEGACY TOOLTIP FUNCTIONS - Replaced by new hover mode
-/*
-function showTooltip(x,y,title,meta){
-  tip.style.display='block';
-  tip.style.left = x+'px';
-  tip.style.top  = y+'px';
-  tipTitle.textContent = title || '';
-  tipMeta.textContent  = meta || '';
-}
-function hideTooltip(){ tip.style.display='none'; }
-*/
+const ovOpacity = document.getElementById('overlayOpacity');
 
 // --------------------
 // Three: 2 scenes (pano + overlay markers)
@@ -1845,7 +1856,6 @@ const overlayMesh = new THREE.Mesh(
 );
 overlayMesh.visible = true;
 scenePano.add(overlayMesh);
-
 
 const markerGroup = new THREE.Group();
 sceneOverlay.add(markerGroup);
@@ -2359,8 +2369,11 @@ let hovered=null;
 let selected=null;
 
 function rebuildLabels(){
-  disposeLabels();
-  return; // hard-disable old point labels
+  // REMOVED: Old point label system completely disabled
+  // Labels are now exclusively managed by Label FX system
+  // This function is kept as a no-op to avoid breaking call sites
+  // All callouts are managed by applyAllLabelFX() and updateCalloutsVisibility()
+  return;
 }
 
 function updateCalloutsVisibility(){
@@ -2411,24 +2424,23 @@ function setSelected(m){
     const row = listEl.querySelector(`.item[data-idx="${m.userData.idx}"]`);
     if (row){
       row.classList.add('sel');
-      row.scrollIntoView({ block:'nearest' });
+      // REMOVED: row.scrollIntoView({ block:'nearest' }); - Caused unwanted auto-scroll
     }
   }
   selIdEl.textContent = m ? (m.userData.candKey || '—') : '—';
-  rebuildLabels();
+  // REMOVED: rebuildLabels() - no longer creates labels, only Label FX system does
   updateCalloutsVisibility();
 }
 
 function setHovered(m, x, y){
   hovered = m;
   if (!m){
-    // No longer using legacy tooltip
-    rebuildLabels();
+    // REMOVED: rebuildLabels() - no longer creates labels, only Label FX system does
     updateCalloutsVisibility();
     return;
   }
-  // No longer using legacy tooltip - hover tip will be shown via 3D label system
-  rebuildLabels();
+  // Hover tip will be shown via 3D label system (hover mode)
+  // REMOVED: rebuildLabels() - no longer creates labels, only Label FX system does
   updateCalloutsVisibility();
 }
 
@@ -2600,6 +2612,9 @@ function roundRect(ctx, x, y, w, h, r){
 
 // Black translucent fill + stroke that animates from black -> type color
 function makePillLabelSprite(text, worldSize=18, strokeHex=0x000000, config=null){
+  // DISABLED: Old label system removed - use builder system only
+  console.error('makePillLabelSprite() is DISABLED - use LabelFX Builder system');
+  return null;
   const txt = safeStr(text);
 
   // ---- styling knobs ----
@@ -2647,28 +2662,49 @@ function makePillLabelSprite(text, worldSize=18, strokeHex=0x000000, config=null
   const w = w1 - inset*2;
   const h = h1 - inset*2;
 
-  // Fill: use config background color or default
-  const bgColor = config?.pillBackgroundColor || 'rgba(0,0,0,0.55)';
+  // Fill: use NEW pillColor from builderConfig, or fallback to OLD pillBackgroundColor
+  // CRITICAL FIX: Check builderConfig.globalStyle.pillColor first (new property)
+  let bgColor = config?.builderConfig?.globalStyle?.pillColor || 
+                config?.pillBackgroundColor || 
+                'rgba(0,0,0,0.55)';
+  
+  // Apply opacity from builderConfig.globalStyle.pillOpacity
+  const pillOpacity = config?.builderConfig?.globalStyle?.pillOpacity;
+  if (pillOpacity !== undefined && pillOpacity !== null) {
+    // Parse existing color and apply opacity
+    const match = bgColor.match(/rgba?\(([^)]+)\)/);
+    if (match) {
+      const parts = match[1].split(',').map(p => p.trim());
+      if (parts.length >= 3) {
+        bgColor = `rgba(${parts[0]},${parts[1]},${parts[2]},${pillOpacity})`;
+      }
+    }
+  }
+  
   g.fillStyle = bgColor;
   g.beginPath();
   roundRect(g, x, y, w, h, radius);
   g.fill();
 
-  // Stroke: smooth round joins/caps
+  // Stroke: use NEW strokeColor from builderConfig, or fallback to OLD pillBorderColor
   const r = (strokeHex >> 16) & 255;
   const gg = (strokeHex >> 8) & 255;
   const b = (strokeHex) & 255;
-  const borderColor = config?.pillBorderColor || `rgba(${r},${gg},${b},0.98)`;
+  const borderColor = config?.builderConfig?.globalStyle?.strokeColor || 
+                      config?.pillBorderColor || 
+                      `rgba(${r},${gg},${b},0.98)`;
   g.strokeStyle = borderColor;
-  g.lineWidth = 2.5;
-  g.lineJoin = 'round';
-  g.lineCap  = 'round';
+  g.lineWidth = config?.builderConfig?.globalStyle?.strokeWidth || 2.5;
+  g.lineJoin = config?.builderConfig?.globalStyle?.lineJoin || 'round';
+  g.lineCap  = config?.builderConfig?.globalStyle?.lineCap || 'round';
   g.beginPath();
   roundRect(g, x, y, w, h, radius);
   g.stroke();
 
-  // Text: use config text color or default
-  const textColor = config?.pillTextColor || '#ffffff';
+  // Text: use NEW textColor from builderConfig, or fallback to OLD pillTextColor
+  const textColor = config?.builderConfig?.globalStyle?.textColor || 
+                    config?.pillTextColor || 
+                    '#ffffff';
   g.font = `900 ${fontPx}px ${fontStack}`;
   g.textBaseline = 'middle';
   g.textAlign = 'left';
@@ -2703,6 +2739,12 @@ function makePillLabelSprite(text, worldSize=18, strokeHex=0x000000, config=null
 }
 
 function updatePillSprite(sprite, text, worldSize, strokeHex, config=null){
+  // DISABLED: This function calls makePillLabelSprite which is disabled
+  // LabelFX Builder system handles label updates differently
+  // To prevent crashes from null returns, this function now does nothing
+  console.warn('updatePillSprite() is DISABLED - LabelFX Builder handles updates');
+  return;
+  
   // dispose old
   if (sprite.material?.map) sprite.material.map.dispose();
   if (sprite.material) sprite.material.dispose();
@@ -2738,6 +2780,9 @@ function updateAllPillFonts(){
 // ========== MULTI-LINE PILL SPRITE SYSTEM (Issues 7 & 8) ==========
 
 function makeMultiLinePillSprite(lines, worldSize=18, strokeHex=0x000000, config=null){
+  // DISABLED: Old label system removed - use builder system only
+  console.error('makeMultiLinePillSprite() is DISABLED - use LabelFX Builder system');
+  return null;
   // lines is an array of line objects: [{ text, fontSize, fontFamily, bold, italic, underline, strikethrough, alignment }]
   if (!Array.isArray(lines) || lines.length === 0) {
     // Fallback to single-line sprite
@@ -2778,6 +2823,7 @@ function makeMultiLinePillSprite(lines, worldSize=18, strokeHex=0x000000, config
       underline: line.underline,
       strikethrough: line.strikethrough,
       alignment: line.alignment || 'left',
+      textColor: line.textColor,
       width: tw,
       height: fontPx
     });
@@ -2814,34 +2860,56 @@ function makeMultiLinePillSprite(lines, worldSize=18, strokeHex=0x000000, config
   const w = w1 - inset*2;
   const h = h1 - inset*2;
 
-  // Fill background
-  const bgColor = config?.pillBackgroundColor || 'rgba(0,0,0,0.55)';
+  // Fill background: use NEW pillColor from builderConfig, or fallback to OLD pillBackgroundColor
+  // CRITICAL FIX: Check builderConfig.globalStyle.pillColor first (new property)
+  let bgColor = config?.builderConfig?.globalStyle?.pillColor || 
+                config?.pillBackgroundColor || 
+                'rgba(0,0,0,0.55)';
+  
+  // Apply opacity from builderConfig.globalStyle.pillOpacity
+  const pillOpacity = config?.builderConfig?.globalStyle?.pillOpacity;
+  if (pillOpacity !== undefined && pillOpacity !== null) {
+    // Parse existing color and apply opacity
+    const match = bgColor.match(/rgba?\(([^)]+)\)/);
+    if (match) {
+      const parts = match[1].split(',').map(p => p.trim());
+      if (parts.length >= 3) {
+        bgColor = `rgba(${parts[0]},${parts[1]},${parts[2]},${pillOpacity})`;
+      }
+    }
+  }
+  
   g.fillStyle = bgColor;
   g.beginPath();
   roundRect(g, x, y, w, h, radius);
   g.fill();
 
-  // Stroke border
+  // Stroke border: use NEW strokeColor from builderConfig, or fallback to OLD pillBorderColor
   const r = (strokeHex >> 16) & 255;
   const gg = (strokeHex >> 8) & 255;
   const b = (strokeHex) & 255;
-  const borderColor = config?.pillBorderColor || `rgba(${r},${gg},${b},0.98)`;
+  const borderColor = config?.builderConfig?.globalStyle?.strokeColor || 
+                      config?.pillBorderColor || 
+                      `rgba(${r},${gg},${b},0.98)`;
   g.strokeStyle = borderColor;
-  g.lineWidth = 2.5;
-  g.lineJoin = 'round';
-  g.lineCap  = 'round';
+  g.lineWidth = config?.builderConfig?.globalStyle?.strokeWidth || 2.5;
+  g.lineJoin = config?.builderConfig?.globalStyle?.lineJoin || 'round';
+  g.lineCap  = config?.builderConfig?.globalStyle?.lineCap || 'round';
   g.beginPath();
   roundRect(g, x, y, w, h, radius);
   g.stroke();
 
-  // Draw each line
-  const textColor = config?.pillTextColor || '#ffffff';
+  // Draw each line: use NEW textColor from builderConfig, or fallback to OLD pillTextColor
+  const defaultTextColor = config?.builderConfig?.globalStyle?.textColor || 
+                          config?.pillTextColor || 
+                          '#ffffff';
   let currentY = padY;
 
   lineMetrics.forEach((metric, idx) => {
     const fontWeight = metric.bold ? '900' : '400';
     const fontStyle = metric.italic ? 'italic' : 'normal';
     g.font = `${fontStyle} ${fontWeight} ${metric.fontSize}px ${metric.fontFamily}`;
+    const textColor = metric.textColor || defaultTextColor;
     g.fillStyle = textColor;
     g.textBaseline = 'top';
     
@@ -2933,6 +3001,241 @@ function makeMultiLinePillSprite(lines, worldSize=18, strokeHex=0x000000, config
 }
 
 // ========== END MULTI-LINE SYSTEM ==========
+
+// Evaluate fields with NULL fallback logic for builder system
+function evaluateFieldsWithFallback(candidate, fields) {
+  if (!Array.isArray(fields) || fields.length === 0) return null;
+  
+  for (const field of fields) {
+    const value = candidate[field.name];
+    // Skip NULL, undefined, empty string, or "NULL" string
+    if (value === null || value === undefined || value === "" || value === "NULL") {
+      continue;
+    }
+    // Return first valid value as string
+    return String(value);
+  }
+  
+  return null; // All fields were NULL
+}
+
+// Apply filters to candidates for builder system
+/**
+ * Filters an array of candidates based on configured filter rules.
+ * @param {Array} candidates - Array of candidate objects to filter
+ * @param {Object} filters - Filter configuration object
+ * @param {string} filters.mode - 'all' to show all candidates, 'includeOnly' to keep only matching candidates, 'exclude' to remove matching candidates
+ * @param {Array} filters.rules - Array of filter rule objects
+ * @returns {Array} Filtered array of candidates
+ */
+function applyFilters(candidates, filters) {
+  // ALL mode: show all candidates regardless of filter rules
+  if (!filters || filters.mode === 'all') return candidates;
+  
+  // No rules defined: show all candidates
+  if (!filters.rules || filters.rules.length === 0) return candidates;
+  
+  const matchesRules = (cand) => {
+    return filters.rules.some(rule => {
+      const fieldValue = cand[rule.field];
+      if (fieldValue === null || fieldValue === undefined) return false;
+      
+      const strValue = String(fieldValue);
+      const ruleValue = String(rule.value || '');
+      
+      switch(rule.operator) {
+        case 'equals': 
+          return rule.caseSensitive 
+            ? strValue === ruleValue
+            : strValue.toLowerCase() === ruleValue.toLowerCase();
+        case 'contains':
+          return rule.caseSensitive
+            ? strValue.includes(ruleValue)
+            : strValue.toLowerCase().includes(ruleValue.toLowerCase());
+        case 'startsWith':
+          return rule.caseSensitive
+            ? strValue.startsWith(ruleValue)
+            : strValue.toLowerCase().startsWith(ruleValue.toLowerCase());
+        case 'regex':
+          try {
+            const regex = new RegExp(ruleValue, rule.caseSensitive ? '' : 'i');
+            return regex.test(strValue);
+          } catch (e) {
+            return false;
+          }
+      }
+      return false;
+    });
+  };
+  
+  return filters.mode === 'includeOnly'
+    ? candidates.filter(matchesRules)
+    : candidates.filter(c => !matchesRules(c));
+}
+
+// Render label from builder configuration
+/**
+ * Main render pipeline for the builder system. Processes builderConfig to create pills from rows,
+ * applies filters, evaluates fields with fallbacks, and generates the final label sprite.
+ * @param {string} defaultText - Fallback text if no valid pills are generated
+ * @param {Object} candidate - Candidate data object with fields like name, dst_name, etc.
+ * @param {number} worldSize - World size for the label
+ * @param {Object} config - Label configuration including builderConfig
+ * @returns {THREE.Sprite} The rendered label sprite
+ */
+function renderLabelFromBuilder(defaultText, candidate, worldSize, config) {
+  const builderConfig = config.builderConfig;
+  if (!builderConfig || !builderConfig.rows || builderConfig.rows.length === 0) {
+    console.warn('renderLabelFromBuilder: No builderConfig, returning null');
+    return null;
+  }
+  
+  // Build text from rules with per-pill styling
+  const rowTexts = [];
+  for (const row of builderConfig.rows) {
+    const rowPillsData = [];
+    for (const pill of row.pills) {
+      const rule = FIELD_RULES[pill.rule];
+      if (rule) {
+        const text = rule.evaluate(candidate);
+        if (text) {
+          rowPillsData.push({ text, style: pill.textStyle || {} });
+        }
+      } else {
+        console.warn(`Invalid or missing rule for pill:`, pill);
+      }
+    }
+    if (rowPillsData.length > 0) {
+      rowTexts.push(rowPillsData);
+    }
+  }
+  
+  if (rowTexts.length === 0) {
+    console.warn('renderLabelFromBuilder: No valid row texts, returning null');
+    return null;
+  }
+  
+  // Create label sprite directly without calling disabled functions
+  // Get global styles
+  const globalStyle = builderConfig.globalStyle || {};
+  const pillColor = globalStyle.pillColor || 'rgba(0,0,0,0.55)';
+  const cornerRadius = globalStyle.cornerRadius || 10;
+  const paddingTop = globalStyle.paddingTop || 12;
+  const paddingRight = globalStyle.paddingRight || 18;
+  const paddingBottom = globalStyle.paddingBottom || 12;
+  const paddingLeft = globalStyle.paddingLeft || 18;
+  const strokeWidth = globalStyle.strokeWidth || 2.5;
+  const strokeColor = globalStyle.strokeColor || 'rgba(255,255,255,0.98)';
+  
+  // Prepare lines with styling
+  const lines = rowTexts.map(pillsData => {
+    const text = pillsData.map(p => p.text).join('  ');
+    const firstPillStyle = pillsData[0]?.style || {};
+    
+    const fontWeight = firstPillStyle.fontWeight || 400;
+    const fontSize = firstPillStyle.fontSize || 14;
+    const fontFamily = firstPillStyle.fontFamily || 'helvetica';
+    const textColor = firstPillStyle.textColor || '#ffffff';
+    
+    return {
+      text,
+      fontSize,
+      fontFamily,
+      fontWeight,
+      textColor,
+      italic: firstPillStyle.italic || false,
+      underline: firstPillStyle.underline || false
+    };
+  });
+  
+  // Create canvas for rendering
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  
+  // Calculate dimensions
+  let maxWidth = 0;
+  let totalHeight = 0;
+  const lineHeights = [];
+  
+  lines.forEach(line => {
+    // Map font family key to font stack
+    const fontStack = FONT_STACKS[line.fontFamily] || FONT_STACKS.helvetica;
+    const font = `${line.italic ? 'italic ' : ''}${line.fontWeight} ${line.fontSize}px ${fontStack}`;
+    ctx.font = font;
+    const metrics = ctx.measureText(line.text);
+    const width = metrics.width + paddingLeft + paddingRight;
+    const height = line.fontSize + paddingTop + paddingBottom;
+    maxWidth = Math.max(maxWidth, width);
+    lineHeights.push(height);
+    totalHeight += height;
+  });
+  
+  canvas.width = Math.ceil(maxWidth);
+  canvas.height = Math.ceil(totalHeight);
+  
+  // Draw background
+  ctx.fillStyle = pillColor;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+  // Draw stroke
+  if (strokeWidth > 0) {
+    ctx.strokeStyle = strokeColor;
+    ctx.lineWidth = strokeWidth;
+    ctx.strokeRect(strokeWidth/2, strokeWidth/2, canvas.width - strokeWidth, canvas.height - strokeWidth);
+  }
+  
+  // Draw text lines
+  let yOffset = 0;
+  lines.forEach((line, i) => {
+    // Map font family key to font stack
+    const fontStack = FONT_STACKS[line.fontFamily] || FONT_STACKS.helvetica;
+    const font = `${line.italic ? 'italic ' : ''}${line.fontWeight} ${line.fontSize}px ${fontStack}`;
+    ctx.font = font;
+    ctx.fillStyle = line.textColor;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    
+    const centerX = canvas.width / 2;
+    const centerY = yOffset + lineHeights[i] / 2;
+    
+    ctx.fillText(line.text, centerX, centerY);
+    
+    if (line.underline) {
+      const textWidth = ctx.measureText(line.text).width;
+      ctx.strokeStyle = line.textColor;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(centerX - textWidth/2, centerY + line.fontSize/2);
+      ctx.lineTo(centerX + textWidth/2, centerY + line.fontSize/2);
+      ctx.stroke();
+    }
+    
+    yOffset += lineHeights[i];
+  });
+  
+  // Create THREE.js sprite
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.needsUpdate = true;
+  
+  const material = new THREE.SpriteMaterial({
+    map: texture,
+    transparent: true,
+    depthTest: false,
+    depthWrite: false
+  });
+  
+  const sprite = new THREE.Sprite(material);
+  const aspectRatio = canvas.width / canvas.height;
+  sprite.scale.set(worldSize * aspectRatio, worldSize, 1);
+  sprite.renderOrder = 10006;
+  
+  // Store original scale for positioning calculations
+  sprite.userData = {
+    baseScale: { x: worldSize * aspectRatio, y: worldSize, z: 1 }
+  };
+  
+  return sprite;
+}
 
 // Helper function to build lines array from config for multi-line pills
 function buildLinesFromConfig(config, defaultText, cand) {
@@ -3124,15 +3427,19 @@ function makeCalloutAnimated(root, name, isVisible=true, typeHex=0x00c8ff, lineC
     call.add(sq2);
   }
 
-  // pill label - CRITICAL: Position based on FINAL positions (computed before animation)
-  // Check if multi-line mode is enabled
-  let label;
-  if (config?.useMultiLine) {
-    // Build lines array from config
-    const lines = buildLinesFromConfig(config, name, root?.userData?.cand);
-    label = makeMultiLinePillSprite(lines, lblW, 0x000000, config);
-  } else {
-    label = makePillLabelSprite(name, lblW, 0x000000, config);
+  // pill label - Builder system preferred, fallback for initialization
+  // Allow rendering even if builderConfig not fully set up yet (for new labels)
+  let label = null;
+  
+  if (config?.builderConfig && config.builderConfig.rows && config.builderConfig.rows.length > 0) {
+    // BUILDER SYSTEM - primary path
+    label = renderLabelFromBuilder(name, root?.userData?.cand, lblW, config);
+  }
+  
+  if (!label) {
+    // No valid label generated - skip this callout
+    // (UI can still show for configuration even without label rendering)
+    return null;
   }
   
   const labelHalfH = (label.userData?.baseScale ? (label.userData.baseScale.y*0.5) : (label.scale.y*0.5));
@@ -3197,6 +3504,14 @@ function makeCalloutAnimated(root, name, isVisible=true, typeHex=0x00c8ff, lineC
   
   label.position.set(finalLabelX, finalLabelY, 0);
   label.material.opacity = 0.0;
+  
+  // Z-INDEX FIX: Hover tips should appear above labels
+  // Labels = renderOrder 10006 (default from sprite functions)
+  // Hover tips = renderOrder 10010 (higher priority)
+  if (config?.type === 'hover') {
+    label.renderOrder = 10010;
+  }
+  
   call.add(label);
 
   // init hidden
@@ -3373,8 +3688,9 @@ function updateCalloutAnims(){
     const strokeHex = (rr<<16) | (rg<<8) | rb;
 
     if (strokeHex !== ud.lastStrokeHex){
-      // Pass config to maintain styling
-      updatePillSprite(ud.label, ud.name, ud.lblW, strokeHex, ud.config);
+      // Note: updatePillSprite is disabled - LabelFX Builder handles updates
+      // Stroke color changes are managed by the builder system
+      // Skipping dynamic update to prevent crashes with disabled functions
       ud.lastStrokeHex = strokeHex;
     }
   });
@@ -3469,11 +3785,9 @@ function addDebugMarker(){
   root.userData.markerVisual = ring;
   root.add(ring);
   
-  // Create callout with default config
-  const labelConfig = activeLabels.find(l => l.type === 'label');
-  const hoverConfig = activeLabels.find(l => l.type === 'hover');
-  const useConfig = labelConfig || hoverConfig;
-  makeCalloutAnimated(root, root.userData.name, true, root.userData.colorHex, null, useConfig);
+  // DEBUG MARKER: Do NOT create callout/label - it interferes with user's labels
+  // Debug marker is just for positioning reference, no label needed
+  // REMOVED: makeCalloutAnimated(root, root.userData.name, true, root.userData.colorHex, null, useConfig);
   
   markerGroup.add(root);
   return root;
@@ -3488,7 +3802,6 @@ function rebuildMarkersAndList(){
   currentMarkers = [];
   hovered = null;
   selected = null;
-  // hideTooltip(); // Removed - legacy tooltip system has been replaced
   selIdEl.textContent='—';
 
   const source = currentSource();
@@ -3496,6 +3809,9 @@ function rebuildMarkersAndList(){
 
   const cands = getFilteredCandidates(source);
 
+  // CRITICAL FIX: Preserve scroll position before clearing
+  const scrollTop = listEl.scrollTop || 0;
+  
   listEl.innerHTML='';
   if (!cands.length){
     const empty=document.createElement('div');
@@ -3507,8 +3823,13 @@ function rebuildMarkersAndList(){
     addDebugMarker();
     updateHeader();
     setStatus(`Loaded: ${source.id} • markers: ${markerGroup.children.length} (debug may be shown)`);
-    rebuildLabels();
+    // REMOVED: rebuildLabels() - no longer creates labels
     updateCalloutsVisibility();
+    
+    // Restore scroll position
+    requestAnimationFrame(() => {
+      listEl.scrollTop = scrollTop;
+    });
     return;
   }
 
@@ -3598,6 +3919,11 @@ function rebuildMarkersAndList(){
   applyAllLabelFX();
   updateCalloutsVisibility();
 
+  // CRITICAL FIX: Restore scroll position after rebuild
+  requestAnimationFrame(() => {
+    listEl.scrollTop = scrollTop;
+  });
+
   // if we had a previously selected candKey and it still exists, restore selection
 }
 
@@ -3643,13 +3969,11 @@ function loadPanoImage(source){
   });
 }
 
-
 function syncOverlayUI(){
   if (!overlayMesh) return;
   const op = ovOpacity ? parseFloat(ovOpacity.value) : 0.65;
   overlayMesh.material.opacity = Number.isFinite(op) ? op : 0.65;
 }
-
 
 /* ===========================
    Overlay (Rules + Presets)
@@ -3877,7 +4201,6 @@ function buildOverlayMaterial(edgeTex, maskTex){
   edgeTex.magFilter = THREE.LinearFilter;
   edgeTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
 
-
   if(maskTex){
     if(maskTex.colorSpace !== undefined) maskTex.colorSpace = THREE.SRGBColorSpace;
     maskTex.generateMipmaps = false;
@@ -3971,7 +4294,6 @@ function buildOverlayMaterial(edgeTex, maskTex){
 
         float a = maskCrisp(rawMask(t));
 
-        
         int N = int(clamp(uWidth, 0.0, 6.0) + 0.5);
         float m = a;
 
@@ -4684,7 +5006,6 @@ function hookOverlayUI(){
   };
 }
 
-
 function loadOverlayForSource(source){
   return new Promise((resolve)=>{
     try{
@@ -4769,9 +5090,6 @@ function loadOverlayForSource(source){
   });
 }
 
-
-
-
 // --------------------
 // Navigation
 // --------------------
@@ -4786,7 +5104,6 @@ const s=currentSource();
 
   await loadOverlayForSource(s);
 
-  
   loadSkyMaskForSource(s);
 yaw = 0; pitch = 0; animating = false;
 
@@ -5280,7 +5597,6 @@ function buildExportObject(){
   return out;
 }
 
-
 exportOffsetsBtn.addEventListener('click', ()=> {
   const out = buildExportObject();
 
@@ -5373,7 +5689,6 @@ importOffsetsIn.addEventListener('change', async ()=> {
   }
 });
 
-
 // --------------------
 // Resize
 // --------------------
@@ -5397,9 +5712,6 @@ function computeMaxDistanceFromData(){
   }
   return Math.min(2000, Math.ceil(maxD));
 }
-
-
-
 
 // ================= Marker FX (wired to currentMarkers from verifier) =================
 let markerFxMode = "loading";
@@ -5837,9 +6149,24 @@ function renderMarkerFXList() {
   const container = document.getElementById('activeMarkersList');
   if (!container) return;
   
-  // Preserve scroll position to prevent auto-scroll bug (Issue #13)
+  // CRITICAL FIX: Preserve scroll position AND active element focus
   const scrollParent = container.parentElement;
   const scrollTop = scrollParent ? scrollParent.scrollTop : 0;
+  
+  // Capture active element info before rebuild
+  const activeEl = document.activeElement;
+  let focusInfo = null;
+  if (activeEl && container.contains(activeEl)) {
+    focusInfo = {
+      id: activeEl.id,
+      dataId: activeEl.dataset?.id,
+      dataProp: activeEl.dataset?.prop,
+      tagName: activeEl.tagName,
+      type: activeEl.type,
+      selectionStart: activeEl.selectionStart,
+      selectionEnd: activeEl.selectionEnd
+    };
+  }
   
   container.innerHTML = '';
   
@@ -5859,10 +6186,38 @@ function renderMarkerFXList() {
     container.appendChild(markerDiv);
   });
   
-  // Restore scroll position after rebuilding UI (use requestAnimationFrame to ensure DOM is updated)
+  // Restore scroll position and focus after rebuilding UI
   if (scrollParent) {
     requestAnimationFrame(() => {
       scrollParent.scrollTop = scrollTop;
+      
+      // Restore focus if we had one
+      if (focusInfo) {
+        let targetEl = null;
+        
+        // Try to find element by ID first
+        if (focusInfo.id) {
+          targetEl = document.getElementById(focusInfo.id);
+        }
+        
+        // Fall back to finding by data attributes
+        if (!targetEl && focusInfo.dataId && focusInfo.dataProp) {
+          targetEl = container.querySelector(`[data-id="${focusInfo.dataId}"][data-prop="${focusInfo.dataProp}"]`);
+        }
+        
+        // Restore focus with preventScroll to avoid jumping
+        if (targetEl && typeof targetEl.focus === 'function') {
+          targetEl.focus({ preventScroll: true });
+          
+          // Restore cursor position for text inputs
+          if (focusInfo.selectionStart !== undefined && typeof targetEl.setSelectionRange === 'function' && targetEl.type !== 'range' && targetEl.type !== 'color' && targetEl.type !== 'checkbox') {
+            targetEl.setSelectionRange(focusInfo.selectionStart, focusInfo.selectionEnd);
+          }
+        }
+        
+        // Ensure scroll position is maintained after focus
+        scrollParent.scrollTop = scrollTop;
+      }
     });
   }
   
@@ -6327,6 +6682,173 @@ function initModularMarkerSystem() {
 // Active label configurations
 let activeLabels = [];
 let labelIdCounter = 0;
+let rowIdCounter = 0;
+let pillIdCounter = 0;
+
+// PHASE 9: Preview sample data for live preview panel
+const PREVIEW_SAMPLES = [
+  {
+    name: 'Landmark Sample',
+    data: {
+      name: "San Fortunato Church",
+      dst_name: "San Fortunato",
+      dst_type: "Landmark",
+      landmark: true,
+      amenity: "place_of_worship",
+      distance_m: 245.8,
+      bearing: 87.3,
+      visibility: 95
+    }
+  },
+  {
+    name: 'Place Sample',
+    data: {
+      name: "Piazza del Popolo",
+      dst_name: null,
+      dst_type: "Place",
+      place: "square",
+      amenity: null,
+      distance_m: 412.1,
+      visibility: 73
+    }
+  },
+  {
+    name: 'Amenity Sample',
+    data: {
+      name: "Ristorante Umbria",
+      dst_name: null,
+      dst_type: "Amenity",
+      amenity: "restaurant",
+      leisure: null
+    }
+  },
+  {
+    name: 'Leisure Sample',
+    data: {
+      name: "Public Garden",
+      dst_name: null,
+      dst_type: "Leisure",
+      leisure: "park"
+    }
+  },
+  {
+    name: 'Worst Case (All NULL)',
+    data: {
+      name: null,
+      dst_name: "Unknown Location",
+      dst_type: null,
+      amenity: null,
+      leisure: null,
+      place: null
+    }
+  }
+];
+
+let currentPreviewSample = 0;
+
+// Pill texture definitions and loading system
+const PILL_TEXTURES = {
+  'White Paper': './assets/pill_textures/White_Paper.png',
+  'Yellowed Paper': './assets/pill_textures/Yellowed_Paper.png',
+  'Brown Chiselled Stone': './assets/pill_textures/Brown_Chiselled_Stone.png',
+  'Boxed Paper Design': './assets/pill_textures/Boxed_Paper_Design.png',
+  'White Diagonal Paper': './assets/pill_textures/White_Diagonal_Paper.png',
+  'Yellowed Diagonal Paper': './assets/pill_textures/Yellowed_Diagonal_Paper.png',
+  'Olive White Tiles': './assets/pill_textures/Olive_White_Tiles.png',
+  'Peach Tiles': './assets/pill_textures/Peach_Tiles.png',
+  'Olive Tiles': './assets/pill_textures/Olive_Tiles.png',
+  'Red Small Tiles': './assets/pill_textures/Red_Small_Tiles.png',
+  'Vertical Green Tiles': './assets/pill_textures/Vertical_Green_Tiles.png',
+  'Light Green Tiles': './assets/pill_textures/Light_Green_Tiles.png',
+  'Rock Plaster': './assets/pill_textures/Rock_Plaster.png',
+  'Slim White Bricks': './assets/pill_textures/Slim_White_Bricks.png',
+  'Blue Stone': './assets/pill_textures/Blue_Stone.png',
+  'Blue Print Grid': './assets/pill_textures/Blue_Print_Grid.png',
+  'Folded Grid': './assets/pill_textures/Folded_Grid.png',
+  'Protractor Grid': './assets/pill_textures/Protractor_Grid.png'
+};
+
+// Field mapping rules for label pills - Simplified Builder System
+const FIELD_RULES = {
+  'name': {
+    label: 'Name',
+    description: 'dst_lm_name → dst_name → dst_type (first non-null)',
+    evaluate: (cand) => {
+      if (!cand) return '';
+      return cand.dst_lm_name && cand.dst_lm_name !== 'NULL' ? cand.dst_lm_name :
+             cand.dst_name && cand.dst_name !== 'NULL' ? cand.dst_name :
+             cand.dst_type || '';
+    }
+  },
+  'type': {
+    label: 'Type/Category',
+    description: 'Landmark: [_landmark_cl] OR [dst_subtype capitalized]',
+    evaluate: (cand) => {
+      if (!cand) return '';
+      if (cand.LMID_ && cand.LMID_ !== 'NULL' && cand._landmark_cl) {
+        return 'Landmark: ' + cand._landmark_cl;
+      } else if (cand.dst_subtype && cand.dst_subtype !== '') {
+        return cand.dst_subtype
+          .split('_')
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+          .join(' ');
+      }
+      return '';
+    }
+  },
+  'bearing': {
+    label: 'Bearing',
+    description: 'Bearing: [azimuth]°',
+    evaluate: (cand) => {
+      if (!cand) return '';
+      return cand.azimuth !== undefined && cand.azimuth !== null 
+        ? `Bearing: ${Math.round(cand.azimuth)}°` 
+        : '';
+    }
+  },
+  'distance': {
+    label: 'Distance',
+    description: 'Distance: [dist_m]m',
+    evaluate: (cand) => {
+      if (!cand) return '';
+      return cand.dist_m !== undefined && cand.dist_m !== null
+        ? `Distance: ${Math.round(cand.dist_m)}m`
+        : '';
+    }
+  },
+  'visibility': {
+    label: 'Visibility',
+    description: 'Visibility: [vis_pct]%',
+    evaluate: (cand) => {
+      if (!cand) return '';
+      return cand.vis_pct !== undefined && cand.vis_pct !== null
+        ? `Visibility: ${Math.round(cand.vis_pct)}%`
+        : '';
+    }
+  }
+};
+
+const textureCache = {};
+
+async function preloadPillTextures() {
+  const promises = Object.entries(PILL_TEXTURES).map(([name, path]) => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        textureCache[name] = img;
+        resolve();
+      };
+      img.onerror = () => {
+        console.warn(`Failed to load texture: ${name}`);
+        resolve();
+      };
+      img.src = path;
+    });
+  });
+  
+  await Promise.all(promises);
+  console.log('All pill textures loaded');
+}
 
 // Label type definitions with default properties
 const labelTypeDefaults = {
@@ -6357,38 +6879,42 @@ const labelTypeDefaults = {
     pillTextColor: "#ffffff",
     pillColorMode: "single",
     
-    // Multi-line text configuration (Issues 7 & 8)
-    useMultiLine: false, // Enable multi-line pill labels
-    lineSpacing: 4, // Spacing between lines in pixels
-    line1: {
-      content: "name", // name | type | custom
-      fontSize: 14,
-      fontFamily: "helvetica",
-      bold: true,
-      italic: false,
-      underline: false,
-      strikethrough: false,
-      alignment: "left" // left | center | right
-    },
-    line2: {
-      content: "category", // category | subtype | landmark | custom
-      fontSize: 11,
-      fontFamily: "helvetica",
-      bold: false,
-      italic: false,
-      underline: false,
-      strikethrough: false,
-      alignment: "left"
-    },
-    line3: {
-      content: "distance", // distance | bearing | visibility | elevation | custom
-      fontSize: 9,
-      fontFamily: "helvetica",
-      bold: false,
-      italic: false,
-      underline: false,
-      strikethrough: false,
-      alignment: "left"
+    // SIMPLIFIED Builder Configuration
+    builderConfig: {
+      layout: 'lines',  // 'lines' or 'columns'
+      numRows: 1,
+      texture: {
+        enabled: false,
+        name: 'White Paper',
+        opacity: 0.8,
+        scale: 1.0,
+        offsetX: 0,
+        offsetY: 0,
+        fitMode: 'cover'
+      },
+      globalStyle: {
+        // NOTE: No fontFamily per spec 'Typography is pill-level only'
+        fontSize: 12,
+        fontWeight: 400,
+        fillColor: 'rgba(0,0,0,0.55)',
+        strokeColor: 'rgba(255,255,255,0.98)',
+        textColor: 'rgba(255,255,255,1)',
+        cornerRadius: 10,
+        paddingTop: 12,
+        paddingRight: 18,
+        paddingBottom: 12,
+        paddingLeft: 18
+      },
+      rows: [
+        {
+          pills: [
+            { rule: 'name', textStyle: {} }
+          ],
+          columnWidth: 'auto',
+          columnColor: null,
+          columnOpacity: null
+        }
+      ]
     },
     
     // Pill positioning
@@ -6441,38 +6967,42 @@ const labelTypeDefaults = {
     pillTextColor: "#ffffff",
     pillColorMode: "single",
     
-    // Multi-line text configuration (Issues 7 & 8)
-    useMultiLine: false,
-    lineSpacing: 4,
-    line1: {
-      content: "name",
-      fontSize: 12,
-      fontFamily: "helvetica",
-      bold: true,
-      italic: false,
-      underline: false,
-      strikethrough: false,
-      alignment: "left"
-    },
-    line2: {
-      content: "category",
-      fontSize: 10,
-      fontFamily: "helvetica",
-      bold: false,
-      italic: false,
-      underline: false,
-      strikethrough: false,
-      alignment: "left"
-    },
-    line3: {
-      content: "distance",
-      fontSize: 8,
-      fontFamily: "helvetica",
-      bold: false,
-      italic: false,
-      underline: false,
-      strikethrough: false,
-      alignment: "left"
+    // SIMPLIFIED Builder Configuration
+    builderConfig: {
+      layout: 'lines',  // 'lines' or 'columns'
+      numRows: 1,
+      texture: {
+        enabled: false,
+        name: 'White Paper',
+        opacity: 0.8,
+        scale: 1.0,
+        offsetX: 0,
+        offsetY: 0,
+        fitMode: 'cover'
+      },
+      globalStyle: {
+        // NOTE: No fontFamily per spec 'Typography is pill-level only'
+        fontSize: 12,
+        fontWeight: 400,
+        fillColor: 'rgba(0,0,0,0.55)',
+        strokeColor: 'rgba(255,255,255,0.98)',
+        textColor: 'rgba(255,255,255,1)',
+        cornerRadius: 10,
+        paddingTop: 12,
+        paddingRight: 18,
+        paddingBottom: 12,
+        paddingLeft: 18
+      },
+      rows: [
+        {
+          pills: [
+            { rule: 'name', textStyle: {} }
+          ],
+          columnWidth: 'auto',
+          columnColor: null,
+          columnOpacity: null
+        }
+      ]
     },
     
     // Pill positioning
@@ -6532,9 +7062,24 @@ function renderLabelFXList() {
   const container = document.getElementById('activeLabelsList');
   if (!container) return;
   
-  // Preserve scroll position to prevent auto-scroll bug (Issue #13)
+  // CRITICAL FIX: Preserve scroll position AND active element focus
   const scrollParent = container.parentElement;
   const scrollTop = scrollParent ? scrollParent.scrollTop : 0;
+  
+  // Capture active element info before rebuild
+  const activeEl = document.activeElement;
+  let focusInfo = null;
+  if (activeEl && container.contains(activeEl)) {
+    focusInfo = {
+      id: activeEl.id,
+      dataId: activeEl.dataset?.id,
+      dataProp: activeEl.dataset?.prop,
+      tagName: activeEl.tagName,
+      type: activeEl.type,
+      selectionStart: activeEl.selectionStart,
+      selectionEnd: activeEl.selectionEnd
+    };
+  }
   
   container.innerHTML = '';
   
@@ -6554,10 +7099,38 @@ function renderLabelFXList() {
     container.appendChild(labelDiv);
   });
   
-  // Restore scroll position after rebuilding UI (use requestAnimationFrame to ensure DOM is updated)
+  // Restore scroll position and focus after rebuilding UI
   if (scrollParent) {
     requestAnimationFrame(() => {
       scrollParent.scrollTop = scrollTop;
+      
+      // Restore focus if we had one
+      if (focusInfo) {
+        let targetEl = null;
+        
+        // Try to find element by ID first
+        if (focusInfo.id) {
+          targetEl = document.getElementById(focusInfo.id);
+        }
+        
+        // Fall back to finding by data attributes
+        if (!targetEl && focusInfo.dataId && focusInfo.dataProp) {
+          targetEl = container.querySelector(`[data-id="${focusInfo.dataId}"][data-prop="${focusInfo.dataProp}"]`);
+        }
+        
+        // Restore focus with preventScroll to avoid jumping
+        if (targetEl && typeof targetEl.focus === 'function') {
+          targetEl.focus({ preventScroll: true });
+          
+          // Restore cursor position for text inputs
+          if (focusInfo.selectionStart !== undefined && typeof targetEl.setSelectionRange === 'function' && targetEl.type !== 'range' && targetEl.type !== 'color' && targetEl.type !== 'checkbox') {
+            targetEl.setSelectionRange(focusInfo.selectionStart, focusInfo.selectionEnd);
+          }
+        }
+        
+        // Ensure scroll position is maintained after focus
+        scrollParent.scrollTop = scrollTop;
+      }
     });
   }
   
@@ -6614,45 +7187,201 @@ function renderLabelFXList() {
     });
   });
   
+  // Simplified Builder UI event handlers
+  container.querySelectorAll('.addRowBtn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const labelId = e.target.dataset.labelId;
+      const label = activeLabels.find(l => l.id === labelId);
+      if (label && label.builderConfig) {
+        if (label.builderConfig.rows.length < 3) {
+          label.builderConfig.rows.push({
+            pills: [{ rule: 'name', textStyle: {} }],
+            columnWidth: 'auto',
+            columnColor: null,
+            columnOpacity: null
+          });
+          renderLabelFXList();
+        }
+      }
+    });
+  });
+  
+  container.querySelectorAll('.removeRowBtn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const labelId = e.target.dataset.labelId;
+      const rowIndex = parseInt(e.target.dataset.rowIndex);
+      const label = activeLabels.find(l => l.id === labelId);
+      if (label && label.builderConfig) {
+        label.builderConfig.rows.splice(rowIndex, 1);
+        renderLabelFXList();
+      }
+    });
+  });
+  
+  container.querySelectorAll('.addPillBtn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const labelId = e.target.dataset.labelId;
+      const rowIndex = parseInt(e.target.dataset.rowIndex);
+      const label = activeLabels.find(l => l.id === labelId);
+      if (label && label.builderConfig && label.builderConfig.rows[rowIndex]) {
+        label.builderConfig.rows[rowIndex].pills.push({ rule: 'name', textStyle: {} });
+        renderLabelFXList();
+      }
+    });
+  });
+  
+  container.querySelectorAll('.removePillBtn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const labelId = e.target.dataset.labelId;
+      const rowIndex = parseInt(e.target.dataset.rowIndex);
+      const pillIndex = parseInt(e.target.dataset.pillIndex);
+      const label = activeLabels.find(l => l.id === labelId);
+      if (label && label.builderConfig && label.builderConfig.rows[rowIndex]) {
+        label.builderConfig.rows[rowIndex].pills.splice(pillIndex, 1);
+        renderLabelFXList();
+      }
+    });
+  });
+  
+  // Pill rule change
+  container.querySelectorAll('.pillRuleSelect').forEach(select => {
+    select.addEventListener('change', (e) => {
+      const labelId = e.target.dataset.labelId;
+      const rowIndex = parseInt(e.target.dataset.rowIndex);
+      const pillIndex = parseInt(e.target.dataset.pillIndex);
+      const label = activeLabels.find(l => l.id === labelId);
+      if (label && label.builderConfig && label.builderConfig.rows[rowIndex] && label.builderConfig.rows[rowIndex].pills[pillIndex]) {
+        label.builderConfig.rows[rowIndex].pills[pillIndex].rule = e.target.value;
+        applyAllLabelFX();
+      }
+    });
+  });
+  
+  // Edit pill text style button
+  container.querySelectorAll('.editPillTextBtn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const labelId = e.target.dataset.labelId;
+      const rowIndex = e.target.dataset.rowIndex;
+      const pillIndex = e.target.dataset.pillIndex;
+      const editorId = `pillTextEditor_${labelId}_${rowIndex}_${pillIndex}`;
+      const editor = document.getElementById(editorId);
+      if (editor) {
+        editor.style.display = editor.style.display === 'none' ? 'block' : 'none';
+      }
+    });
+  });
+  
+  // Handle pill text style changes
+  container.querySelectorAll('.pillTextStyleInput').forEach(input => {
+    const eventType = (input.type === 'checkbox' || input.type === 'color' || input.tagName === 'SELECT') ? 'change' : 'input';
+    input.addEventListener(eventType, (e) => {
+      const labelId = e.target.dataset.labelId;
+      const rowIndex = parseInt(e.target.dataset.rowIndex);
+      const pillIndex = parseInt(e.target.dataset.pillIndex);
+      const styleProp = e.target.dataset.styleProp;
+      
+      const label = activeLabels.find(l => l.id === labelId);
+      if (label && label.builderConfig && label.builderConfig.rows[rowIndex] && label.builderConfig.rows[rowIndex].pills[pillIndex]) {
+        const pill = label.builderConfig.rows[rowIndex].pills[pillIndex];
+        if (!pill.textStyle) {
+          pill.textStyle = {};
+        }
+        
+        let value;
+        if (e.target.type === 'checkbox') {
+          value = e.target.checked;
+        } else if (e.target.type === 'number') {
+          const numValue = parseFloat(e.target.value);
+          // For fontWeight, round to nearest 100 (valid range: 100-900)
+          if (styleProp === 'fontWeight') {
+            value = numValue ? Math.round(numValue / 100) * 100 : null;
+            value = value && Math.max(100, Math.min(900, value));
+          } else {
+            value = numValue || null;
+          }
+        } else {
+          value = e.target.value;
+        }
+        
+        // Handle offset controls - combine left/right into offsetX, up/down into offsetY
+        if (styleProp === 'offsetLeft' || styleProp === 'offsetRight') {
+          const left = parseFloat(pill.textStyle.offsetLeft || 0);
+          const right = parseFloat(pill.textStyle.offsetRight || 0);
+          pill.textStyle[styleProp] = value;
+          pill.textStyle.offsetX = right - left; // Right is positive, left is negative
+        } else if (styleProp === 'offsetUp' || styleProp === 'offsetDown') {
+          const up = parseFloat(pill.textStyle.offsetUp || 0);
+          const down = parseFloat(pill.textStyle.offsetDown || 0);
+          pill.textStyle[styleProp] = value;
+          pill.textStyle.offsetY = down - up; // Down is positive, up is negative
+        } else {
+          pill.textStyle[styleProp] = value;
+        }
+        
+        applyAllLabelFX();
+      }
+    });
+  });
+  
+  // REMOVED: Filter handlers (not in simplified system)
+  // container.querySelectorAll('.addFilterRuleBtn')...
+  // container.querySelectorAll('.removeFilterRuleBtn')...
+  
+  // PHASE 10: Export/Import Config Buttons
+  container.querySelectorAll('.exportConfigBtn').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      const labelId = e.target.dataset.id;
+      const label = activeLabels.find(l => l.id === labelId);
+      if (label && label.builderConfig) {
+        const config = JSON.stringify(label.builderConfig, null, 2);
+        try {
+          await navigator.clipboard.writeText(config);
+          e.target.textContent = '✓ Copied!';
+          setTimeout(() => { e.target.textContent = '📋 Export'; }, 1500);
+        } catch (err) {
+          console.error('Failed to copy config:', err);
+          alert('Failed to copy to clipboard');
+        }
+      }
+    });
+  });
+  
+  container.querySelectorAll('.importConfigBtn').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      const labelId = e.target.dataset.id;
+      const label = activeLabels.find(l => l.id === labelId);
+      if (label) {
+        try {
+          const text = await navigator.clipboard.readText();
+          const config = JSON.parse(text);
+          label.builderConfig = config;
+          renderLabelFXList();
+          applyAllLabelFX();
+          e.target.textContent = '✓ Imported!';
+          setTimeout(() => { e.target.textContent = '📥 Import'; }, 1500);
+        } catch (err) {
+          console.error('Failed to import config:', err);
+          alert('Failed to import config. Make sure clipboard contains valid JSON.');
+        }
+      }
+    });
+  });
+  
+  // PHASE 9: Live Preview Navigation Buttons
+  container.querySelectorAll('.prevSampleBtn, .nextSampleBtn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const direction = btn.classList.contains('prevSampleBtn') ? -1 : 1;
+      cyclePreviewSample(direction);
+    });
+  });
+  
   // Wire up control changes
   container.querySelectorAll('[data-id][data-prop]').forEach(input => {
     const inputType = input.type;
     const prop = input.dataset.prop;
-    
-    // Special handling for content checkboxes
-    if (inputType === 'checkbox' && prop === 'content') {
-      input.addEventListener('change', (e) => {
-        const labelId = e.target.dataset.id;
-        const contentValue = e.target.dataset.contentValue;
-        const label = activeLabels.find(l => l.id === labelId);
-        if (!label) return;
-        
-        // Ensure content is an array
-        if (!Array.isArray(label.content)) {
-          label.content = label.content ? [label.content] : [];
-        }
-        
-        // Add or remove the content value
-        if (e.target.checked) {
-          if (!label.content.includes(contentValue)) {
-            label.content.push(contentValue);
-          }
-        } else {
-          label.content = label.content.filter(v => v !== contentValue);
-        }
-        
-        // Ensure at least one item is selected
-        if (label.content.length === 0) {
-          label.content = ['name'];
-          // Re-render will update all checkbox states correctly
-          renderLabelFXList();
-          return;
-        }
-        
-        renderLabelFXList();
-      });
-      return; // Skip the normal handler
-    }
     
     // For color and select inputs, only use change event
     // For text and number inputs, debounce input
@@ -6689,16 +7418,29 @@ function updateLabelFXProperty(id, prop, value) {
   const label = activeLabels.find(l => l.id === id);
   if (!label) return;
   
-  // Handle nested properties (e.g., categoryColors.landmark, line1.bold)
+  // Handle nested properties (e.g., categoryColors.landmark, line1.bold, builderConfig.rows.0.columnWidth)
   if (prop.includes('.')) {
     const parts = prop.split('.');
     let obj = label;
     for (let i = 0; i < parts.length - 1; i++) {
-      // Create intermediate object if it doesn't exist, but only if current value isn't already a non-object
-      if (!obj[parts[i]] || obj[parts[i]] === null || typeof obj[parts[i]] !== 'object') {
-        obj[parts[i]] = {};
+      const part = parts[i];
+      const isArrayIndex = /^\d+$/.test(part);
+      
+      if (isArrayIndex) {
+        // Handle array index
+        const index = parseInt(part);
+        if (!Array.isArray(obj)) {
+          console.warn(`Expected array at path ${parts.slice(0, i).join('.')}, got:`, obj);
+          return;
+        }
+        obj = obj[index];
+      } else {
+        // Create intermediate object if it doesn't exist
+        if (!obj[part] || obj[part] === null || typeof obj[part] !== 'object') {
+          obj[part] = {};
+        }
+        obj = obj[part];
       }
-      obj = obj[parts[i]];
     }
     // Handle value types for nested properties
     const finalProp = parts[parts.length - 1];
@@ -6727,11 +7469,597 @@ function updateLabelFXProperty(id, prop, value) {
   // Re-render if certain properties change
   if (prop === 'format' || prop === 'content' || prop === 'type' || 
       prop === 'lineColorMode' || prop === 'displayShapeColorMode' || prop === 'pillColorMode' ||
-      prop === 'useMultiLine' || prop.startsWith('line1.') || prop.startsWith('line2.') || prop.startsWith('line3.')) {
+      prop === 'useMultiLine' || prop.startsWith('line1.') || prop.startsWith('line2.') || prop.startsWith('line3.') ||
+      prop.startsWith('builderConfig.')) {
     renderLabelFXList();
   }
   
   applyAllLabelFX();
+}
+
+// PHASE 7: Pill Editor Modal Implementation
+let currentPillEdit = null;
+
+function openPillEditor(labelId, rowId, pillId) {
+  const label = activeLabels.find(l => l.id === labelId);
+  if (!label || !label.builderConfig || !label.builderConfig.rows) return;
+  
+  const row = label.builderConfig.rows.find(r => r.id === rowId);
+  if (!row) return;
+  
+  const pill = row.pills.find(p => p.id === pillId);
+  if (!pill) return;
+  
+  currentPillEdit = { labelId, rowId, pillId, pill };
+  
+  // Open modal
+  const modal = document.getElementById('pillEditorModal');
+  if (!modal) return;
+  
+  modal.style.display = 'flex';
+  
+  // Populate fields
+  renderPillFieldList();
+  renderPillTextureGrid();
+  
+  // Populate layout
+  document.getElementById('pillLayoutSelect').value = pill.layout || 'horizontal';
+  
+  // Update preview
+  updatePillPreview();
+}
+
+function closePillEditor() {
+  currentPillEdit = null;
+  const modal = document.getElementById('pillEditorModal');
+  if (modal) modal.style.display = 'none';
+}
+
+function savePillEditor() {
+  if (!currentPillEdit) return;
+  
+  // Save is automatic (we edit the object directly)
+  // Just close and re-render
+  closePillEditor();
+  renderLabelFXList();
+  applyAllLabelFX();
+}
+
+function renderPillFieldList() {
+  if (!currentPillEdit) return;
+  
+  const container = document.getElementById('pillFieldList');
+  if (!container) return;
+  
+  const { pill } = currentPillEdit;
+  if (!pill.fields) pill.fields = [];
+  
+  const availableFields = [
+    'name', 'dst_name', 'dst_type', 'amenity', 'leisure', 'place',
+    'landmark', 'distance_m', 'bearing', 'visibility'
+  ];
+  
+  container.innerHTML = pill.fields.map((field, idx) => `
+    <div class="pillFieldItem" draggable="true" data-index="${idx}">
+      <span class="dragHandle">⋮⋮</span>
+      <select class="fieldNameSelect" data-index="${idx}">
+        ${availableFields.map(f => `<option value="${f}" ${field.name === f ? 'selected' : ''}>${f}</option>`).join('')}
+      </select>
+      <input type="number" class="fieldPriority" data-index="${idx}" value="${field.priority || 1}" min="1" max="10" step="1">
+      <button class="removeFieldBtn" data-index="${idx}">×</button>
+    </div>
+  `).join('') + `
+    <button id="addFieldBtn" style="width:100%;padding:6px;margin-top:8px;background:rgba(255,255,255,0.1);border:none;color:#fff;border-radius:4px;cursor:pointer;">+ Add Field</button>
+  `;
+  
+  // Wire up events
+  setupFieldDragAndDrop();
+  
+  container.querySelectorAll('.fieldNameSelect').forEach(select => {
+    select.addEventListener('change', (e) => {
+      const idx = parseInt(e.target.dataset.index);
+      if (pill.fields[idx]) {
+        pill.fields[idx].name = e.target.value;
+        updatePillPreview();
+      }
+    });
+  });
+  
+  container.querySelectorAll('.fieldPriority').forEach(input => {
+    input.addEventListener('change', (e) => {
+      const idx = parseInt(e.target.dataset.index);
+      if (pill.fields[idx]) {
+        pill.fields[idx].priority = parseInt(e.target.value);
+        updatePillPreview();
+      }
+    });
+  });
+  
+  container.querySelectorAll('.removeFieldBtn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const idx = parseInt(e.target.dataset.index);
+      pill.fields.splice(idx, 1);
+      renderPillFieldList();
+      updatePillPreview();
+    });
+  });
+  
+  const addBtn = document.getElementById('addFieldBtn');
+  if (addBtn) {
+    addBtn.addEventListener('click', () => {
+      pill.fields.push({ name: 'name', priority: 1 });
+      renderPillFieldList();
+      updatePillPreview();
+    });
+  }
+}
+
+function setupFieldDragAndDrop() {
+  const container = document.getElementById('pillFieldList');
+  if (!container || !currentPillEdit) return;
+  
+  const items = container.querySelectorAll('.pillFieldItem');
+  let draggedItem = null;
+  
+  items.forEach(item => {
+    item.addEventListener('dragstart', (e) => {
+      draggedItem = item;
+      item.classList.add('dragging');
+      item.style.opacity = '0.4';
+    });
+    
+    item.addEventListener('dragend', (e) => {
+      item.classList.remove('dragging');
+      item.style.opacity = '1';
+      draggedItem = null;
+    });
+    
+    item.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      const afterElement = getDragAfterElement(container, e.clientY);
+      if (afterElement === null) {
+        container.appendChild(draggedItem);
+      } else {
+        container.insertBefore(draggedItem, afterElement);
+      }
+    });
+    
+    item.addEventListener('drop', (e) => {
+      e.preventDefault();
+      // Reorder the fields array based on DOM order
+      const newOrder = [];
+      container.querySelectorAll('.pillFieldItem').forEach(item => {
+        const idx = parseInt(item.dataset.index);
+        if (currentPillEdit.pill.fields[idx]) {
+          newOrder.push(currentPillEdit.pill.fields[idx]);
+        }
+      });
+      currentPillEdit.pill.fields = newOrder;
+      renderPillFieldList();
+      updatePillPreview();
+    });
+  });
+}
+
+function getDragAfterElement(container, y) {
+  const draggableElements = [...container.querySelectorAll('.pillFieldItem:not(.dragging)')];
+  
+  return draggableElements.reduce((closest, child) => {
+    const box = child.getBoundingClientRect();
+    const offset = y - box.top - box.height / 2;
+    
+    if (offset < 0 && offset > closest.offset) {
+      return { offset: offset, element: child };
+    } else {
+      return closest;
+    }
+  }, { offset: Number.NEGATIVE_INFINITY }).element;
+}
+
+function renderPillTextureGrid() {
+  if (!currentPillEdit) return;
+  
+  const container = document.getElementById('pillTextureGrid');
+  if (!container) return;
+  
+  const { pill } = currentPillEdit;
+  if (!pill.texture) pill.texture = { enabled: false, name: 'White Paper', opacity: 0.8, scale: 1.0, offsetX: 0, offsetY: 0, fitMode: 'cover' };
+  
+  const textures = Object.keys(PILL_TEXTURES);
+  
+  container.innerHTML = `
+    <label style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">
+      <input type="checkbox" id="pillTextureEnabled" ${pill.texture.enabled ? 'checked' : ''}>
+      <span>Enable Texture</span>
+    </label>
+    <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;max-height:200px;overflow-y:auto;padding:4px;">
+      ${textures.map(name => `
+        <div class="textureOption ${pill.texture.name === name ? 'selected' : ''}" data-texture="${name}" style="cursor:pointer;border:2px solid ${pill.texture.name === name ? '#4af' : 'rgba(255,255,255,0.2)'};border-radius:4px;padding:4px;background:rgba(0,0,0,0.3);">
+          <img src="${PILL_TEXTURES[name]}" style="width:100%;height:60px;object-fit:cover;border-radius:2px;">
+          <div style="font-size:8px;text-align:center;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${name}</div>
+        </div>
+      `).join('')}
+    </div>
+    <div style="margin-top:12px;display:flex;flex-direction:column;gap:6px;">
+      <label style="font-size:10px;display:flex;justify-content:space-between;align-items:center;">
+        <span>Opacity</span>
+        <input type="number" id="pillTextureOpacity" value="${pill.texture.opacity}" min="0" max="1" step="0.1" style="width:60px;font-size:10px;">
+      </label>
+      <label style="font-size:10px;display:flex;justify-content:space-between;align-items:center;">
+        <span>Scale</span>
+        <input type="number" id="pillTextureScale" value="${pill.texture.scale}" min="0.1" max="5" step="0.1" style="width:60px;font-size:10px;">
+      </label>
+    </div>
+  `;
+  
+  // Wire up events
+  const enabledCheckbox = document.getElementById('pillTextureEnabled');
+  if (enabledCheckbox) {
+    enabledCheckbox.addEventListener('change', (e) => {
+      pill.texture.enabled = e.target.checked;
+      updatePillPreview();
+    });
+  }
+  
+  container.querySelectorAll('.textureOption').forEach(option => {
+    option.addEventListener('click', (e) => {
+      const textureName = e.currentTarget.dataset.texture;
+      pill.texture.name = textureName;
+      renderPillTextureGrid();
+      updatePillPreview();
+    });
+  });
+  
+  const opacityInput = document.getElementById('pillTextureOpacity');
+  if (opacityInput) {
+    opacityInput.addEventListener('change', (e) => {
+      pill.texture.opacity = parseFloat(e.target.value);
+      updatePillPreview();
+    });
+  }
+  
+  const scaleInput = document.getElementById('pillTextureScale');
+  if (scaleInput) {
+    scaleInput.addEventListener('change', (e) => {
+      pill.texture.scale = parseFloat(e.target.value);
+      updatePillPreview();
+    });
+  }
+}
+
+function updatePillPreview() {
+  if (!currentPillEdit) return;
+  
+  const container = document.getElementById('pillPreviewContainer');
+  if (!container) return;
+  
+  const { labelId, pill } = currentPillEdit;
+  const label = activeLabels.find(l => l.id === labelId);
+  if (!label) return;
+  
+  // Use current preview sample for consistency
+  const testData = PREVIEW_SAMPLES[currentPreviewSample].data;
+  
+  // Evaluate pill with test data
+  const resolvedFields = pill.fields
+    .map(f => ({ ...f, value: testData[f.name] }))
+    .filter(f => f.value !== null && f.value !== undefined)
+    .sort((a, b) => (a.priority || 1) - (b.priority || 1));
+  
+  // Format based on layout
+  let pillText;
+  if (resolvedFields.length === 0) {
+    pillText = 'NULL';
+  } else if (pill.layout === 'vertical') {
+    pillText = resolvedFields.map(f => String(f.value)).join('\n');
+  } else {
+    pillText = resolvedFields.map(f => String(f.value)).join(' ');
+  }
+  
+  const nullFallback = resolvedFields.length === 0 
+    ? '<div style="margin-top:8px;padding:6px;background:rgba(255,100,100,0.2);border:1px solid rgba(255,100,100,0.5);border-radius:4px;font-size:9px;">⚠️ All fields NULL - pill will not render</div>'
+    : '';
+  
+  container.innerHTML = `
+    <div style="padding:12px;background:rgba(255,255,255,0.05);border-radius:6px;font-size:10px;font-family:monospace;white-space:pre-wrap;word-break:break-word;">${pillText}</div>
+    ${nullFallback}
+    <div style="margin-top:6px;font-size:9px;opacity:0.7;">Field resolution: ${resolvedFields.map(f => `${f.name}(${f.priority})`).join(' → ')}</div>
+  `;
+}
+
+// PHASE 9: Live Preview Functions
+function updateLivePreview(labelId) {
+  const label = activeLabels.find(l => l.id === labelId);
+  if (!label) return;
+  
+  const previewCanvas = document.getElementById(`previewCanvas_${labelId}`);
+  if (!previewCanvas) return;
+  
+  const sampleData = PREVIEW_SAMPLES[currentPreviewSample].data;
+  const previewHTML = renderLabelFromBuilder(label, sampleData);
+  
+  previewCanvas.innerHTML = previewHTML || '<span style="color:rgba(255,255,255,0.5);font-size:11px;">No content (all NULL)</span>';
+  
+  const sampleNameEl = document.getElementById(`sampleName_${labelId}`);
+  if (sampleNameEl) {
+    sampleNameEl.textContent = PREVIEW_SAMPLES[currentPreviewSample].name;
+  }
+}
+
+function cyclePreviewSample(direction) {
+  // Wrap around: ensures index stays within bounds for both forward and backward navigation
+  currentPreviewSample = (currentPreviewSample + direction + PREVIEW_SAMPLES.length) % PREVIEW_SAMPLES.length;
+  activeLabels.forEach(label => {
+    if (label.useBuilder) {
+      updateLivePreview(label.id);
+    }
+  });
+  // Also update pill editor preview if it's open
+  if (currentPillEdit) {
+    updatePillPreview();
+  }
+}
+
+// Render builder rows for a label
+/**
+ * Generates HTML for builder rows including pills, gaps, and action buttons.
+ * @param {Object} label - Label configuration object with builderConfig
+ * @returns {string} HTML string for the rows
+ */
+function renderBuilderRows(label) {
+  const config = label.builderConfig || { rows: [{ pills: [{ rule: 'name', textStyle: {} }], columnWidth: 'auto', columnColor: null, columnOpacity: null }] };
+  if (!config.rows || config.rows.length === 0) {
+    config.rows = [{ pills: [{ rule: 'name', textStyle: {} }], columnWidth: 'auto', columnColor: null, columnOpacity: null }];
+  }
+  
+  return config.rows.map((row, rowIndex) => `
+    <div style="background:rgba(255,255,255,0.05);padding:8px;border-radius:4px;margin-bottom:8px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <span style="font-size:10px;font-weight:600;">Row ${rowIndex + 1}</span>
+        ${config.rows.length > 1 ? `<button class="removeRowBtn" data-label-id="${label.id}" data-row-index="${rowIndex}" style="padding:2px 6px;font-size:10px;background:rgba(255,0,0,0.3);border:none;color:#fff;border-radius:3px;cursor:pointer;">×</button>` : ''}
+      </div>
+      
+      <!-- Pills in this row -->
+      <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;">
+        ${row.pills.map((pill, pillIndex) => `
+          <div style="padding:4px 8px;font-size:9px;background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.3);color:#fff;border-radius:8px;">
+            <div style="display:flex;align-items:center;gap:4px;">
+              <select class="pillRuleSelect" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" style="font-size:9px;background:rgba(0,0,0,0.3);border:none;color:#fff;padding:2px;">
+                ${Object.keys(FIELD_RULES).map(ruleKey => 
+                  `<option value="${ruleKey}" ${pill.rule === ruleKey ? 'selected' : ''}>${FIELD_RULES[ruleKey].label}</option>`
+                ).join('')}
+              </select>
+              <button class="editPillTextBtn" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" style="padding:2px 4px;font-size:9px;background:rgba(100,150,255,0.3);border:none;color:#fff;border-radius:3px;cursor:pointer;" title="Edit text style">✏️</button>
+              <button class="removePillBtn" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" style="padding:0 4px;font-size:10px;background:rgba(255,0,0,0.5);border:none;color:#fff;border-radius:3px;cursor:pointer;line-height:1;">×</button>
+            </div>
+            <div class="pillTextEditor" id="pillTextEditor_${label.id}_${rowIndex}_${pillIndex}" style="display:none;margin-top:6px;padding:6px;background:rgba(0,0,0,0.3);border-radius:4px;font-size:9px;">
+              <div style="display:grid;grid-template-columns:auto 1fr;gap:4px;align-items:center;">
+                <!-- Font Family -->
+                <label>Font Family:</label>
+                <select class="pillTextStyleInput" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" data-style-prop="fontFamily" style="font-size:9px;width:140px;">
+                  <optgroup label="System Fonts">
+                    <option value="helvetica" ${(pill.textStyle?.fontFamily || 'helvetica') === 'helvetica' ? 'selected' : ''}>Helvetica</option>
+                    <option value="arial" ${pill.textStyle?.fontFamily === 'arial' ? 'selected' : ''}>Arial</option>
+                    <option value="times" ${pill.textStyle?.fontFamily === 'times' ? 'selected' : ''}>Times New Roman</option>
+                    <option value="georgia" ${pill.textStyle?.fontFamily === 'georgia' ? 'selected' : ''}>Georgia</option>
+                    <option value="verdana" ${pill.textStyle?.fontFamily === 'verdana' ? 'selected' : ''}>Verdana</option>
+                    <option value="trebuchet" ${pill.textStyle?.fontFamily === 'trebuchet' ? 'selected' : ''}>Trebuchet MS</option>
+                    <option value="courier" ${pill.textStyle?.fontFamily === 'courier' ? 'selected' : ''}>Courier New</option>
+                  </optgroup>
+                  <optgroup label="Sans-Serif Fonts">
+                    <option value="opensans" ${pill.textStyle?.fontFamily === 'opensans' ? 'selected' : ''}>Open Sans</option>
+                    <option value="roboto" ${pill.textStyle?.fontFamily === 'roboto' ? 'selected' : ''}>Roboto</option>
+                    <option value="lato" ${pill.textStyle?.fontFamily === 'lato' ? 'selected' : ''}>Lato</option>
+                    <option value="montserrat" ${pill.textStyle?.fontFamily === 'montserrat' ? 'selected' : ''}>Montserrat</option>
+                    <option value="sourcesans" ${pill.textStyle?.fontFamily === 'sourcesans' ? 'selected' : ''}>Source Sans 3</option>
+                    <option value="raleway" ${pill.textStyle?.fontFamily === 'raleway' ? 'selected' : ''}>Raleway</option>
+                    <option value="ptsans" ${pill.textStyle?.fontFamily === 'ptsans' ? 'selected' : ''}>PT Sans</option>
+                    <option value="poppins" ${pill.textStyle?.fontFamily === 'poppins' ? 'selected' : ''}>Poppins</option>
+                    <option value="oswald" ${pill.textStyle?.fontFamily === 'oswald' ? 'selected' : ''}>Oswald</option>
+                    <option value="nunito" ${pill.textStyle?.fontFamily === 'nunito' ? 'selected' : ''}>Nunito</option>
+                    <option value="ubuntu" ${pill.textStyle?.fontFamily === 'ubuntu' ? 'selected' : ''}>Ubuntu</option>
+                    <option value="archivo" ${pill.textStyle?.fontFamily === 'archivo' ? 'selected' : ''}>Archivo</option>
+                    <option value="josefin" ${pill.textStyle?.fontFamily === 'josefin' ? 'selected' : ''}>Josefin Sans</option>
+                    <option value="worksans" ${pill.textStyle?.fontFamily === 'worksans' ? 'selected' : ''}>Work Sans</option>
+                    <option value="bebasneue" ${pill.textStyle?.fontFamily === 'bebasneue' ? 'selected' : ''}>Bebas Neue</option>
+                  </optgroup>
+                  <optgroup label="Serif Fonts">
+                    <option value="playfair" ${pill.textStyle?.fontFamily === 'playfair' ? 'selected' : ''}>Playfair Display</option>
+                    <option value="merriweather" ${pill.textStyle?.fontFamily === 'merriweather' ? 'selected' : ''}>Merriweather</option>
+                    <option value="crimson" ${pill.textStyle?.fontFamily === 'crimson' ? 'selected' : ''}>Crimson Text</option>
+                    <option value="librebaskerville" ${pill.textStyle?.fontFamily === 'librebaskerville' ? 'selected' : ''}>Libre Baskerville</option>
+                    <option value="caslon" ${pill.textStyle?.fontFamily === 'caslon' ? 'selected' : ''}>Caslon</option>
+                  </optgroup>
+                  <optgroup label="Monospace Fonts">
+                    <option value="inconsolata" ${pill.textStyle?.fontFamily === 'inconsolata' ? 'selected' : ''}>Inconsolata</option>
+                  </optgroup>
+                </select>
+                
+                <!-- Font Size -->
+                <label>Font Size:</label>
+                <input type="number" class="pillTextStyleInput" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" data-style-prop="fontSize" value="${pill.textStyle?.fontSize || ''}" placeholder="12" min="6" max="48" step="0.5" style="width:60px;font-size:9px;">
+                
+                <!-- Font Weight -->
+                <label>Font Weight:</label>
+                <input type="number" class="pillTextStyleInput" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" data-style-prop="fontWeight" value="${pill.textStyle?.fontWeight || ''}" placeholder="400" min="100" max="900" step="100" style="width:60px;font-size:9px;">
+                
+                <!-- Text Color -->
+                <label>Text Color:</label>
+                <input type="color" class="pillTextStyleInput" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" data-style-prop="textColor" value="${pill.textStyle?.textColor || '#ffffff'}" style="width:60px;font-size:9px;">
+                
+                <!-- Line Height -->
+                <label>Line Height:</label>
+                <input type="number" class="pillTextStyleInput" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" data-style-prop="lineHeight" value="${pill.textStyle?.lineHeight || ''}" placeholder="1.4" min="0.5" max="3" step="0.1" style="width:60px;font-size:9px;">
+                
+                <!-- Letter Spacing -->
+                <label>Letter Spacing:</label>
+                <input type="number" class="pillTextStyleInput" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" data-style-prop="letterSpacing" value="${pill.textStyle?.letterSpacing || ''}" placeholder="0" min="-5" max="20" step="0.5" style="width:60px;font-size:9px;">
+                
+                <!-- Word Spacing -->
+                <label>Word Spacing:</label>
+                <input type="number" class="pillTextStyleInput" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" data-style-prop="wordSpacing" value="${pill.textStyle?.wordSpacing || ''}" placeholder="0" min="-10" max="50" step="1" style="width:60px;font-size:9px;">
+                
+                <!-- Text Transform -->
+                <label>Text Transform:</label>
+                <select class="pillTextStyleInput" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" data-style-prop="textTransform" style="font-size:9px;width:100px;">
+                  <option value="none" ${(pill.textStyle?.textTransform || 'none') === 'none' ? 'selected' : ''}>None</option>
+                  <option value="uppercase" ${pill.textStyle?.textTransform === 'uppercase' ? 'selected' : ''}>UPPERCASE</option>
+                  <option value="lowercase" ${pill.textStyle?.textTransform === 'lowercase' ? 'selected' : ''}>lowercase</option>
+                  <option value="capitalize" ${pill.textStyle?.textTransform === 'capitalize' ? 'selected' : ''}>Capitalize</option>
+                </select>
+                
+                <!-- Text Alignment -->
+                <label>Text Align:</label>
+                <select class="pillTextStyleInput" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" data-style-prop="textAlign" style="font-size:9px;width:100px;">
+                  <option value="left" ${(pill.textStyle?.textAlign || 'left') === 'left' ? 'selected' : ''}>Left</option>
+                  <option value="center" ${pill.textStyle?.textAlign === 'center' ? 'selected' : ''}>Center</option>
+                  <option value="right" ${pill.textStyle?.textAlign === 'right' ? 'selected' : ''}>Right</option>
+                </select>
+                
+                <!-- Text Offset Left -->
+                <label>Offset Left:</label>
+                <input type="number" class="pillTextStyleInput" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" data-style-prop="offsetLeft" value="${pill.textStyle?.offsetLeft || ''}" placeholder="0" min="-50" max="50" step="1" style="width:60px;font-size:9px;">
+                
+                <!-- Text Offset Right -->
+                <label>Offset Right:</label>
+                <input type="number" class="pillTextStyleInput" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" data-style-prop="offsetRight" value="${pill.textStyle?.offsetRight || ''}" placeholder="0" min="-50" max="50" step="1" style="width:60px;font-size:9px;">
+                
+                <!-- Text Offset Up -->
+                <label>Offset Up:</label>
+                <input type="number" class="pillTextStyleInput" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" data-style-prop="offsetUp" value="${pill.textStyle?.offsetUp || ''}" placeholder="0" min="-50" max="50" step="1" style="width:60px;font-size:9px;">
+                
+                <!-- Text Offset Down -->
+                <label>Offset Down:</label>
+                <input type="number" class="pillTextStyleInput" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" data-style-prop="offsetDown" value="${pill.textStyle?.offsetDown || ''}" placeholder="0" min="-50" max="50" step="1" style="width:60px;font-size:9px;">
+                
+                <!-- Text Style Checkboxes -->
+                <label style="display:flex;align-items:center;gap:4px;grid-column:1/3;">
+                  <input type="checkbox" class="pillTextStyleInput" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" data-style-prop="bold" ${pill.textStyle?.bold ? 'checked' : ''}>
+                  <span>Bold</span>
+                </label>
+                
+                <label style="display:flex;align-items:center;gap:4px;grid-column:1/3;">
+                  <input type="checkbox" class="pillTextStyleInput" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" data-style-prop="italic" ${pill.textStyle?.italic ? 'checked' : ''}>
+                  <span>Italic</span>
+                </label>
+                
+                <label style="display:flex;align-items:center;gap:4px;grid-column:1/3;">
+                  <input type="checkbox" class="pillTextStyleInput" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" data-style-prop="underline" ${pill.textStyle?.underline ? 'checked' : ''}>
+                  <span>Underline</span>
+                </label>
+                
+                <label style="display:flex;align-items:center;gap:4px;grid-column:1/3;">
+                  <input type="checkbox" class="pillTextStyleInput" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" data-style-prop="overline" ${pill.textStyle?.overline ? 'checked' : ''}>
+                  <span>Overline</span>
+                </label>
+                
+                <label style="display:flex;align-items:center;gap:4px;grid-column:1/3;">
+                  <input type="checkbox" class="pillTextStyleInput" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" data-style-prop="strikethrough" ${pill.textStyle?.strikethrough ? 'checked' : ''}>
+                  <span>Strikethrough</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        `).join('')}
+        <button class="addPillBtn" data-label-id="${label.id}" data-row-index="${rowIndex}" style="padding:4px 8px;font-size:9px;background:rgba(255,255,255,0.1);border:1px dashed rgba(255,255,255,0.3);color:#fff;border-radius:8px;cursor:pointer;">( + )</button>
+      </div>
+      
+      <!-- Column-specific settings for horizontal layout -->
+      ${config.layout === 'columns' ? `
+      <details style="margin-top:8px;">
+        <summary style="cursor:pointer;font-size:10px;font-weight:600;padding:4px;background:rgba(255,255,255,0.08);border-radius:4px;">Column Settings</summary>
+        <div style="padding:8px 4px;display:flex;flex-direction:column;gap:6px;">
+          <div class="ctrlRow">
+            <label style="font-size:9px;">Column Width</label>
+            <input type="text" data-id="${label.id}" data-prop="builderConfig.rows.${rowIndex}.columnWidth" value="${row.columnWidth || 'auto'}" placeholder="auto" style="font-size:9px;width:60px;">
+          </div>
+          <div class="ctrlRow">
+            <label style="font-size:9px;">Column Color</label>
+            ${renderColorSwatch(label.id, `builderConfig.rows.${rowIndex}.columnColor`, row.columnColor || 'rgba(255,255,255,0)', true)}
+          </div>
+          <div class="ctrlRow">
+            <label style="font-size:9px;">Column Opacity</label>
+            <input type="range" data-id="${label.id}" data-prop="builderConfig.rows.${rowIndex}.columnOpacity" value="${(row.columnOpacity !== undefined ? row.columnOpacity : 0) * 100}" min="0" max="100" style="flex:1;font-size:9px;" oninput="this.nextElementSibling.textContent = Math.round(this.value) + '%'">
+            <span style="font-size:9px;margin-left:6px;min-width:35px;text-align:right;">${Math.round((row.columnOpacity !== undefined ? row.columnOpacity : 0) * 100)}%</span>
+          </div>
+          <small style="font-size:8px;opacity:0.7;margin-top:2px;">Column color overlays the global pill background when set</small>
+        </div>
+      </details>
+      ` : ''}
+    </div>
+  `).join('') + (config.rows.length < 3 ? `
+    <button class="addRowBtn" data-label-id="${label.id}" style="padding:4px 8px;font-size:10px;background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:4px;cursor:pointer;width:100%;">+ Add Row</button>
+  ` : '');
+}
+
+// Render filter panel for a label
+/**
+ * Generates HTML for the filter panel including mode selection, rules, and match count.
+ * @param {Object} label - Label configuration object with builderConfig.filters
+ * @returns {string} HTML string for the filter panel
+ */
+function renderFilterPanel(label) {
+  const filters = label.builderConfig?.filters || { mode: 'all', rules: [] };
+  
+  return `
+    <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
+      <label style="font-size:10px;cursor:pointer;">
+        <input type="radio" name="filterMode_${label.id}" value="all" ${filters.mode === 'all' || !filters.mode ? 'checked' : ''} data-id="${label.id}" data-prop="builderConfig.filters.mode">
+        <span>All</span>
+      </label>
+      <label style="font-size:10px;cursor:pointer;">
+        <input type="radio" name="filterMode_${label.id}" value="includeOnly" ${filters.mode === 'includeOnly' ? 'checked' : ''} data-id="${label.id}" data-prop="builderConfig.filters.mode">
+        <span>Include Only</span>
+      </label>
+      <label style="font-size:10px;cursor:pointer;">
+        <input type="radio" name="filterMode_${label.id}" value="exclude" ${filters.mode === 'exclude' ? 'checked' : ''} data-id="${label.id}" data-prop="builderConfig.filters.mode">
+        <span>Exclude</span>
+      </label>
+    </div>
+    <div id="filterRules_${label.id}">
+      ${filters.rules.map((rule, index) => renderFilterRule(label.id, rule, index)).join('')}
+    </div>
+    <button class="addFilterRuleBtn" data-id="${label.id}" style="padding:4px 8px;font-size:10px;background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:4px;cursor:pointer;margin-top:8px;">+ Add Filter Rule</button>
+    <div style="font-size:9px;opacity:0.7;margin-top:8px;">
+      <span id="filterMatchCount_${label.id}">0</span> candidates match these filters
+    </div>
+  `;
+}
+
+// Render individual filter rule
+/**
+ * Generates HTML for a single filter rule with field, operator, value, and case-sensitivity controls.
+ * @param {string} labelId - ID of the label this rule belongs to
+ * @param {Object} rule - Filter rule configuration object
+ * @param {number} index - Index of this rule in the rules array
+ * @returns {string} HTML string for the filter rule
+ */
+function renderFilterRule(labelId, rule, index) {
+  return `
+    <div class="filterRule" data-rule-index="${index}" style="background:rgba(255,255,255,0.05);padding:6px;border-radius:4px;margin-bottom:6px;display:flex;gap:4px;flex-wrap:wrap;align-items:center;">
+      <select data-id="${labelId}" data-prop="builderConfig.filters.rules.${index}.field" style="font-size:9px;flex:1;min-width:80px;">
+        <option value="dst_type" ${rule.field === 'dst_type' ? 'selected' : ''}>Type</option>
+        <option value="name" ${rule.field === 'name' ? 'selected' : ''}>Name</option>
+        <option value="dst_name" ${rule.field === 'dst_name' ? 'selected' : ''}>Dst Name</option>
+        <option value="amenity" ${rule.field === 'amenity' ? 'selected' : ''}>Amenity</option>
+        <option value="leisure" ${rule.field === 'leisure' ? 'selected' : ''}>Leisure</option>
+        <option value="place" ${rule.field === 'place' ? 'selected' : ''}>Place</option>
+        <option value="landmark" ${rule.field === 'landmark' ? 'selected' : ''}>Landmark</option>
+      </select>
+      <select data-id="${labelId}" data-prop="builderConfig.filters.rules.${index}.operator" style="font-size:9px;flex:1;min-width:80px;">
+        <option value="equals" ${rule.operator === 'equals' ? 'selected' : ''}>Equals</option>
+        <option value="contains" ${rule.operator === 'contains' ? 'selected' : ''}>Contains</option>
+        <option value="startsWith" ${rule.operator === 'startsWith' ? 'selected' : ''}>Starts With</option>
+        <option value="regex" ${rule.operator === 'regex' ? 'selected' : ''}>Regex</option>
+      </select>
+      <input type="text" data-id="${labelId}" data-prop="builderConfig.filters.rules.${index}.value" value="${rule.value || ''}" placeholder="Value" style="font-size:9px;flex:1;min-width:80px;">
+      <label style="font-size:9px;cursor:pointer;white-space:nowrap;">
+        <input type="checkbox" data-id="${labelId}" data-prop="builderConfig.filters.rules.${index}.caseSensitive" ${rule.caseSensitive ? 'checked' : ''}>
+        <span>Case</span>
+      </label>
+      <button class="removeFilterRuleBtn" data-id="${labelId}" data-rule-index="${index}" style="padding:2px 6px;font-size:9px;background:rgba(255,0,0,0.3);border:none;color:#fff;border-radius:3px;cursor:pointer;">×</button>
+    </div>
+  `;
 }
 
 // Render individual label controls
@@ -6791,7 +8119,6 @@ function renderLabelFXControls(label) {
         </label>
       </div>
       <small style="display:block;opacity:0.7;font-size:10px;margin:-4px 0 8px 0;">Extends line to sky mask horizon + line height</small>
-      
       
       <!-- Display Shape Controls -->
       <hr style="border:none;border-top:1px solid rgba(255,255,255,.12);margin:12px 0;">
@@ -6855,135 +8182,180 @@ function renderLabelFXControls(label) {
       </div>
       ` : ''}
       
-      <!-- Pill Label Controls -->
-      <hr style="border:none;border-top:1px solid rgba(255,255,255,.12);margin:12px 0;">
-      <div style="font-weight:700;margin-bottom:8px;">Pill Label</div>
-      
-      <!-- Multi-line Toggle -->
-      <div class="ctrlRow" style="align-items:center;">
-        <label style="flex:1;">
-          <input type="checkbox" data-id="${label.id}" data-prop="useMultiLine" ${label.useMultiLine ? 'checked' : ''}>
-          <span>Enable Multi-line Text</span>
-        </label>
-      </div>
-      
-      <!-- Multi-line Configuration (shown when useMultiLine is true) -->
-      ${label.useMultiLine ? `
-      <div style="margin: 8px 0; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 4px;">
-        <div style="font-size: 11px; opacity: 0.8; margin-bottom: 8px;">Multi-line Text Configuration</div>
-        
-        <!-- Line 1 -->
-        <details open style="margin-bottom: 8px;">
-          <summary style="cursor: pointer; font-weight: 600; font-size: 11px; padding: 4px; background: rgba(255,255,255,0.1); border-radius: 3px;">Line 1 (Title)</summary>
-          <div style="padding: 8px 4px; display: flex; flex-direction: column; gap: 6px;">
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Content</label>
-              <select data-id="\${label.id}" data-prop="line1.content" style="font-size: 10px;">
-                <option value="name" \${label.line1?.content === 'name' ? 'selected' : ''}>Name</option>
-                <option value="type" \${label.line1?.content === 'type' ? 'selected' : ''}>Type</option>
-                <option value="category" \${label.line1?.content === 'category' ? 'selected' : ''}>Category</option>
-              </select>
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Font Size</label>
-              <input type="number" data-id="\${label.id}" data-prop="line1.fontSize" value="\${label.line1?.fontSize || 14}" min="8" max="24" step="1" style="font-size: 10px;">
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Alignment</label>
-              <select data-id="\${label.id}" data-prop="line1.alignment" style="font-size: 10px;">
-                <option value="left" \${(label.line1?.alignment || 'left') === 'left' ? 'selected' : ''}>Left</option>
-                <option value="center" \${label.line1?.alignment === 'center' ? 'selected' : ''}>Center</option>
-                <option value="right" \${label.line1?.alignment === 'right' ? 'selected' : ''}>Right</option>
-              </select>
-            </div>
-            <div class="ctrlRow" style="gap: 8px;">
-              <label style="font-size: 10px; cursor: pointer;">
-                <input type="checkbox" data-id="\${label.id}" data-prop="line1.bold" \${label.line1?.bold ? 'checked' : ''}>
-                <span>Bold</span>
-              </label>
-              <label style="font-size: 10px; cursor: pointer;">
-                <input type="checkbox" data-id="\${label.id}" data-prop="line1.italic" \${label.line1?.italic ? 'checked' : ''}>
-                <span>Italic</span>
-              </label>
-            </div>
-          </div>
-        </details>
-        
-        <!-- Line 2 -->
-        <details open style="margin-bottom: 8px;">
-          <summary style="cursor: pointer; font-weight: 600; font-size: 11px; padding: 4px; background: rgba(255,255,255,0.1); border-radius: 3px;">Line 2 (Category)</summary>
-          <div style="padding: 8px 4px; display: flex; flex-direction: column; gap: 6px;">
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Content</label>
-              <select data-id="\${label.id}" data-prop="line2.content" style="font-size: 10px;">
-                <option value="category" \${(label.line2?.content || 'category') === 'category' ? 'selected' : ''}>Category</option>
-                <option value="subtype" \${label.line2?.content === 'subtype' ? 'selected' : ''}>Subtype</option>
-                <option value="landmark" \${label.line2?.content === 'landmark' ? 'selected' : ''}>Landmark</option>
-              </select>
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Font Size</label>
-              <input type="number" data-id="\${label.id}" data-prop="line2.fontSize" value="\${label.line2?.fontSize || 11}" min="8" max="24" step="1" style="font-size: 10px;">
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Alignment</label>
-              <select data-id="\${label.id}" data-prop="line2.alignment" style="font-size: 10px;">
-                <option value="left" \${(label.line2?.alignment || 'left') === 'left' ? 'selected' : ''}>Left</option>
-                <option value="center" \${label.line2?.alignment === 'center' ? 'selected' : ''}>Center</option>
-                <option value="right" \${label.line2?.alignment === 'right' ? 'selected' : ''}>Right</option>
-              </select>
-            </div>
-          </div>
-        </details>
-        
-        <!-- Line 3 -->
-        <details open style="margin-bottom: 8px;">
-          <summary style="cursor: pointer; font-weight: 600; font-size: 11px; padding: 4px; background: rgba(255,255,255,0.1); border-radius: 3px;">Line 3 (Details)</summary>
-          <div style="padding: 8px 4px; display: flex; flex-direction: column; gap: 6px;">
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Content</label>
-              <select data-id="\${label.id}" data-prop="line3.content" style="font-size: 10px;">
-                <option value="distance" \${(label.line3?.content || 'distance') === 'distance' ? 'selected' : ''}>Distance</option>
-                <option value="bearing" \${label.line3?.content === 'bearing' ? 'selected' : ''}>Bearing</option>
-                <option value="visibility" \${label.line3?.content === 'visibility' ? 'selected' : ''}>Visibility</option>
-                <option value="combined" \${label.line3?.content === 'combined' ? 'selected' : ''}>Combined</option>
-              </select>
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Font Size</label>
-              <input type="number" data-id="\${label.id}" data-prop="line3.fontSize" value="\${label.line3?.fontSize || 9}" min="8" max="24" step="1" style="font-size: 10px;">
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Alignment</label>
-              <select data-id="\${label.id}" data-prop="line3.alignment" style="font-size: 10px;">
-                <option value="left" \${(label.line3?.alignment || 'left') === 'left' ? 'selected' : ''}>Left</option>
-                <option value="center" \${label.line3?.alignment === 'center' ? 'selected' : ''}>Center</option>
-                <option value="right" \${label.line3?.alignment === 'right' ? 'selected' : ''}>Right</option>
-              </select>
-            </div>
-          </div>
-        </details>
-        
-        <div class="ctrlRow">
-          <label style="font-size: 10px;">Line Spacing (px)</label>
-          <input type="number" data-id="\${label.id}" data-prop="lineSpacing" value="\${label.lineSpacing || 4}" min="0" max="20" step="1" style="font-size: 10px;">
-        </div>
-      </div>
-      ` : ''}
+      <!-- SIMPLIFIED PILL LAYOUT BUILDER -->
+      <div style="font-weight:700;margin:16px 0 8px 0;border-top:1px solid rgba(255,255,255,0.1);padding-top:16px;">Simplified Label Builder</div>
 
-      
-      
-      <div class="ctrlRow">
-        <label>Pill Shape</label>
-        <select data-id="${label.id}" data-prop="pillShape">
-          <option value="rounded" ${(label.pillShape || 'rounded') === 'rounded' ? 'selected' : ''}>Rounded</option>
-          <option value="soft-rounded" ${label.pillShape === 'soft-rounded' ? 'selected' : ''}>Soft-rounded</option>
-          <option value="square" ${label.pillShape === 'square' ? 'selected' : ''}>Square</option>
-        </select>
+      <div id="labelBuilder_${label.id}" style="background:rgba(255,255,255,0.03);padding:12px;border-radius:8px;margin-bottom:12px;">
+        
+        <!-- Layout Mode -->
+        <div class="ctrlRow">
+          <label style="font-size:10px;">Layout</label>
+          <select data-id="${label.id}" data-prop="builderConfig.layout" style="font-size:10px;">
+            <option value="lines" ${(label.builderConfig?.layout || 'lines') === 'lines' ? 'selected' : ''}>Lines (Vertical)</option>
+            <option value="columns" ${label.builderConfig?.layout === 'columns' ? 'selected' : ''}>Columns (Horizontal)</option>
+          </select>
+        </div>
+        
+        <!-- Number of Rows -->
+        <div class="ctrlRow">
+          <label style="font-size:10px;">Number of Rows</label>
+          <select data-id="${label.id}" data-prop="builderConfig.numRows" style="font-size:10px;">
+            <option value="1" ${(label.builderConfig?.numRows || 1) === 1 ? 'selected' : ''}>1</option>
+            <option value="2" ${label.builderConfig?.numRows === 2 ? 'selected' : ''}>2</option>
+            <option value="3" ${label.builderConfig?.numRows === 3 ? 'selected' : ''}>3</option>
+          </select>
+        </div>
+        
+        <!-- Texture (for entire label) -->
+        <details style="margin:12px 0;">
+          <summary style="cursor:pointer;font-weight:600;font-size:11px;padding:6px;background:rgba(255,255,255,0.1);border-radius:4px;">Label Texture</summary>
+          <div style="padding:8px 4px;">
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Enable Texture</label>
+              <input type="checkbox" data-id="${label.id}" data-prop="builderConfig.texture.enabled" ${label.builderConfig?.texture?.enabled ? 'checked' : ''}>
+            </div>
+            ${label.builderConfig?.texture?.enabled ? `
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Texture</label>
+              <select data-id="${label.id}" data-prop="builderConfig.texture.name" style="font-size:10px;">
+                ${Object.keys(PILL_TEXTURES).map(name => 
+                  `<option value="${name}" ${label.builderConfig?.texture?.name === name ? 'selected' : ''}>${name}</option>`
+                ).join('')}
+              </select>
+            </div>
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Opacity</label>
+              <input type="range" data-id="${label.id}" data-prop="builderConfig.texture.opacity" value="${(label.builderConfig?.texture?.opacity || 0.8) * 100}" min="0" max="100" style="flex:1;">
+              <span style="font-size:10px;margin-left:6px;">${Math.round((label.builderConfig?.texture?.opacity || 0.8) * 100)}%</span>
+            </div>
+            ` : ''}
+          </div>
+        </details>
+        
+        <!-- Rows -->
+        <div style="font-weight:600;font-size:11px;margin:12px 0 6px 0;">Rows</div>
+        <div id="builderRows_${label.id}">
+          ${renderBuilderRows(label)}
+        </div>
+        
+        <!-- Builder Header (moved to bottom) -->
+        <div style="display:flex;justify-content:flex-end;align-items:center;margin-top:12px;gap:6px;">
+          <button class="exportConfigBtn" data-id="${label.id}" style="padding:4px 8px;font-size:10px;background:rgba(100,150,255,0.15);border:none;color:#fff;border-radius:4px;cursor:pointer;" title="Export config to clipboard">📋 Export</button>
+          <button class="importConfigBtn" data-id="${label.id}" style="padding:4px 8px;font-size:10px;background:rgba(100,200,100,0.15);border:none;color:#fff;border-radius:4px;cursor:pointer;" title="Import config from clipboard">📥 Import</button>
+        </div>
+        
+        <!-- Global Style Controls -->
+        <details style="margin-top:12px;">
+          <summary style="cursor:pointer;font-weight:600;font-size:11px;padding:6px;background:rgba(255,255,255,0.1);border-radius:4px;">Label Shape & Style</summary>
+          <div style="padding:8px 4px;display:flex;flex-direction:column;gap:8px;">
+          <div style="padding:8px 4px;display:flex;flex-direction:column;gap:8px;">
+            <!-- NOTE: Typography is pill-level only (use ✏️ button on each pill) -->
+            
+            <!-- Unified Pill Color -->
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Pill Color</label>
+              ${renderColorSwatch(label.id, 'builderConfig.globalStyle.pillColor', label.builderConfig?.globalStyle?.pillColor || 'rgba(0,0,0,0.55)', true)}
+            </div>
+            
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Corner Radius</label>
+              <input type="number" data-id="${label.id}" data-prop="builderConfig.globalStyle.cornerRadius" value="${label.builderConfig?.globalStyle?.cornerRadius || 10}" min="0" max="50" step="1" style="font-size:10px;">
+            </div>
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Stroke Width</label>
+              <input type="number" data-id="${label.id}" data-prop="builderConfig.globalStyle.strokeWidth" value="${label.builderConfig?.globalStyle?.strokeWidth || 2.5}" min="0" max="10" step="0.5" style="font-size:10px;">
+            </div>
+            
+            <!-- PHASE 5: Padding Controls -->
+            <div style="font-size:10px;font-weight:600;margin-top:4px;opacity:0.8;">Padding</div>
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Top</label>
+              <input type="number" data-id="${label.id}" data-prop="builderConfig.globalStyle.paddingTop" value="${label.builderConfig?.globalStyle?.paddingTop || 12}" min="0" max="50" step="1" style="font-size:10px;">
+            </div>
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Right</label>
+              <input type="number" data-id="${label.id}" data-prop="builderConfig.globalStyle.paddingRight" value="${label.builderConfig?.globalStyle?.paddingRight || 18}" min="0" max="50" step="1" style="font-size:10px;">
+            </div>
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Bottom</label>
+              <input type="number" data-id="${label.id}" data-prop="builderConfig.globalStyle.paddingBottom" value="${label.builderConfig?.globalStyle?.paddingBottom || 12}" min="0" max="50" step="1" style="font-size:10px;">
+            </div>
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Left</label>
+              <input type="number" data-id="${label.id}" data-prop="builderConfig.globalStyle.paddingLeft" value="${label.builderConfig?.globalStyle?.paddingLeft || 18}" min="0" max="50" step="1" style="font-size:10px;">
+            </div>
+            
+            <!-- PHASE 6: Color Controls -->
+            <div style="font-size:10px;font-weight:600;margin-top:4px;opacity:0.8;">Colors</div>
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Stroke Color</label>
+              ${renderColorSwatch(label.id, 'builderConfig.globalStyle.strokeColor', label.builderConfig?.globalStyle?.strokeColor || 'rgba(255,255,255,0.98)', true)}
+            </div>
+            <!-- PHASE 8: Stroke Quality Controls -->
+            <div style="font-size:10px;font-weight:600;margin-top:4px;opacity:0.8;">Stroke Style</div>
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Stroke Style</label>
+              <select data-id="${label.id}" data-prop="builderConfig.globalStyle.strokeStyle" style="font-size:10px;">
+                <option value="solid" ${(label.builderConfig?.globalStyle?.strokeStyle || 'solid') === 'solid' ? 'selected' : ''}>Solid</option>
+                <option value="dashed" ${label.builderConfig?.globalStyle?.strokeStyle === 'dashed' ? 'selected' : ''}>Dashed</option>
+                <option value="dotted" ${label.builderConfig?.globalStyle?.strokeStyle === 'dotted' ? 'selected' : ''}>Dotted</option>
+              </select>
+            </div>
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Line Join</label>
+              <select data-id="${label.id}" data-prop="builderConfig.globalStyle.lineJoin" style="font-size:10px;">
+                <option value="round" ${(label.builderConfig?.globalStyle?.lineJoin || 'round') === 'round' ? 'selected' : ''}>Round</option>
+                <option value="miter" ${label.builderConfig?.globalStyle?.lineJoin === 'miter' ? 'selected' : ''}>Miter</option>
+                <option value="bevel" ${label.builderConfig?.globalStyle?.lineJoin === 'bevel' ? 'selected' : ''}>Bevel</option>
+              </select>
+            </div>
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Line Cap</label>
+              <select data-id="${label.id}" data-prop="builderConfig.globalStyle.lineCap" style="font-size:10px;">
+                <option value="round" ${(label.builderConfig?.globalStyle?.lineCap || 'round') === 'round' ? 'selected' : ''}>Round</option>
+                <option value="butt" ${label.builderConfig?.globalStyle?.lineCap === 'butt' ? 'selected' : ''}>Butt</option>
+                <option value="square" ${label.builderConfig?.globalStyle?.lineCap === 'square' ? 'selected' : ''}>Square</option>
+              </select>
+            </div>
+            
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Row Gap (px)</label>
+              <input type="number" data-id="${label.id}" data-prop="builderConfig.rowGap" value="${label.builderConfig?.rowGap || 4}" min="0" max="50" step="1" style="font-size:10px;">
+            </div>
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Pill Gap (px)</label>
+              <input type="number" data-id="${label.id}" data-prop="builderConfig.pillGap" value="${label.builderConfig?.pillGap || 8}" min="0" max="50" step="1" style="font-size:10px;">
+            </div>
+          </div>
+        </details>
+        
+        <!-- Filter Controls -->
+        <details style="margin-top:12px;">
+          <summary style="cursor:pointer;font-weight:600;font-size:11px;padding:6px;background:rgba(255,255,255,0.1);border-radius:4px;">Effect Filters</summary>
+          <div id="filterPanel_${label.id}" style="padding:8px 4px;">
+            ${renderFilterPanel(label)}
+          </div>
+        </details>
+        
+        <!-- Live Preview -->
+        <details open style="margin-top:12px;">
+          <summary style="cursor:pointer;font-weight:600;font-size:11px;padding:6px;background:rgba(255,255,255,0.1);border-radius:4px;">Live Preview</summary>
+          <div style="padding:8px 4px;">
+            <div id="previewCanvas_${label.id}" style="width:100%;height:200px;background:rgba(0,0,0,0.3);border-radius:4px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;">
+              <span style="color:rgba(255,255,255,0.5);font-size:11px;">Preview will appear here</span>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:8px;align-items:center;">
+              <button class="prevSampleBtn" data-id="${label.id}" style="padding:4px 8px;font-size:10px;background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:4px;cursor:pointer;">← Prev</button>
+              <span id="sampleName_${label.id}" style="flex:1;text-align:center;font-size:10px;opacity:0.8;">Sample 1</span>
+              <button class="nextSampleBtn" data-id="${label.id}" style="padding:4px 8px;font-size:10px;background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:4px;cursor:pointer;">Next →</button>
+            </div>
+          </div>
+        </details>
+        
       </div>
-      
+
       <div class="ctrlRow">
-        <label>Pill Position</label>
+        <label>Label Position</label>
         <select data-id="${label.id}" data-prop="pillPosition">
           <option value="top-center" ${(label.pillPosition || 'top-center') === 'top-center' ? 'selected' : ''}>Top Center</option>
           <option value="top-left" ${label.pillPosition === 'top-left' ? 'selected' : ''}>Top Left</option>
@@ -6992,13 +8364,6 @@ function renderLabelFXControls(label) {
           <option value="side-right" ${label.pillPosition === 'side-right' ? 'selected' : ''}>Side Right</option>
         </select>
       </div>
-      
-      ${(label.pillPosition || 'top-center').startsWith('top') ? `
-      <div class="ctrlRow">
-        <label>Pill Top Gap</label>
-        <input type="number" data-id="${label.id}" data-prop="pillTopGap" value="${label.pillTopGap !== undefined ? label.pillTopGap : 2.0}" step="0.5" min="0" max="10">
-      </div>
-      ` : ''}
       
       ${(label.pillPosition || 'top-center').startsWith('side') ? `
       <div class="ctrlRow">
@@ -7021,108 +8386,11 @@ function renderLabelFXControls(label) {
         <small style="opacity:0.7;font-size:10px;margin-left:4px;">+higher, -lower</small>
       </div>
       
-      <!-- Content Checkboxes -->
-      <div class="ctrlRow" style="flex-direction: column; align-items: flex-start;">
-        <label style="margin-bottom: 6px;">Content (select multiple)</label>
-        <div style="display: flex; flex-direction: column; gap: 4px; width: 100%;">
-          <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
-            <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="name" 
-              ${(Array.isArray(label.content) ? label.content : [label.content]).includes('name') ? 'checked' : ''}>
-            <span>Name</span>
-          </label>
-          <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
-            <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="distance" 
-              ${(Array.isArray(label.content) ? label.content : [label.content]).includes('distance') ? 'checked' : ''}>
-            <span>Distance</span>
-          </label>
-          <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
-            <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="bearing" 
-              ${(Array.isArray(label.content) ? label.content : [label.content]).includes('bearing') ? 'checked' : ''}>
-            <span>Bearing</span>
-          </label>
-          <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
-            <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="category" 
-              ${(Array.isArray(label.content) ? label.content : [label.content]).includes('category') ? 'checked' : ''}>
-            <span>Category</span>
-          </label>
-          <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
-            <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="subtype" 
-              ${(Array.isArray(label.content) ? label.content : [label.content]).includes('subtype') ? 'checked' : ''}>
-            <span>Subtype</span>
-          </label>
-          <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
-            <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="visibility" 
-              ${(Array.isArray(label.content) ? label.content : [label.content]).includes('visibility') ? 'checked' : ''}>
-            <span>Visibility %</span>
-          </label>
-          <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
-            <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="elevation" 
-              ${(Array.isArray(label.content) ? label.content : [label.content]).includes('elevation') ? 'checked' : ''}>
-            <span>Elevation</span>
-          </label>
-          <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
-            <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="id" 
-              ${(Array.isArray(label.content) ? label.content : [label.content]).includes('id') ? 'checked' : ''}>
-            <span>Identifier</span>
-          </label>
-        </div>
-      </div>
-      
-      <div class="ctrlRow">
-        <label>Pill Color Mode</label>
-        <select data-id="${label.id}" data-prop="pillColorMode">
-          <option value="single" ${(label.pillColorMode || 'single') === 'single' ? 'selected' : ''}>Single Color</option>
-          <option value="category" ${label.pillColorMode === 'category' ? 'selected' : ''}>Category</option>
-          <option value="visibility" ${label.pillColorMode === 'visibility' ? 'selected' : ''}>Visibility %</option>
-        </select>
-      </div>
-      
-      ${label.pillColorMode === 'single' ? `
-      <div class="ctrlRow">
-        <label>Pill Background</label>
-        ${renderColorSwatch(label.id, 'pillBackgroundColor', label.pillBackgroundColor || 'rgba(0,0,0,0.75)', true)}
-      </div>
-      
-      <div class="ctrlRow">
-        <label>Pill Border</label>
-        ${renderColorSwatch(label.id, 'pillBorderColor', label.pillBorderColor || 'rgba(255,255,255,0.18)', true)}
-      </div>
-      ` : ''}
-      
-      <div class="ctrlRow">
-        <label>Text Color</label>
-        ${renderColorSwatch(label.id, 'pillTextColor', label.pillTextColor || '#ffffff', false)}
-      </div>
-      
-      <div class="ctrlRow">
-        <label>Font Size</label>
-        <input type="number" data-id="${label.id}" data-prop="fontSize" value="${label.fontSize || 12}" step="1" min="8" max="24">
-      </div>
-      
-      <div class="ctrlRow">
-        <label>Font</label>
-        <select data-id="${label.id}" data-prop="font">
-          <option value="helvetica" ${(label.font || 'helvetica') === 'helvetica' ? 'selected' : ''}>Helvetica</option>
-          <option value="times" ${label.font === 'times' ? 'selected' : ''}>Times New Roman</option>
-          <option value="caslon" ${label.font === 'caslon' ? 'selected' : ''}>Caslon</option>
-          <option value="inter" ${label.font === 'inter' ? 'selected' : ''}>Inter</option>
-          <option value="manrope" ${label.font === 'manrope' ? 'selected' : ''}>Manrope</option>
-          <option value="ibmplex" ${label.font === 'ibmplex' ? 'selected' : ''}>IBM Plex Sans</option>
-          <option value="spacegrotesk" ${label.font === 'spacegrotesk' ? 'selected' : ''}>Space Grotesk</option>
-          <option value="system" ${label.font === 'system' ? 'selected' : ''}>System UI</option>
-        </select>
-      </div>
-      
-      <div class="ctrlRow">
-        <label>Padding X</label>
-        <input type="number" data-id="${label.id}" data-prop="paddingX" value="${label.paddingX || 18}" step="1" min="0" max="40">
-      </div>
-      
-      <div class="ctrlRow">
-        <label>Padding Y</label>
-        <input type="number" data-id="${label.id}" data-prop="paddingY" value="${label.paddingY || 12}" step="1" min="0" max="40">
-      </div>
-      
+      <!-- REMOVED: Legacy pill color controls (duplicate system)
+           Use LabelFX Builder for unified color pipeline:
+           Global Background → Row Overlay → Column Overlay → Pill
+           All color controls are now in the Builder section above.
+      -->
       ${usesCategoryColors ? `
       <!-- Category Colors -->
       <hr style="border:none;border-top:1px solid rgba(255,255,255,.12);margin:12px 0;">
@@ -7217,7 +8485,6 @@ function renderLabelFXControls(label) {
       </div>
       <small style="display:block;opacity:0.7;font-size:10px;margin:-4px 0 8px 0;">Extends line to sky mask horizon + line height</small>
       
-      
       <!-- Display Shape Controls -->
       <hr style="border:none;border-top:1px solid rgba(255,255,255,.12);margin:12px 0;">
       <div class="ctrlRow" style="align-items:center;">
@@ -7280,135 +8547,180 @@ function renderLabelFXControls(label) {
       </div>
       ` : ''}
       
-      <!-- Pill Label Controls -->
-      <hr style="border:none;border-top:1px solid rgba(255,255,255,.12);margin:12px 0;">
-      <div style="font-weight:700;margin-bottom:8px;">Pill Label</div>
-      
-      <!-- Multi-line Toggle -->
-      <div class="ctrlRow" style="align-items:center;">
-        <label style="flex:1;">
-          <input type="checkbox" data-id="${label.id}" data-prop="useMultiLine" ${label.useMultiLine ? 'checked' : ''}>
-          <span>Enable Multi-line Text</span>
-        </label>
-      </div>
-      
-      <!-- Multi-line Configuration (shown when useMultiLine is true) -->
-      ${label.useMultiLine ? `
-      <div style="margin: 8px 0; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 4px;">
-        <div style="font-size: 11px; opacity: 0.8; margin-bottom: 8px;">Multi-line Text Configuration</div>
-        
-        <!-- Line 1 -->
-        <details open style="margin-bottom: 8px;">
-          <summary style="cursor: pointer; font-weight: 600; font-size: 11px; padding: 4px; background: rgba(255,255,255,0.1); border-radius: 3px;">Line 1 (Title)</summary>
-          <div style="padding: 8px 4px; display: flex; flex-direction: column; gap: 6px;">
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Content</label>
-              <select data-id="\${label.id}" data-prop="line1.content" style="font-size: 10px;">
-                <option value="name" \${label.line1?.content === 'name' ? 'selected' : ''}>Name</option>
-                <option value="type" \${label.line1?.content === 'type' ? 'selected' : ''}>Type</option>
-                <option value="category" \${label.line1?.content === 'category' ? 'selected' : ''}>Category</option>
-              </select>
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Font Size</label>
-              <input type="number" data-id="\${label.id}" data-prop="line1.fontSize" value="\${label.line1?.fontSize || 14}" min="8" max="24" step="1" style="font-size: 10px;">
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Alignment</label>
-              <select data-id="\${label.id}" data-prop="line1.alignment" style="font-size: 10px;">
-                <option value="left" \${(label.line1?.alignment || 'left') === 'left' ? 'selected' : ''}>Left</option>
-                <option value="center" \${label.line1?.alignment === 'center' ? 'selected' : ''}>Center</option>
-                <option value="right" \${label.line1?.alignment === 'right' ? 'selected' : ''}>Right</option>
-              </select>
-            </div>
-            <div class="ctrlRow" style="gap: 8px;">
-              <label style="font-size: 10px; cursor: pointer;">
-                <input type="checkbox" data-id="\${label.id}" data-prop="line1.bold" \${label.line1?.bold ? 'checked' : ''}>
-                <span>Bold</span>
-              </label>
-              <label style="font-size: 10px; cursor: pointer;">
-                <input type="checkbox" data-id="\${label.id}" data-prop="line1.italic" \${label.line1?.italic ? 'checked' : ''}>
-                <span>Italic</span>
-              </label>
-            </div>
-          </div>
-        </details>
-        
-        <!-- Line 2 -->
-        <details open style="margin-bottom: 8px;">
-          <summary style="cursor: pointer; font-weight: 600; font-size: 11px; padding: 4px; background: rgba(255,255,255,0.1); border-radius: 3px;">Line 2 (Category)</summary>
-          <div style="padding: 8px 4px; display: flex; flex-direction: column; gap: 6px;">
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Content</label>
-              <select data-id="\${label.id}" data-prop="line2.content" style="font-size: 10px;">
-                <option value="category" \${(label.line2?.content || 'category') === 'category' ? 'selected' : ''}>Category</option>
-                <option value="subtype" \${label.line2?.content === 'subtype' ? 'selected' : ''}>Subtype</option>
-                <option value="landmark" \${label.line2?.content === 'landmark' ? 'selected' : ''}>Landmark</option>
-              </select>
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Font Size</label>
-              <input type="number" data-id="\${label.id}" data-prop="line2.fontSize" value="\${label.line2?.fontSize || 11}" min="8" max="24" step="1" style="font-size: 10px;">
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Alignment</label>
-              <select data-id="\${label.id}" data-prop="line2.alignment" style="font-size: 10px;">
-                <option value="left" \${(label.line2?.alignment || 'left') === 'left' ? 'selected' : ''}>Left</option>
-                <option value="center" \${label.line2?.alignment === 'center' ? 'selected' : ''}>Center</option>
-                <option value="right" \${label.line2?.alignment === 'right' ? 'selected' : ''}>Right</option>
-              </select>
-            </div>
-          </div>
-        </details>
-        
-        <!-- Line 3 -->
-        <details open style="margin-bottom: 8px;">
-          <summary style="cursor: pointer; font-weight: 600; font-size: 11px; padding: 4px; background: rgba(255,255,255,0.1); border-radius: 3px;">Line 3 (Details)</summary>
-          <div style="padding: 8px 4px; display: flex; flex-direction: column; gap: 6px;">
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Content</label>
-              <select data-id="\${label.id}" data-prop="line3.content" style="font-size: 10px;">
-                <option value="distance" \${(label.line3?.content || 'distance') === 'distance' ? 'selected' : ''}>Distance</option>
-                <option value="bearing" \${label.line3?.content === 'bearing' ? 'selected' : ''}>Bearing</option>
-                <option value="visibility" \${label.line3?.content === 'visibility' ? 'selected' : ''}>Visibility</option>
-                <option value="combined" \${label.line3?.content === 'combined' ? 'selected' : ''}>Combined</option>
-              </select>
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Font Size</label>
-              <input type="number" data-id="\${label.id}" data-prop="line3.fontSize" value="\${label.line3?.fontSize || 9}" min="8" max="24" step="1" style="font-size: 10px;">
-            </div>
-            <div class="ctrlRow">
-              <label style="font-size: 10px;">Alignment</label>
-              <select data-id="\${label.id}" data-prop="line3.alignment" style="font-size: 10px;">
-                <option value="left" \${(label.line3?.alignment || 'left') === 'left' ? 'selected' : ''}>Left</option>
-                <option value="center" \${label.line3?.alignment === 'center' ? 'selected' : ''}>Center</option>
-                <option value="right" \${label.line3?.alignment === 'right' ? 'selected' : ''}>Right</option>
-              </select>
-            </div>
-          </div>
-        </details>
-        
-        <div class="ctrlRow">
-          <label style="font-size: 10px;">Line Spacing (px)</label>
-          <input type="number" data-id="\${label.id}" data-prop="lineSpacing" value="\${label.lineSpacing || 4}" min="0" max="20" step="1" style="font-size: 10px;">
-        </div>
-      </div>
-      ` : ''}
+      <!-- SIMPLIFIED PILL LAYOUT BUILDER -->
+      <div style="font-weight:700;margin:16px 0 8px 0;border-top:1px solid rgba(255,255,255,0.1);padding-top:16px;">Simplified Label Builder</div>
 
-      
-      
-      <div class="ctrlRow">
-        <label>Pill Shape</label>
-        <select data-id="${label.id}" data-prop="pillShape">
-          <option value="rounded" ${(label.pillShape || 'rounded') === 'rounded' ? 'selected' : ''}>Rounded</option>
-          <option value="soft-rounded" ${label.pillShape === 'soft-rounded' ? 'selected' : ''}>Soft-rounded</option>
-          <option value="square" ${label.pillShape === 'square' ? 'selected' : ''}>Square</option>
-        </select>
+      <div id="labelBuilder_${label.id}" style="background:rgba(255,255,255,0.03);padding:12px;border-radius:8px;margin-bottom:12px;">
+        
+        <!-- Layout Mode -->
+        <div class="ctrlRow">
+          <label style="font-size:10px;">Layout</label>
+          <select data-id="${label.id}" data-prop="builderConfig.layout" style="font-size:10px;">
+            <option value="lines" ${(label.builderConfig?.layout || 'lines') === 'lines' ? 'selected' : ''}>Lines (Vertical)</option>
+            <option value="columns" ${label.builderConfig?.layout === 'columns' ? 'selected' : ''}>Columns (Horizontal)</option>
+          </select>
+        </div>
+        
+        <!-- Number of Rows -->
+        <div class="ctrlRow">
+          <label style="font-size:10px;">Number of Rows</label>
+          <select data-id="${label.id}" data-prop="builderConfig.numRows" style="font-size:10px;">
+            <option value="1" ${(label.builderConfig?.numRows || 1) === 1 ? 'selected' : ''}>1</option>
+            <option value="2" ${label.builderConfig?.numRows === 2 ? 'selected' : ''}>2</option>
+            <option value="3" ${label.builderConfig?.numRows === 3 ? 'selected' : ''}>3</option>
+          </select>
+        </div>
+        
+        <!-- Texture (for entire label) -->
+        <details style="margin:12px 0;">
+          <summary style="cursor:pointer;font-weight:600;font-size:11px;padding:6px;background:rgba(255,255,255,0.1);border-radius:4px;">Label Texture</summary>
+          <div style="padding:8px 4px;">
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Enable Texture</label>
+              <input type="checkbox" data-id="${label.id}" data-prop="builderConfig.texture.enabled" ${label.builderConfig?.texture?.enabled ? 'checked' : ''}>
+            </div>
+            ${label.builderConfig?.texture?.enabled ? `
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Texture</label>
+              <select data-id="${label.id}" data-prop="builderConfig.texture.name" style="font-size:10px;">
+                ${Object.keys(PILL_TEXTURES).map(name => 
+                  `<option value="${name}" ${label.builderConfig?.texture?.name === name ? 'selected' : ''}>${name}</option>`
+                ).join('')}
+              </select>
+            </div>
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Opacity</label>
+              <input type="range" data-id="${label.id}" data-prop="builderConfig.texture.opacity" value="${(label.builderConfig?.texture?.opacity || 0.8) * 100}" min="0" max="100" style="flex:1;">
+              <span style="font-size:10px;margin-left:6px;">${Math.round((label.builderConfig?.texture?.opacity || 0.8) * 100)}%</span>
+            </div>
+            ` : ''}
+          </div>
+        </details>
+        
+        <!-- Rows -->
+        <div style="font-weight:600;font-size:11px;margin:12px 0 6px 0;">Rows</div>
+        <div id="builderRows_${label.id}">
+          ${renderBuilderRows(label)}
+        </div>
+        
+        <!-- Builder Header (moved to bottom) -->
+        <div style="display:flex;justify-content:flex-end;align-items:center;margin-top:12px;gap:6px;">
+          <button class="exportConfigBtn" data-id="${label.id}" style="padding:4px 8px;font-size:10px;background:rgba(100,150,255,0.15);border:none;color:#fff;border-radius:4px;cursor:pointer;" title="Export config to clipboard">📋 Export</button>
+          <button class="importConfigBtn" data-id="${label.id}" style="padding:4px 8px;font-size:10px;background:rgba(100,200,100,0.15);border:none;color:#fff;border-radius:4px;cursor:pointer;" title="Import config from clipboard">📥 Import</button>
+        </div>
+        
+        <!-- Global Style Controls -->
+        <details style="margin-top:12px;">
+          <summary style="cursor:pointer;font-weight:600;font-size:11px;padding:6px;background:rgba(255,255,255,0.1);border-radius:4px;">Label Shape & Style</summary>
+          <div style="padding:8px 4px;display:flex;flex-direction:column;gap:8px;">
+          <div style="padding:8px 4px;display:flex;flex-direction:column;gap:8px;">
+            <!-- NOTE: Typography is pill-level only (use ✏️ button on each pill) -->
+            
+            <!-- Unified Pill Color -->
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Pill Color</label>
+              ${renderColorSwatch(label.id, 'builderConfig.globalStyle.pillColor', label.builderConfig?.globalStyle?.pillColor || 'rgba(0,0,0,0.55)', true)}
+            </div>
+            
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Corner Radius</label>
+              <input type="number" data-id="${label.id}" data-prop="builderConfig.globalStyle.cornerRadius" value="${label.builderConfig?.globalStyle?.cornerRadius || 10}" min="0" max="50" step="1" style="font-size:10px;">
+            </div>
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Stroke Width</label>
+              <input type="number" data-id="${label.id}" data-prop="builderConfig.globalStyle.strokeWidth" value="${label.builderConfig?.globalStyle?.strokeWidth || 2.5}" min="0" max="10" step="0.5" style="font-size:10px;">
+            </div>
+            
+            <!-- PHASE 5: Padding Controls -->
+            <div style="font-size:10px;font-weight:600;margin-top:4px;opacity:0.8;">Padding</div>
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Top</label>
+              <input type="number" data-id="${label.id}" data-prop="builderConfig.globalStyle.paddingTop" value="${label.builderConfig?.globalStyle?.paddingTop || 12}" min="0" max="50" step="1" style="font-size:10px;">
+            </div>
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Right</label>
+              <input type="number" data-id="${label.id}" data-prop="builderConfig.globalStyle.paddingRight" value="${label.builderConfig?.globalStyle?.paddingRight || 18}" min="0" max="50" step="1" style="font-size:10px;">
+            </div>
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Bottom</label>
+              <input type="number" data-id="${label.id}" data-prop="builderConfig.globalStyle.paddingBottom" value="${label.builderConfig?.globalStyle?.paddingBottom || 12}" min="0" max="50" step="1" style="font-size:10px;">
+            </div>
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Left</label>
+              <input type="number" data-id="${label.id}" data-prop="builderConfig.globalStyle.paddingLeft" value="${label.builderConfig?.globalStyle?.paddingLeft || 18}" min="0" max="50" step="1" style="font-size:10px;">
+            </div>
+            
+            <!-- PHASE 6: Color Controls -->
+            <div style="font-size:10px;font-weight:600;margin-top:4px;opacity:0.8;">Colors</div>
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Stroke Color</label>
+              ${renderColorSwatch(label.id, 'builderConfig.globalStyle.strokeColor', label.builderConfig?.globalStyle?.strokeColor || 'rgba(255,255,255,0.98)', true)}
+            </div>
+            <!-- PHASE 8: Stroke Quality Controls -->
+            <div style="font-size:10px;font-weight:600;margin-top:4px;opacity:0.8;">Stroke Style</div>
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Stroke Style</label>
+              <select data-id="${label.id}" data-prop="builderConfig.globalStyle.strokeStyle" style="font-size:10px;">
+                <option value="solid" ${(label.builderConfig?.globalStyle?.strokeStyle || 'solid') === 'solid' ? 'selected' : ''}>Solid</option>
+                <option value="dashed" ${label.builderConfig?.globalStyle?.strokeStyle === 'dashed' ? 'selected' : ''}>Dashed</option>
+                <option value="dotted" ${label.builderConfig?.globalStyle?.strokeStyle === 'dotted' ? 'selected' : ''}>Dotted</option>
+              </select>
+            </div>
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Line Join</label>
+              <select data-id="${label.id}" data-prop="builderConfig.globalStyle.lineJoin" style="font-size:10px;">
+                <option value="round" ${(label.builderConfig?.globalStyle?.lineJoin || 'round') === 'round' ? 'selected' : ''}>Round</option>
+                <option value="miter" ${label.builderConfig?.globalStyle?.lineJoin === 'miter' ? 'selected' : ''}>Miter</option>
+                <option value="bevel" ${label.builderConfig?.globalStyle?.lineJoin === 'bevel' ? 'selected' : ''}>Bevel</option>
+              </select>
+            </div>
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Line Cap</label>
+              <select data-id="${label.id}" data-prop="builderConfig.globalStyle.lineCap" style="font-size:10px;">
+                <option value="round" ${(label.builderConfig?.globalStyle?.lineCap || 'round') === 'round' ? 'selected' : ''}>Round</option>
+                <option value="butt" ${label.builderConfig?.globalStyle?.lineCap === 'butt' ? 'selected' : ''}>Butt</option>
+                <option value="square" ${label.builderConfig?.globalStyle?.lineCap === 'square' ? 'selected' : ''}>Square</option>
+              </select>
+            </div>
+            
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Row Gap (px)</label>
+              <input type="number" data-id="${label.id}" data-prop="builderConfig.rowGap" value="${label.builderConfig?.rowGap || 4}" min="0" max="50" step="1" style="font-size:10px;">
+            </div>
+            <div class="ctrlRow">
+              <label style="font-size:10px;">Pill Gap (px)</label>
+              <input type="number" data-id="${label.id}" data-prop="builderConfig.pillGap" value="${label.builderConfig?.pillGap || 8}" min="0" max="50" step="1" style="font-size:10px;">
+            </div>
+          </div>
+        </details>
+        
+        <!-- Filter Controls -->
+        <details style="margin-top:12px;">
+          <summary style="cursor:pointer;font-weight:600;font-size:11px;padding:6px;background:rgba(255,255,255,0.1);border-radius:4px;">Effect Filters</summary>
+          <div id="filterPanel_${label.id}" style="padding:8px 4px;">
+            ${renderFilterPanel(label)}
+          </div>
+        </details>
+        
+        <!-- Live Preview -->
+        <details open style="margin-top:12px;">
+          <summary style="cursor:pointer;font-weight:600;font-size:11px;padding:6px;background:rgba(255,255,255,0.1);border-radius:4px;">Live Preview</summary>
+          <div style="padding:8px 4px;">
+            <div id="previewCanvas_${label.id}" style="width:100%;height:200px;background:rgba(0,0,0,0.3);border-radius:4px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;">
+              <span style="color:rgba(255,255,255,0.5);font-size:11px;">Preview will appear here</span>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:8px;align-items:center;">
+              <button class="prevSampleBtn" data-id="${label.id}" style="padding:4px 8px;font-size:10px;background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:4px;cursor:pointer;">← Prev</button>
+              <span id="sampleName_${label.id}" style="flex:1;text-align:center;font-size:10px;opacity:0.8;">Sample 1</span>
+              <button class="nextSampleBtn" data-id="${label.id}" style="padding:4px 8px;font-size:10px;background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:4px;cursor:pointer;">Next →</button>
+            </div>
+          </div>
+        </details>
+        
       </div>
-      
+
       <div class="ctrlRow">
-        <label>Pill Position</label>
+        <label>Label Position</label>
         <select data-id="${label.id}" data-prop="pillPosition">
           <option value="top-center" ${(label.pillPosition || 'top-center') === 'top-center' ? 'selected' : ''}>Top Center</option>
           <option value="top-left" ${label.pillPosition === 'top-left' ? 'selected' : ''}>Top Left</option>
@@ -7417,13 +8729,6 @@ function renderLabelFXControls(label) {
           <option value="side-right" ${label.pillPosition === 'side-right' ? 'selected' : ''}>Side Right</option>
         </select>
       </div>
-      
-      ${(label.pillPosition || 'top-center').startsWith('top') ? `
-      <div class="ctrlRow">
-        <label>Pill Top Gap</label>
-        <input type="number" data-id="${label.id}" data-prop="pillTopGap" value="${label.pillTopGap !== undefined ? label.pillTopGap : 2.0}" step="0.5" min="0" max="10">
-      </div>
-      ` : ''}
       
       ${(label.pillPosition || 'top-center').startsWith('side') ? `
       <div class="ctrlRow">
@@ -7446,107 +8751,11 @@ function renderLabelFXControls(label) {
         <small style="opacity:0.7;font-size:10px;margin-left:4px;">+higher, -lower</small>
       </div>
       
-      <!-- Content Checkboxes -->
-      <div class="ctrlRow" style="flex-direction: column; align-items: flex-start;">
-        <label style="margin-bottom: 6px;">Content (select multiple)</label>
-        <div style="display: flex; flex-direction: column; gap: 4px; width: 100%;">
-          <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
-            <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="name" 
-              ${(Array.isArray(label.content) ? label.content : [label.content]).includes('name') ? 'checked' : ''}>
-            <span>Name</span>
-          </label>
-          <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
-            <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="distance" 
-              ${(Array.isArray(label.content) ? label.content : [label.content]).includes('distance') ? 'checked' : ''}>
-            <span>Distance</span>
-          </label>
-          <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
-            <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="bearing" 
-              ${(Array.isArray(label.content) ? label.content : [label.content]).includes('bearing') ? 'checked' : ''}>
-            <span>Bearing</span>
-          </label>
-          <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
-            <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="category" 
-              ${(Array.isArray(label.content) ? label.content : [label.content]).includes('category') ? 'checked' : ''}>
-            <span>Category</span>
-          </label>
-          <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
-            <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="subtype" 
-              ${(Array.isArray(label.content) ? label.content : [label.content]).includes('subtype') ? 'checked' : ''}>
-            <span>Subtype</span>
-          </label>
-          <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
-            <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="visibility" 
-              ${(Array.isArray(label.content) ? label.content : [label.content]).includes('visibility') ? 'checked' : ''}>
-            <span>Visibility %</span>
-          </label>
-          <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
-            <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="elevation" 
-              ${(Array.isArray(label.content) ? label.content : [label.content]).includes('elevation') ? 'checked' : ''}>
-            <span>Elevation</span>
-          </label>
-          <label style="display: flex; align-items: center; gap: 6px; font-weight: 400; cursor: pointer;">
-            <input type="checkbox" data-id="${label.id}" data-prop="content" data-content-value="id" 
-              ${(Array.isArray(label.content) ? label.content : [label.content]).includes('id') ? 'checked' : ''}>
-            <span>Identifier</span>
-          </label>
-        </div>
-      </div>
-      
-      <div class="ctrlRow">
-        <label>Pill Color Mode</label>
-        <select data-id="${label.id}" data-prop="pillColorMode">
-          <option value="single" ${(label.pillColorMode || 'single') === 'single' ? 'selected' : ''}>Single Color</option>
-          <option value="category" ${label.pillColorMode === 'category' ? 'selected' : ''}>Category</option>
-          <option value="visibility" ${label.pillColorMode === 'visibility' ? 'selected' : ''}>Visibility %</option>
-        </select>
-      </div>
-      
-      ${label.pillColorMode === 'single' ? `
-      <div class="ctrlRow">
-        <label>Pill Background</label>
-        ${renderColorSwatch(label.id, 'pillBackgroundColor', label.pillBackgroundColor || 'rgba(0,0,0,0.75)', true)}
-      </div>
-      
-      <div class="ctrlRow">
-        <label>Pill Border</label>
-        ${renderColorSwatch(label.id, 'pillBorderColor', label.pillBorderColor || 'rgba(255,255,255,0.18)', true)}
-      </div>
-      ` : ''}
-      
-      <div class="ctrlRow">
-        <label>Text Color</label>
-        ${renderColorSwatch(label.id, 'pillTextColor', label.pillTextColor || '#ffffff', false)}
-      </div>
-      
-      <div class="ctrlRow">
-        <label>Font Size</label>
-        <input type="number" data-id="${label.id}" data-prop="fontSize" value="${label.fontSize || 12}" step="1" min="8" max="24">
-      </div>
-      
-      <div class="ctrlRow">
-        <label>Font</label>
-        <select data-id="${label.id}" data-prop="font">
-          <option value="helvetica" ${(label.font || 'helvetica') === 'helvetica' ? 'selected' : ''}>Helvetica</option>
-          <option value="times" ${label.font === 'times' ? 'selected' : ''}>Times New Roman</option>
-          <option value="caslon" ${label.font === 'caslon' ? 'selected' : ''}>Caslon</option>
-          <option value="inter" ${label.font === 'inter' ? 'selected' : ''}>Inter</option>
-          <option value="manrope" ${label.font === 'manrope' ? 'selected' : ''}>Manrope</option>
-          <option value="ibmplex" ${label.font === 'ibmplex' ? 'selected' : ''}>IBM Plex Sans</option>
-          <option value="spacegrotesk" ${label.font === 'spacegrotesk' ? 'selected' : ''}>Space Grotesk</option>
-          <option value="system" ${label.font === 'system' ? 'selected' : ''}>System UI</option>
-        </select>
-      </div>
-      
-      <div class="ctrlRow">
-        <label>Padding X</label>
-        <input type="number" data-id="${label.id}" data-prop="paddingX" value="${label.paddingX || 10}" step="1" min="0" max="40">
-      </div>
-      
-      <div class="ctrlRow">
-        <label>Padding Y</label>
-        <input type="number" data-id="${label.id}" data-prop="paddingY" value="${label.paddingY || 8}" step="1" min="0" max="40">
-      </div>
+      <!-- REMOVED: Legacy pill color controls (duplicate system)
+           Use LabelFX Builder for unified color pipeline:
+           Global Background → Row Overlay → Column Overlay → Pill
+           All color controls are now in the Builder section above.
+      -->
       
       ${usesCategoryColors ? `
       <!-- Category Colors -->
@@ -7609,24 +8818,63 @@ function applyAllLabelFX() {
 }
 
 function applyLabelConfigToMarkers(config) {
-  // This function is called when Label FX configs change
-  // But we don't want to recreate all callouts here - they're created once per marker
-  // The actual showing/hiding is handled by updateCalloutsVisibility
-  // This function can be used to update global label text/colors if needed in the future
+  // Use the passed config parameter directly
+  // config is already from activeLabels via the forEach above
+  if (!config) {
+    return;
+  }
   
-  // For now, just ensure all markers have callouts created
+  const useConfig = config;
+  
+  // AUTO-MIGRATE: Initialize builderConfig for old configs that don't have it
+  if (!useConfig.builderConfig) {
+    console.log('Auto-migrating old label config to builder system');
+    useConfig.builderConfig = {
+      layout: 'lines',
+      numRows: 1,
+      rows: [{
+        pills: [{
+          rule: 'name',
+          textStyle: {
+            fontFamily: 'helvetica',
+            fontSize: 14,
+            fontWeight: 400,
+            textColor: '#ffffff'
+          }
+        }],
+        columnWidth: 'auto',
+        columnColor: null,
+        columnOpacity: null
+      }],
+      globalStyle: {
+        pillColor: 'rgba(0,0,0,0.55)',
+        pillOpacity: 1,
+        cornerRadius: 10,
+        strokeWidth: 2.5,
+        paddingTop: 12,
+        paddingRight: 18,
+        paddingBottom: 12,
+        paddingLeft: 18,
+        strokeColor: 'rgba(255,255,255,0.98)',
+        strokeStyle: 'solid',
+        lineJoin: 'round',
+        lineCap: 'round'
+      },
+      filters: {
+        mode: 'all',
+        rules: []
+      }
+    };
+  }
+  
   const markers = _getVerifierMarkers();
   
   markers.forEach(m => {
     const cand = m.userData?.cand;
     if (!cand) return;
     
-    // If marker doesn't have a callout yet, create one with default config
+    // If marker doesn't have a callout yet, create one
     if (!m.userData?.callout) {
-      const labelConfig = activeLabels.find(l => l.type === 'label');
-      const hoverConfig = activeLabels.find(l => l.type === 'hover');
-      const useConfig = labelConfig || hoverConfig;
-      
       // Resolve line color
       let lineColorHex = null;
       if (useConfig && useConfig.type === 'label' && useConfig.showLine) {
@@ -7634,20 +8882,38 @@ function applyLabelConfigToMarkers(config) {
         lineColorHex = parseInt(lineColorStr.replace('#', ''), 16);
       }
       
+      // Builder system extracts text using FIELD_RULES
+      // builderConfig is now guaranteed to exist due to auto-migration above
+      if (!useConfig.builderConfig || !useConfig.builderConfig.rows || useConfig.builderConfig.rows.length === 0) {
+        console.warn('applyLabelConfigToMarkers: builderConfig invalid, skipping label for', candidateName(cand));
+        return; // Skip this candidate
+      }
+      
+      // Builder system will extract text using FIELD_RULES
+      const labelText = candidateName(cand);
+      
       // Build callout with config parameters
       const callout = makeCalloutAnimated(
         m,
-        getLabelText(useConfig?.content || ['name'], cand),
+        labelText,
         isVisibleCandidate(cand),
         m.userData.colorHex || 0x00c8ff,
         lineColorHex,
         useConfig
       );
+      
+      // CRITICAL: Start hidden, updateCalloutsVisibility will show when appropriate
+      if (callout && callout.userData) {
+        callout.userData.target = 0;
+      }
     }
   });
 }
 
 function getLabelText(contentType, cand) {
+  // DISABLED: Old label system removed - use builder system only
+  console.error('getLabelText() is DISABLED - use LabelFX Builder system');
+  return '';
   // Handle array of content types (checkbox selections)
   if (Array.isArray(contentType)) {
     const parts = contentType.map(type => {
@@ -7825,14 +9091,12 @@ async function init(){
   // Initialize default label
   addLabelFX('hover');
 
-
     hookSkyGroundUI();
 // Overlay UI hooks
   if (ovOpacity) ovOpacity.addEventListener('input', syncOverlayUI);
   if (ovOn) ovOn.addEventListener('change', ()=> loadOverlayForSource(currentSource()));
   if (ovType) ovType.addEventListener('change', ()=> loadOverlayForSource(currentSource()));
   syncOverlayUI();
-
 
   const srcs = Array.isArray(DATA.sources) ? DATA.sources : [];
   SOURCES = srcs.map(s=>({
@@ -7880,7 +9144,6 @@ function animate(){
   updateCamera();
   updateCalloutAnims();
 
-  
   // animate / control loading circle markers (mode-aware)
   const nowSpin = performance.now();
   const dtSpin = Math.min(0.05, (nowSpin - lastSpinT)/1000);
@@ -7930,7 +9193,6 @@ function animate(){
   renderer.render(scenePano, camera);
   renderer.render(sceneOverlay, camera);
 }
-
 
 // ================= SKY / GROUND MASK OVERLAY (module-scope) =================
 let sgMesh=null, sgTex=null;
@@ -8093,8 +9355,6 @@ function hookSkyGroundUI(){
   apply();
 }
 // ============================================================================
-
-
 
 // --- Edge reopen buttons (hardfix, no guessing) ---
 if(!window.__edgeHardInit){
@@ -8271,7 +9531,6 @@ init().then(()=>animate()).catch(err=>{
     </div>
   </div>
 
-
     <div class="ovRow">
       <span>Mode</span>
       <select id="modeSel">
@@ -8353,12 +9612,103 @@ init().then(()=>animate()).catch(err=>{
 }
 #uiOverlay select, #uiOverlay input[type="range"]{ accent-color:#fff; }
 
-
 </style>
-
 
 <button id="edgeReopenLeft" class="edgeReopen" title="Open verifier">▶</button>
 <button id="edgeReopenRight" class="edgeReopen" title="Open overlays">◀</button>
+
+<!-- PHASE 7: Pill Editor Modal -->
+<div id="pillEditorModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:10000;align-items:center;justify-content:center;">
+  <div style="background:rgba(20,20,20,0.95);border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:20px;width:90%;max-width:600px;max-height:90vh;overflow-y:auto;color:#fff;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h3 style="margin:0;font-size:16px;">Edit Pill</h3>
+      <button id="closePillEditorBtn" style="background:none;border:none;color:#fff;font-size:24px;cursor:pointer;padding:0;line-height:1;">&times;</button>
+    </div>
+    
+    <div style="margin-bottom:16px;">
+      <h4 style="font-size:12px;margin:0 0 8px 0;opacity:0.8;">Fields (drag to reorder)</h4>
+      <div id="pillFieldList" style="display:flex;flex-direction:column;gap:6px;">
+        <!-- Populated by renderPillFieldList() -->
+      </div>
+    </div>
+    
+    <div style="margin-bottom:16px;">
+      <h4 style="font-size:12px;margin:0 0 8px 0;opacity:0.8;">Layout</h4>
+      <select id="pillLayoutSelect" style="width:100%;padding:6px;font-size:11px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;border-radius:4px;">
+        <option value="horizontal">Horizontal (fields side-by-side)</option>
+        <option value="vertical">Vertical (fields stacked)</option>
+      </select>
+    </div>
+    
+    <div style="margin-bottom:16px;">
+      <h4 style="font-size:12px;margin:0 0 8px 0;opacity:0.8;">Texture</h4>
+      <div id="pillTextureGrid">
+        <!-- Populated by renderPillTextureGrid() -->
+      </div>
+    </div>
+    
+    <div style="margin-bottom:16px;">
+      <h4 style="font-size:12px;margin:0 0 8px 0;opacity:0.8;">Preview</h4>
+      <div id="pillPreviewContainer" style="min-height:60px;">
+        <!-- Populated by updatePillPreview() -->
+      </div>
+    </div>
+    
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button id="cancelPillEditorBtn" style="padding:8px 16px;background:rgba(255,255,255,0.1);border:none;color:#fff;border-radius:4px;cursor:pointer;">Cancel</button>
+      <button id="savePillEditorBtn" style="padding:8px 16px;background:rgba(100,150,255,0.3);border:none;color:#fff;border-radius:4px;cursor:pointer;font-weight:600;">Save</button>
+    </div>
+  </div>
+</div>
+
+<style>
+.pillFieldItem {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:6px;
+  background:rgba(255,255,255,0.05);
+  border-radius:4px;
+}
+.dragHandle {
+  cursor:move;
+  opacity:0.5;
+  font-size:12px;
+}
+.fieldNameSelect {
+  flex:1;
+  padding:4px;
+  font-size:10px;
+  background:rgba(255,255,255,0.1);
+  border:1px solid rgba(255,255,255,0.2);
+  color:#fff;
+  border-radius:4px;
+}
+.fieldPriority {
+  width:50px;
+  padding:4px;
+  font-size:10px;
+  background:rgba(255,255,255,0.1);
+  border:1px solid rgba(255,255,255,0.2);
+  color:#fff;
+  border-radius:4px;
+}
+.removeFieldBtn {
+  background:rgba(255,100,100,0.3);
+  border:none;
+  color:#fff;
+  width:24px;
+  height:24px;
+  border-radius:4px;
+  cursor:pointer;
+  font-size:16px;
+  line-height:1;
+}
+.textureOption.selected {
+  border-color:#4af !important;
+  box-shadow:0 0 8px rgba(68,170,255,0.5);
+}
+</style>
 
 </body>
 </html>
