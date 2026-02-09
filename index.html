@@ -7131,7 +7131,7 @@ function renderLabelFXList() {
   
   // Handle pill text style changes
   container.querySelectorAll('.pillTextStyleInput').forEach(input => {
-    const eventType = (input.type === 'checkbox' || input.type === 'color') ? 'change' : 'input';
+    const eventType = (input.type === 'checkbox' || input.type === 'color' || input.tagName === 'SELECT') ? 'change' : 'input';
     input.addEventListener(eventType, (e) => {
       const labelId = e.target.dataset.labelId;
       const rowIndex = parseInt(e.target.dataset.rowIndex);
@@ -7161,7 +7161,21 @@ function renderLabelFXList() {
           value = e.target.value;
         }
         
-        pill.textStyle[styleProp] = value;
+        // Handle offset controls - combine left/right into offsetX, up/down into offsetY
+        if (styleProp === 'offsetLeft' || styleProp === 'offsetRight') {
+          const left = parseFloat(pill.textStyle.offsetLeft || 0);
+          const right = parseFloat(pill.textStyle.offsetRight || 0);
+          pill.textStyle[styleProp] = value;
+          pill.textStyle.offsetX = right - left; // Right is positive, left is negative
+        } else if (styleProp === 'offsetUp' || styleProp === 'offsetDown') {
+          const up = parseFloat(pill.textStyle.offsetUp || 0);
+          const down = parseFloat(pill.textStyle.offsetDown || 0);
+          pill.textStyle[styleProp] = value;
+          pill.textStyle.offsetY = down - up; // Down is positive, up is negative
+        } else {
+          pill.textStyle[styleProp] = value;
+        }
+        
         applyAllLabelFX();
       }
     });
@@ -7680,15 +7694,72 @@ function renderBuilderRows(label) {
             </div>
             <div class="pillTextEditor" id="pillTextEditor_${label.id}_${rowIndex}_${pillIndex}" style="display:none;margin-top:6px;padding:6px;background:rgba(0,0,0,0.3);border-radius:4px;font-size:9px;">
               <div style="display:grid;grid-template-columns:auto 1fr;gap:4px;align-items:center;">
+                <!-- Font Family -->
+                <label>Font Family:</label>
+                <select class="pillTextStyleInput" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" data-style-prop="fontFamily" style="font-size:9px;width:100px;">
+                  <option value="helvetica" ${(pill.textStyle?.fontFamily || 'helvetica') === 'helvetica' ? 'selected' : ''}>Helvetica</option>
+                  <option value="times" ${pill.textStyle?.fontFamily === 'times' ? 'selected' : ''}>Times New Roman</option>
+                  <option value="caslon" ${pill.textStyle?.fontFamily === 'caslon' ? 'selected' : ''}>Caslon</option>
+                </select>
+                
+                <!-- Font Size -->
                 <label>Font Size:</label>
                 <input type="number" class="pillTextStyleInput" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" data-style-prop="fontSize" value="${pill.textStyle?.fontSize || ''}" placeholder="12" min="6" max="48" step="0.5" style="width:60px;font-size:9px;">
                 
+                <!-- Font Weight -->
                 <label>Font Weight:</label>
                 <input type="number" class="pillTextStyleInput" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" data-style-prop="fontWeight" value="${pill.textStyle?.fontWeight || ''}" placeholder="400" min="100" max="900" step="100" style="width:60px;font-size:9px;">
                 
+                <!-- Text Color -->
                 <label>Text Color:</label>
                 <input type="color" class="pillTextStyleInput" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" data-style-prop="textColor" value="${pill.textStyle?.textColor || '#ffffff'}" style="width:60px;font-size:9px;">
                 
+                <!-- Line Height -->
+                <label>Line Height:</label>
+                <input type="number" class="pillTextStyleInput" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" data-style-prop="lineHeight" value="${pill.textStyle?.lineHeight || ''}" placeholder="1.4" min="0.5" max="3" step="0.1" style="width:60px;font-size:9px;">
+                
+                <!-- Letter Spacing -->
+                <label>Letter Spacing:</label>
+                <input type="number" class="pillTextStyleInput" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" data-style-prop="letterSpacing" value="${pill.textStyle?.letterSpacing || ''}" placeholder="0" min="-5" max="20" step="0.5" style="width:60px;font-size:9px;">
+                
+                <!-- Word Spacing -->
+                <label>Word Spacing:</label>
+                <input type="number" class="pillTextStyleInput" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" data-style-prop="wordSpacing" value="${pill.textStyle?.wordSpacing || ''}" placeholder="0" min="-10" max="50" step="1" style="width:60px;font-size:9px;">
+                
+                <!-- Text Transform -->
+                <label>Text Transform:</label>
+                <select class="pillTextStyleInput" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" data-style-prop="textTransform" style="font-size:9px;width:100px;">
+                  <option value="none" ${(pill.textStyle?.textTransform || 'none') === 'none' ? 'selected' : ''}>None</option>
+                  <option value="uppercase" ${pill.textStyle?.textTransform === 'uppercase' ? 'selected' : ''}>UPPERCASE</option>
+                  <option value="lowercase" ${pill.textStyle?.textTransform === 'lowercase' ? 'selected' : ''}>lowercase</option>
+                  <option value="capitalize" ${pill.textStyle?.textTransform === 'capitalize' ? 'selected' : ''}>Capitalize</option>
+                </select>
+                
+                <!-- Text Alignment -->
+                <label>Text Align:</label>
+                <select class="pillTextStyleInput" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" data-style-prop="textAlign" style="font-size:9px;width:100px;">
+                  <option value="left" ${(pill.textStyle?.textAlign || 'left') === 'left' ? 'selected' : ''}>Left</option>
+                  <option value="center" ${pill.textStyle?.textAlign === 'center' ? 'selected' : ''}>Center</option>
+                  <option value="right" ${pill.textStyle?.textAlign === 'right' ? 'selected' : ''}>Right</option>
+                </select>
+                
+                <!-- Text Offset Left -->
+                <label>Offset Left:</label>
+                <input type="number" class="pillTextStyleInput" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" data-style-prop="offsetLeft" value="${pill.textStyle?.offsetLeft || ''}" placeholder="0" min="-50" max="50" step="1" style="width:60px;font-size:9px;">
+                
+                <!-- Text Offset Right -->
+                <label>Offset Right:</label>
+                <input type="number" class="pillTextStyleInput" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" data-style-prop="offsetRight" value="${pill.textStyle?.offsetRight || ''}" placeholder="0" min="-50" max="50" step="1" style="width:60px;font-size:9px;">
+                
+                <!-- Text Offset Up -->
+                <label>Offset Up:</label>
+                <input type="number" class="pillTextStyleInput" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" data-style-prop="offsetUp" value="${pill.textStyle?.offsetUp || ''}" placeholder="0" min="-50" max="50" step="1" style="width:60px;font-size:9px;">
+                
+                <!-- Text Offset Down -->
+                <label>Offset Down:</label>
+                <input type="number" class="pillTextStyleInput" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" data-style-prop="offsetDown" value="${pill.textStyle?.offsetDown || ''}" placeholder="0" min="-50" max="50" step="1" style="width:60px;font-size:9px;">
+                
+                <!-- Text Style Checkboxes -->
                 <label style="display:flex;align-items:center;gap:4px;grid-column:1/3;">
                   <input type="checkbox" class="pillTextStyleInput" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" data-style-prop="bold" ${pill.textStyle?.bold ? 'checked' : ''}>
                   <span>Bold</span>
@@ -7702,6 +7773,16 @@ function renderBuilderRows(label) {
                 <label style="display:flex;align-items:center;gap:4px;grid-column:1/3;">
                   <input type="checkbox" class="pillTextStyleInput" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" data-style-prop="underline" ${pill.textStyle?.underline ? 'checked' : ''}>
                   <span>Underline</span>
+                </label>
+                
+                <label style="display:flex;align-items:center;gap:4px;grid-column:1/3;">
+                  <input type="checkbox" class="pillTextStyleInput" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" data-style-prop="overline" ${pill.textStyle?.overline ? 'checked' : ''}>
+                  <span>Overline</span>
+                </label>
+                
+                <label style="display:flex;align-items:center;gap:4px;grid-column:1/3;">
+                  <input type="checkbox" class="pillTextStyleInput" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" data-style-prop="strikethrough" ${pill.textStyle?.strikethrough ? 'checked' : ''}>
+                  <span>Strikethrough</span>
                 </label>
               </div>
             </div>
