@@ -1268,6 +1268,12 @@ function upperSafe(s){ return safeStr(s).toUpperCase(); }
 function parseColor(colorStr) {
   if (!colorStr) return {r: 255, g: 255, b: 255, a: 1};
   
+  // Ensure colorStr is a string before calling trim
+  if (typeof colorStr !== 'string') {
+    console.warn('parseColor: received non-string value:', colorStr);
+    return {r: 255, g: 255, b: 255, a: 1};
+  }
+  
   colorStr = colorStr.trim();
   
   // Handle hex format (#RGB or #RRGGBB)
@@ -3152,7 +3158,9 @@ function renderLabelFromBuilder(defaultText, candidate, worldSize, config) {
   const lineHeights = [];
   
   lines.forEach(line => {
-    const font = `${line.italic ? 'italic ' : ''}${line.fontWeight} ${line.fontSize}px ${line.fontFamily}`;
+    // Map font family key to font stack
+    const fontStack = FONT_STACKS[line.fontFamily] || FONT_STACKS.helvetica;
+    const font = `${line.italic ? 'italic ' : ''}${line.fontWeight} ${line.fontSize}px ${fontStack}`;
     ctx.font = font;
     const metrics = ctx.measureText(line.text);
     const width = metrics.width + paddingLeft + paddingRight;
@@ -3179,7 +3187,9 @@ function renderLabelFromBuilder(defaultText, candidate, worldSize, config) {
   // Draw text lines
   let yOffset = 0;
   lines.forEach((line, i) => {
-    const font = `${line.italic ? 'italic ' : ''}${line.fontWeight} ${line.fontSize}px ${line.fontFamily}`;
+    // Map font family key to font stack
+    const fontStack = FONT_STACKS[line.fontFamily] || FONT_STACKS.helvetica;
+    const font = `${line.italic ? 'italic ' : ''}${line.fontWeight} ${line.fontSize}px ${fontStack}`;
     ctx.font = font;
     ctx.fillStyle = line.textColor;
     ctx.textAlign = 'center';
@@ -6200,7 +6210,7 @@ function renderMarkerFXList() {
           targetEl.focus({ preventScroll: true });
           
           // Restore cursor position for text inputs
-          if (focusInfo.selectionStart !== undefined && typeof targetEl.setSelectionRange === 'function') {
+          if (focusInfo.selectionStart !== undefined && typeof targetEl.setSelectionRange === 'function' && targetEl.type !== 'range' && targetEl.type !== 'color' && targetEl.type !== 'checkbox') {
             targetEl.setSelectionRange(focusInfo.selectionStart, focusInfo.selectionEnd);
           }
         }
@@ -7113,7 +7123,7 @@ function renderLabelFXList() {
           targetEl.focus({ preventScroll: true });
           
           // Restore cursor position for text inputs
-          if (focusInfo.selectionStart !== undefined && typeof targetEl.setSelectionRange === 'function') {
+          if (focusInfo.selectionStart !== undefined && typeof targetEl.setSelectionRange === 'function' && targetEl.type !== 'range' && targetEl.type !== 'color' && targetEl.type !== 'checkbox') {
             targetEl.setSelectionRange(focusInfo.selectionStart, focusInfo.selectionEnd);
           }
         }
