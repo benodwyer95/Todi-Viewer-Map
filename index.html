@@ -2657,28 +2657,49 @@ function makePillLabelSprite(text, worldSize=18, strokeHex=0x000000, config=null
   const w = w1 - inset*2;
   const h = h1 - inset*2;
 
-  // Fill: use config background color or default
-  const bgColor = config?.pillBackgroundColor || 'rgba(0,0,0,0.55)';
+  // Fill: use NEW pillColor from builderConfig, or fallback to OLD pillBackgroundColor
+  // CRITICAL FIX: Check builderConfig.globalStyle.pillColor first (new property)
+  let bgColor = config?.builderConfig?.globalStyle?.pillColor || 
+                config?.pillBackgroundColor || 
+                'rgba(0,0,0,0.55)';
+  
+  // Apply opacity from builderConfig.globalStyle.pillOpacity
+  const pillOpacity = config?.builderConfig?.globalStyle?.pillOpacity;
+  if (pillOpacity !== undefined && pillOpacity !== null) {
+    // Parse existing color and apply opacity
+    const match = bgColor.match(/rgba?\(([^)]+)\)/);
+    if (match) {
+      const parts = match[1].split(',').map(p => p.trim());
+      if (parts.length >= 3) {
+        bgColor = `rgba(${parts[0]},${parts[1]},${parts[2]},${pillOpacity})`;
+      }
+    }
+  }
+  
   g.fillStyle = bgColor;
   g.beginPath();
   roundRect(g, x, y, w, h, radius);
   g.fill();
 
-  // Stroke: smooth round joins/caps
+  // Stroke: use NEW strokeColor from builderConfig, or fallback to OLD pillBorderColor
   const r = (strokeHex >> 16) & 255;
   const gg = (strokeHex >> 8) & 255;
   const b = (strokeHex) & 255;
-  const borderColor = config?.pillBorderColor || `rgba(${r},${gg},${b},0.98)`;
+  const borderColor = config?.builderConfig?.globalStyle?.strokeColor || 
+                      config?.pillBorderColor || 
+                      `rgba(${r},${gg},${b},0.98)`;
   g.strokeStyle = borderColor;
-  g.lineWidth = 2.5;
-  g.lineJoin = 'round';
-  g.lineCap  = 'round';
+  g.lineWidth = config?.builderConfig?.globalStyle?.strokeWidth || 2.5;
+  g.lineJoin = config?.builderConfig?.globalStyle?.lineJoin || 'round';
+  g.lineCap  = config?.builderConfig?.globalStyle?.lineCap || 'round';
   g.beginPath();
   roundRect(g, x, y, w, h, radius);
   g.stroke();
 
-  // Text: use config text color or default
-  const textColor = config?.pillTextColor || '#ffffff';
+  // Text: use NEW textColor from builderConfig, or fallback to OLD pillTextColor
+  const textColor = config?.builderConfig?.globalStyle?.textColor || 
+                    config?.pillTextColor || 
+                    '#ffffff';
   g.font = `900 ${fontPx}px ${fontStack}`;
   g.textBaseline = 'middle';
   g.textAlign = 'left';
@@ -2825,28 +2846,49 @@ function makeMultiLinePillSprite(lines, worldSize=18, strokeHex=0x000000, config
   const w = w1 - inset*2;
   const h = h1 - inset*2;
 
-  // Fill background
-  const bgColor = config?.pillBackgroundColor || 'rgba(0,0,0,0.55)';
+  // Fill background: use NEW pillColor from builderConfig, or fallback to OLD pillBackgroundColor
+  // CRITICAL FIX: Check builderConfig.globalStyle.pillColor first (new property)
+  let bgColor = config?.builderConfig?.globalStyle?.pillColor || 
+                config?.pillBackgroundColor || 
+                'rgba(0,0,0,0.55)';
+  
+  // Apply opacity from builderConfig.globalStyle.pillOpacity
+  const pillOpacity = config?.builderConfig?.globalStyle?.pillOpacity;
+  if (pillOpacity !== undefined && pillOpacity !== null) {
+    // Parse existing color and apply opacity
+    const match = bgColor.match(/rgba?\(([^)]+)\)/);
+    if (match) {
+      const parts = match[1].split(',').map(p => p.trim());
+      if (parts.length >= 3) {
+        bgColor = `rgba(${parts[0]},${parts[1]},${parts[2]},${pillOpacity})`;
+      }
+    }
+  }
+  
   g.fillStyle = bgColor;
   g.beginPath();
   roundRect(g, x, y, w, h, radius);
   g.fill();
 
-  // Stroke border
+  // Stroke border: use NEW strokeColor from builderConfig, or fallback to OLD pillBorderColor
   const r = (strokeHex >> 16) & 255;
   const gg = (strokeHex >> 8) & 255;
   const b = (strokeHex) & 255;
-  const borderColor = config?.pillBorderColor || `rgba(${r},${gg},${b},0.98)`;
+  const borderColor = config?.builderConfig?.globalStyle?.strokeColor || 
+                      config?.pillBorderColor || 
+                      `rgba(${r},${gg},${b},0.98)`;
   g.strokeStyle = borderColor;
-  g.lineWidth = 2.5;
-  g.lineJoin = 'round';
-  g.lineCap  = 'round';
+  g.lineWidth = config?.builderConfig?.globalStyle?.strokeWidth || 2.5;
+  g.lineJoin = config?.builderConfig?.globalStyle?.lineJoin || 'round';
+  g.lineCap  = config?.builderConfig?.globalStyle?.lineCap || 'round';
   g.beginPath();
   roundRect(g, x, y, w, h, radius);
   g.stroke();
 
-  // Draw each line
-  const defaultTextColor = config?.pillTextColor || '#ffffff';
+  // Draw each line: use NEW textColor from builderConfig, or fallback to OLD pillTextColor
+  const defaultTextColor = config?.builderConfig?.globalStyle?.textColor || 
+                          config?.pillTextColor || 
+                          '#ffffff';
   let currentY = padY;
 
   lineMetrics.forEach((metric, idx) => {
