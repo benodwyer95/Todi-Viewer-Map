@@ -16,43 +16,19 @@
 <style>
 
 /* ================= Font Face Definitions ================= */
-/* Note: Place actual font files in a /fonts directory */
-/* For demonstration, using web font fallbacks */
+/* Adobe Fonts (Typekit) - Replace with your project ID */
+/* To use your own Adobe Fonts project: */
+/* 1. Go to https://fonts.adobe.com */
+/* 2. Add fonts to a web project */
+/* 3. Get your project ID */
+/* 4. Replace 'XXXXXXX' below with your project ID */
+/* Example: <link rel="stylesheet" href="https://use.typekit.net/abc1234.css"> */
 
-/* Helvetica (using system Helvetica or Arial as fallback) */
-/* For real implementation, add: 
-   @font-face {
-     font-family: 'Helvetica';
-     src: url('./fonts/Helvetica.woff2') format('woff2'),
-          url('./fonts/Helvetica.woff') format('woff');
-     font-weight: normal;
-     font-style: normal;
-   }
-*/
+/* Google Fonts - Popular alternatives to Adobe Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Lato:ital,wght@0,300;0,400;0,700;1,400&family=Montserrat:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Merriweather:ital,wght@0,300;0,400;0,700;1,400&family=Raleway:ital,wght@0,300;0,400;0,600;0,700;1,400&family=PT+Sans:ital,wght@0,400;0,700;1,400&family=Poppins:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Oswald:wght@300;400;600;700&family=Nunito:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Archivo:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Josefin+Sans:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Inconsolata:wght@300;400;600;700&family=Work+Sans:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Bebas+Neue&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&display=swap');
 
-/* Times New Roman (using web-safe Times or serif fallback) */
-/* For real implementation, add:
-   @font-face {
-     font-family: 'Times New Roman';
-     src: url('./fonts/TimesNewRoman.woff2') format('woff2'),
-          url('./fonts/TimesNewRoman.woff') format('woff');
-     font-weight: normal;
-     font-style: normal;
-   }
-*/
-
-/* Caslon / Kasselin (using Libre Caslon Text from Google Fonts as open-source alternative) */
-@import url('https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&display=swap');
-
-/* For local implementation with actual Caslon files, use:
-   @font-face {
-     font-family: 'Caslon';
-     src: url('./fonts/Caslon.woff2') format('woff2'),
-          url('./fonts/Caslon.woff') format('woff');
-     font-weight: normal;
-     font-style: normal;
-   }
-*/
+/* System Fonts - Always available */
+/* These use fonts already installed on the user's system */
 
 /* ================= Right Dock ================= */
 #rightDock{
@@ -1775,9 +1751,39 @@ const distMaxLabel = document.getElementById('distMaxLabel');
 const debugDotIn   = document.getElementById('debugDot');
 
 const FONT_STACKS = {
+  // System Fonts
   helvetica: '"Helvetica Neue", Helvetica, Arial, sans-serif',
+  arial: 'Arial, "Helvetica Neue", Helvetica, sans-serif',
   times: '"Times New Roman", Times, Georgia, serif',
+  georgia: 'Georgia, "Times New Roman", Times, serif',
+  courier: '"Courier New", Courier, "Lucida Console", monospace',
+  verdana: 'Verdana, Geneva, sans-serif',
+  trebuchet: '"Trebuchet MS", "Lucida Grande", sans-serif',
+  
+  // Google Fonts (Loaded via @import above)
+  opensans: '"Open Sans", "Helvetica Neue", Arial, sans-serif',
+  roboto: 'Roboto, "Helvetica Neue", Arial, sans-serif',
+  lato: 'Lato, "Helvetica Neue", Arial, sans-serif',
+  montserrat: 'Montserrat, "Helvetica Neue", Arial, sans-serif',
+  playfair: '"Playfair Display", Georgia, "Times New Roman", serif',
+  sourcesans: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
+  merriweather: 'Merriweather, Georgia, "Times New Roman", serif',
+  raleway: 'Raleway, "Helvetica Neue", Arial, sans-serif',
+  ptsans: '"PT Sans", "Helvetica Neue", Arial, sans-serif',
+  poppins: 'Poppins, "Helvetica Neue", Arial, sans-serif',
+  oswald: 'Oswald, "Helvetica Neue", Arial, sans-serif',
+  nunito: 'Nunito, "Helvetica Neue", Arial, sans-serif',
+  ubuntu: 'Ubuntu, "Helvetica Neue", Arial, sans-serif',
+  crimson: '"Crimson Text", Georgia, "Times New Roman", serif',
+  librebaskerville: '"Libre Baskerville", Georgia, "Times New Roman", serif',
   caslon: '"Libre Caslon Text", "Caslon", "Big Caslon", Georgia, serif',
+  archivo: 'Archivo, "Helvetica Neue", Arial, sans-serif',
+  josefin: '"Josefin Sans", "Helvetica Neue", Arial, sans-serif',
+  inconsolata: 'Inconsolata, "Courier New", Courier, monospace',
+  worksans: '"Work Sans", "Helvetica Neue", Arial, sans-serif',
+  bebasneue: '"Bebas Neue", "Arial Black", Arial, sans-serif',
+  
+  // Legacy options
   inter: '"Inter", "Helvetica Neue", Helvetica, Arial, sans-serif',
   manrope: '"Manrope", "Helvetica Neue", Helvetica, Arial, sans-serif',
   ibmplex: '"IBM Plex Sans", "Helvetica Neue", Helvetica, Arial, sans-serif',
@@ -7718,10 +7724,43 @@ function renderBuilderRows(label) {
               <div style="display:grid;grid-template-columns:auto 1fr;gap:4px;align-items:center;">
                 <!-- Font Family -->
                 <label>Font Family:</label>
-                <select class="pillTextStyleInput" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" data-style-prop="fontFamily" style="font-size:9px;width:100px;">
-                  <option value="helvetica" ${(pill.textStyle?.fontFamily || 'helvetica') === 'helvetica' ? 'selected' : ''}>Helvetica</option>
-                  <option value="times" ${pill.textStyle?.fontFamily === 'times' ? 'selected' : ''}>Times New Roman</option>
-                  <option value="caslon" ${pill.textStyle?.fontFamily === 'caslon' ? 'selected' : ''}>Caslon</option>
+                <select class="pillTextStyleInput" data-label-id="${label.id}" data-row-index="${rowIndex}" data-pill-index="${pillIndex}" data-style-prop="fontFamily" style="font-size:9px;width:140px;">
+                  <optgroup label="System Fonts">
+                    <option value="helvetica" ${(pill.textStyle?.fontFamily || 'helvetica') === 'helvetica' ? 'selected' : ''}>Helvetica</option>
+                    <option value="arial" ${pill.textStyle?.fontFamily === 'arial' ? 'selected' : ''}>Arial</option>
+                    <option value="times" ${pill.textStyle?.fontFamily === 'times' ? 'selected' : ''}>Times New Roman</option>
+                    <option value="georgia" ${pill.textStyle?.fontFamily === 'georgia' ? 'selected' : ''}>Georgia</option>
+                    <option value="verdana" ${pill.textStyle?.fontFamily === 'verdana' ? 'selected' : ''}>Verdana</option>
+                    <option value="trebuchet" ${pill.textStyle?.fontFamily === 'trebuchet' ? 'selected' : ''}>Trebuchet MS</option>
+                    <option value="courier" ${pill.textStyle?.fontFamily === 'courier' ? 'selected' : ''}>Courier New</option>
+                  </optgroup>
+                  <optgroup label="Sans-Serif Fonts">
+                    <option value="opensans" ${pill.textStyle?.fontFamily === 'opensans' ? 'selected' : ''}>Open Sans</option>
+                    <option value="roboto" ${pill.textStyle?.fontFamily === 'roboto' ? 'selected' : ''}>Roboto</option>
+                    <option value="lato" ${pill.textStyle?.fontFamily === 'lato' ? 'selected' : ''}>Lato</option>
+                    <option value="montserrat" ${pill.textStyle?.fontFamily === 'montserrat' ? 'selected' : ''}>Montserrat</option>
+                    <option value="sourcesans" ${pill.textStyle?.fontFamily === 'sourcesans' ? 'selected' : ''}>Source Sans 3</option>
+                    <option value="raleway" ${pill.textStyle?.fontFamily === 'raleway' ? 'selected' : ''}>Raleway</option>
+                    <option value="ptsans" ${pill.textStyle?.fontFamily === 'ptsans' ? 'selected' : ''}>PT Sans</option>
+                    <option value="poppins" ${pill.textStyle?.fontFamily === 'poppins' ? 'selected' : ''}>Poppins</option>
+                    <option value="oswald" ${pill.textStyle?.fontFamily === 'oswald' ? 'selected' : ''}>Oswald</option>
+                    <option value="nunito" ${pill.textStyle?.fontFamily === 'nunito' ? 'selected' : ''}>Nunito</option>
+                    <option value="ubuntu" ${pill.textStyle?.fontFamily === 'ubuntu' ? 'selected' : ''}>Ubuntu</option>
+                    <option value="archivo" ${pill.textStyle?.fontFamily === 'archivo' ? 'selected' : ''}>Archivo</option>
+                    <option value="josefin" ${pill.textStyle?.fontFamily === 'josefin' ? 'selected' : ''}>Josefin Sans</option>
+                    <option value="worksans" ${pill.textStyle?.fontFamily === 'worksans' ? 'selected' : ''}>Work Sans</option>
+                    <option value="bebasneue" ${pill.textStyle?.fontFamily === 'bebasneue' ? 'selected' : ''}>Bebas Neue</option>
+                  </optgroup>
+                  <optgroup label="Serif Fonts">
+                    <option value="playfair" ${pill.textStyle?.fontFamily === 'playfair' ? 'selected' : ''}>Playfair Display</option>
+                    <option value="merriweather" ${pill.textStyle?.fontFamily === 'merriweather' ? 'selected' : ''}>Merriweather</option>
+                    <option value="crimson" ${pill.textStyle?.fontFamily === 'crimson' ? 'selected' : ''}>Crimson Text</option>
+                    <option value="librebaskerville" ${pill.textStyle?.fontFamily === 'librebaskerville' ? 'selected' : ''}>Libre Baskerville</option>
+                    <option value="caslon" ${pill.textStyle?.fontFamily === 'caslon' ? 'selected' : ''}>Caslon</option>
+                  </optgroup>
+                  <optgroup label="Monospace Fonts">
+                    <option value="inconsolata" ${pill.textStyle?.fontFamily === 'inconsolata' ? 'selected' : ''}>Inconsolata</option>
+                  </optgroup>
                 </select>
                 
                 <!-- Font Size -->
