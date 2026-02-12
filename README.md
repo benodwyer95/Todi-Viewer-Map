@@ -219,9 +219,30 @@ python3 --version
 - Verify JSON file path in the viewer HTML
 - Check browser console for JSON loading errors
 
+### Console Warnings for Optional Assets
+
+**Problem**: Console shows warnings about missing pill textures or overlay files
+
+**These are NOT errors!** The viewer includes optional asset systems:
+
+1. **Pill Textures** (`assets/pill_textures/`): Optional background textures for labels
+   - Impact: None - labels use solid colors as fallback
+   - See: `assets/pill_textures/README.md` for details
+
+2. **Overlay Images** (`images/Overlays/`): Optional panorama overlays
+   - Impact: None - panoramas display normally
+   - Add your own overlay images to use this feature
+
+3. **"No matches to navigate"**: Expected when no candidates match current filter
+   - Impact: None - normal operation
+
+These warnings can be safely ignored. The viewer is designed to work gracefully without these optional assets.
+
 ## Documentation
 
 - `ARCHITECTURE_v14.md` - Complete architecture guide
+- `TROUBLESHOOTING.md` - Common issues and solutions
+- `assets/pill_textures/README.md` - Optional texture documentation
 - `package.json` - Dependencies and scripts
 - Inline JSDoc comments in all modules
 

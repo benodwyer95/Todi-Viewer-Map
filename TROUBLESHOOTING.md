@@ -152,6 +152,48 @@ dir js          # Windows
 ls js/          # Mac/Linux
 ```
 
+## Optional Asset Warnings (Not Errors)
+
+You may see console warnings about missing asset files:
+
+### Pill Textures (Optional)
+
+```
+Failed to load resource: assets/pill_textures/White_Paper.png
+Failed to load texture: White Paper
+```
+
+**What it is**: Optional background textures for label styling in LabelFX
+
+**Impact**: None - viewer works normally with solid color labels
+
+**Fix (optional)**: Add custom texture PNG files to `assets/pill_textures/`. See `assets/pill_textures/README.md` for details.
+
+### Overlay Files (Optional)
+
+```
+Failed to load resource: images/Overlays/DJI_xxx_edges_colour.png
+Overlay load failed: ./images/Overlays/...
+```
+
+**What it is**: Optional overlay images for panorama visualization
+
+**Impact**: None - panoramas display normally without overlays
+
+**Fix (optional)**: Add overlay images to `images/Overlays/` directory matching your panorama filenames.
+
+### "No matches to navigate" (Expected)
+
+```
+[CycleCandidateNav] No matches to navigate
+```
+
+**What it is**: Normal message when no candidates match current filter
+
+**Impact**: None - this is expected behavior when filters exclude all candidates
+
+**Fix**: Not needed - this is normal operation
+
 ## Need More Help?
 
 See the full troubleshooting guide in README.md or run:
