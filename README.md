@@ -73,6 +73,21 @@ js/
 
 See `ARCHITECTURE_v14.md` for detailed documentation.
 
+## Data Files
+
+The viewer requires panorama candidate data in JSON format. 
+
+**Quick Start**: The repository includes `data/candidates_sample.json` which loads automatically for demonstration.
+
+**For Production**: Place your data file in the root directory as `pano_candidates_within2km_ALLTYPES__BAKED_OFFSETS.json`
+
+**For Details**: See `DATA_GUIDE.md` for:
+- Which files the viewer looks for (priority order)
+- Expected JSON structure
+- Sample vs production data
+- Custom data file configuration
+- Troubleshooting "no matches" errors
+
 ## Files
 
 - `index_v14_REFACTORED.html` - Main v14 viewer (recommended)
@@ -240,6 +255,7 @@ These warnings can be safely ignored. The viewer is designed to work gracefully 
 
 ## Documentation
 
+- `DATA_GUIDE.md` - **Complete guide to data files** (which file to use, structure, troubleshooting)
 - `ARCHITECTURE_v14.md` - Complete architecture guide
 - `TROUBLESHOOTING.md` - Common issues and solutions
 - `assets/pill_textures/README.md` - Optional texture documentation

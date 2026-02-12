@@ -192,7 +192,49 @@ Overlay load failed: ./images/Overlays/...
 
 **Impact**: None - this is expected behavior when filters exclude all candidates
 
-**Fix**: Not needed - this is normal operation
+**Common causes**:
+1. **Filters too restrictive**: Visibility, Category, or Distance filters exclude all candidates
+2. **No data loaded**: Data file missing or empty
+3. **Wrong panorama**: Current panorama has no candidates in dataset
+
+**Fix**:
+1. **Reset filters**: Set Visibility to "All", Category to "All", Distance to max
+2. **Check data file**: See `DATA_GUIDE.md` for which file is loaded
+3. **Try different panorama**: Use Pano < / > buttons to switch views
+4. **Verify data**: Check `data/candidates_sample.json` has candidates for this panorama
+
+**Not an error**: This is normal operation indicating filters are working correctly
+
+### Data File Not Found
+
+```
+Error: Could not load candidate data from any location
+```
+
+**Problem**: Viewer cannot find panorama candidate data
+
+**Solution**: See **DATA_GUIDE.md** for complete details on:
+- Which files the viewer looks for
+- Where to place your data files
+- Expected JSON structure
+- Sample vs production data
+
+**Quick fix**:
+1. Verify `data/candidates_sample.json` exists in repository
+2. Check browser console for specific file paths tried
+3. Ensure you're running from correct directory
+
+### Wrong Data File Being Used
+
+**Problem**: Confused about which candidates file is loaded
+
+**Answer**: 
+The viewer tries these files in order:
+1. `./data/candidates_sample.json` (demo data, included)
+2. `./pano_candidates_within2km_ALLTYPES__BAKED_OFFSETS.json` (your production data)
+3. `./data/pano_candidates_within2km_ALLTYPES_BAKED_OFFSETS.json` (alternative)
+
+**See**: `DATA_GUIDE.md` for complete explanation and configuration options
 
 ## Need More Help?
 
@@ -202,3 +244,9 @@ npm run verify
 ```
 
 This will give you specific instructions for any missing files or configuration issues.
+
+## Related Documentation
+
+- `DATA_GUIDE.md` - Complete guide to data files and structure
+- `README.md` - General setup and usage
+- `ARCHITECTURE_v14.md` - Technical architecture details

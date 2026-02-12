@@ -1432,7 +1432,14 @@ if (location.protocol === 'file:') {
 // --------------------
 // Config
 // --------------------
-const JSON_PATH = './pano_candidates_within2km_ALLTYPES__BAKED_OFFSETS.json';
+// Data file configuration
+// Priority order: production file → sample file → custom path
+const DATA_PATHS = [
+  './data/candidates_sample.json',                                        // Sample data (included in repo)
+  './pano_candidates_within2km_ALLTYPES__BAKED_OFFSETS.json',          // Production data (user-provided)
+  './data/pano_candidates_within2km_ALLTYPES_BAKED_OFFSETS.json'       // Alternative location
+];
+const JSON_PATH = DATA_PATHS[0]; // Default to sample file
 const SPHERE_RADIUS = 500;
 const MARKER_RADIUS = SPHERE_RADIUS - 1.5;
 const MAX_PITCH_DEG = 85;
@@ -9431,10 +9438,35 @@ function hookMarkerFxUI(){
   if(flk)  flk.oninput  = ()=> markerFxCfg.flock  = parseFloat(flk.value||"0.35");
 }
 async function init(){
-  setStatus(`Fetching ${JSON_PATH}…`);
-  const res = await fetch(JSON_PATH, { cache:'no-store' });
-  if (!res.ok) throw new Error(`JSON fetch failed: ${res.status} ${res.statusText}`);
-  DATA = await res.json();
+  // Try to load data from multiple possible locations
+  let DATA_LOADED = false;
+  let lastError = null;
+  
+  for (const path of DATA_PATHS) {
+    try {
+      setStatus(`Trying to fetch data from ${path}…`);
+      const res = await fetch(path, { cache:'no-store' });
+      if (!res.ok) {
+        lastError = `${res.status} ${res.statusText}`;
+        console.warn(`Failed to load ${path}: ${lastError}`);
+        continue;
+      }
+      DATA = await res.json();
+      DATA_LOADED = true;
+      console.log(`✅ Successfully loaded data from: ${path}`);
+      setStatus(`Loaded data from ${path}`);
+      break;
+    } catch (err) {
+      console.warn(`Error loading ${path}:`, err);
+      lastError = err.message;
+    }
+  }
+  
+  if (!DATA_LOADED) {
+    const errorMsg = `❌ Could not load candidate data from any location.\n\nTried:\n${DATA_PATHS.map(p => `  • ${p}`).join('\n')}\n\nLast error: ${lastError}\n\nSee DATA_GUIDE.md for setup instructions.`;
+    setStatus(errorMsg);
+    throw new Error(errorMsg);
+  }
 
   // Overlay system init
   hookOverlayUI();
