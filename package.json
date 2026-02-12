@@ -1,0 +1,12 @@
+{
+  "name": "todi-viewer-map",
+  "version": "14.0.0",
+  "description": "Todi Panoramic Viewer with 3D Map Integration",
+  "type": "module",
+  "dependencies": {
+    "three": "^0.150.0"
+  },
+  "scripts": {
+    "serve": "python3 serve.py"
+  }
+}
