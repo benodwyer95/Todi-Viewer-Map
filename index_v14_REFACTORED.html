@@ -31,6 +31,7 @@
 /* These use fonts already installed on the user's system */
 
 /* ================= Right Dock ================= */
+/* DISABLED: Conflicting with .dock class styles below
 #rightDock{
   position:fixed;
   top:14px;
@@ -47,6 +48,7 @@
   overflow:hidden;
   backdrop-filter: blur(8px);
 }
+*/
 #dockTabs{
   display:flex;
   gap:8px;
@@ -388,8 +390,10 @@ hr.ovSep{border:none;border-top:1px solid rgba(255,255,255,.12);margin:10px 0}
 #ui.collapsed{ width:320px; }
 
 /* ===== Dual dock layout (Verifier left, Overlay right) ===== */
-.dock{ position:fixed; top:10px; bottom:10px;
+.dock{ position:fixed; top:10px;
   width:620px;
+  height:calc(100vh - 20px);
+  max-height:calc(100vh - 20px);
   background:rgba(0,0,0,.55);
   border:1px solid rgba(255,255,255,.14);
   border-radius:14px;
@@ -450,9 +454,9 @@ hr.ovSep{border:none;border-top:1px solid rgba(255,255,255,.12);margin:10px 0}
 /* Make overlay ranges responsive in dock */
 #uiOverlay input[type=range]{ width:100% !important; }
 
-/* ---- Fix: wide verifier, proper overlay mounting ---- */
-#leftDock{ width:680px !important; }
-#rightDock{ width:560px !important; }
+/* ---- Fix: Narrower docks to allow panorama view in center ---- */
+#leftDock{ width:420px !important; }
+#rightDock{ width:380px !important; }
 .dockBody{ overflow-x:hidden !important; }
 
 /* force panels to live inside docks (no fixed positioning) */
