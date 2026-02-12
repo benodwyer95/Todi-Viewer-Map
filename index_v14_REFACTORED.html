@@ -7135,62 +7135,120 @@ const PILL_TEXTURES = {
 // Field mapping rules for label pills - Simplified Builder System
 const FIELD_RULES = {
   'name': {
-    label: 'Name',
+    label: '1. Name/No Name',
     description: 'dst_lm_name → dst_name → dst_type (first non-null)',
     evaluate: (cand) => {
       if (!cand) return '';
-      return cand.dst_lm_name && cand.dst_lm_name !== 'NULL' ? cand.dst_lm_name :
-             cand.dst_name && cand.dst_name !== 'NULL' ? cand.dst_name :
-             cand.dst_type || '';
-    }
-  },
-  'type': {
-    label: 'Type/Category',
-    description: 'Landmark: [_landmark_cl] OR [dst_subtype capitalized]',
-    evaluate: (cand) => {
-      if (!cand) return '';
-      if (cand.LMID_ && cand.LMID_ !== 'NULL' && cand._landmark_cl) {
-        return 'Landmark: ' + cand._landmark_cl;
-      } else if (cand.dst_subtype && cand.dst_subtype !== '') {
-        return cand.dst_subtype
-          .split('_')
-          .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-          .join(' ');
+      // Check dst_lm_name first
+      if (cand.dst_lm_name && cand.dst_lm_name !== 'NULL' && cand.dst_lm_name.trim() !== '') {
+        return cand.dst_lm_name;
       }
-      return '';
+      // Then dst_name
+      if (cand.dst_name && cand.dst_name !== 'NULL' && cand.dst_name.trim() !== '') {
+        return cand.dst_name;
+      }
+      // Finally dst_type
+      return cand.dst_type || '';
     }
   },
-  'bearing': {
-    label: 'Bearing',
-    description: 'Bearing: [azimuth]°',
+  'landmarkType': {
+    label: '2. Landmark and/or Subtypes',
+    description: 'Landmark: [_landmark_cl] [dst_subtype] OR [dst_type]: [dst_subtype]',
     evaluate: (cand) => {
       if (!cand) return '';
-      return cand.azimuth !== undefined && cand.azimuth !== null 
-        ? `Bearing: ${Math.round(cand.azimuth)}°` 
-        : '';
+      let result = '';
+      
+      // Check if _landmark_cl exists and is not null
+      if (cand._landmark_cl && cand._landmark_cl !== 'NULL' && cand._landmark_cl.trim() !== '') {
+        result = 'Landmark: ' + cand._landmark_cl;
+        // Add dst_subtype if exists
+        if (cand.dst_subtype && cand.dst_subtype !== 'NULL' && cand.dst_subtype.trim() !== '') {
+          result += ' ' + cand.dst_subtype;
+        }
+      } else {
+        // If _landmark_cl is null, use dst_type
+        result = cand.dst_type || '';
+        // Add dst_subtype if exists
+        if (cand.dst_subtype && cand.dst_subtype !== 'NULL' && cand.dst_subtype.trim() !== '') {
+          result += ': ' + cand.dst_subtype;
+        }
+      }
+      
+      return result;
     }
   },
   'distance': {
-    label: 'Distance',
-    description: 'Distance: [dist_m]m',
+    label: '3. Distance (with unit)',
+    description: 'Distance: [dist_m]m (2 decimal places)',
     evaluate: (cand) => {
       if (!cand) return '';
       return cand.dist_m !== undefined && cand.dist_m !== null
-        ? `Distance: ${Math.round(cand.dist_m)}m`
+        ? `Distance: ${cand.dist_m.toFixed(2)}m`
         : '';
     }
   },
-  'visibility': {
-    label: 'Visibility',
-    description: 'Visibility: [vis_pct]%',
+  'distanceNoUnit': {
+    label: '3. Distance (no unit)',
+    description: '[dist_m] (2 decimal places)',
+    evaluate: (cand) => {
+      if (!cand) return '';
+      return cand.dist_m !== undefined && cand.dist_m !== null
+        ? cand.dist_m.toFixed(2)
+        : '';
+    }
+  },
+  'bearing': {
+    label: '4. Bearing (with unit)',
+    description: '[rel_bear]° (2 decimal places)',
+    evaluate: (cand) => {
+      if (!cand) return '';
+      return cand.rel_bear !== undefined && cand.rel_bear !== null 
+        ? `${cand.rel_bear.toFixed(2)}°` 
+        : '';
+    }
+  },
+  'bearingNoUnit': {
+    label: '4. Bearing (no unit)',
+    description: '[rel_bear] (2 decimal places)',
+    evaluate: (cand) => {
+      if (!cand) return '';
+      return cand.rel_bear !== undefined && cand.rel_bear !== null 
+        ? cand.rel_bear.toFixed(2)
+        : '';
+    }
+  },
+  'visibilityPct': {
+    label: '5. Visibility % (with unit)',
+    description: '[vis_pct]% (2 decimal places)',
     evaluate: (cand) => {
       if (!cand) return '';
       return cand.vis_pct !== undefined && cand.vis_pct !== null
-        ? `Visibility: ${Math.round(cand.vis_pct)}%`
+        ? `${cand.vis_pct.toFixed(2)}%`
         : '';
+    }
+  },
+  'visibilityPctNoUnit': {
+    label: '5. Visibility % (no unit)',
+    description: '[vis_pct] (2 decimal places)',
+    evaluate: (cand) => {
+      if (!cand) return '';
+      return cand.vis_pct !== undefined && cand.vis_pct !== null
+        ? cand.vis_pct.toFixed(2)
+        : '';
+    }
+  },
+  'visibilityYesNo': {
+    label: '6. Visibility Yes/No',
+    description: '"Visible" if is_vis=1, "Not Visible" if is_vis=0',
+    evaluate: (cand) => {
+      if (!cand) return '';
+      return cand.is_vis === 1 ? 'Visible' : 'Not Visible';
     }
   }
 };
+
+// Expose FIELD_RULES to global scope for builder UI
+window.FIELD_RULES = FIELD_RULES;
 
 const textureCache = {};
 
@@ -12171,9 +12229,35 @@ const outW = inputNum(b2.layout.outline?.width ?? 2.5, '0.1');
     }
 
     if (step===5){
-      const help = h('div','', 'Drag & resize boxes in the live preview below. Text supports {field} tokens (e.g. {dst_lm_name}, {dist_m}).');
+      const help = h('div','', 'Drag & resize boxes in the live preview below. Text supports {field} tokens.');
       help.style.fontSize='11px'; help.style.opacity='.75'; help.style.marginBottom='8px';
       panel.appendChild(help);
+      
+      // Add available fields reference
+      if (typeof FIELD_RULES !== 'undefined') {
+        const fieldsRef = h('details','', '');
+        fieldsRef.style.marginBottom='8px';
+        fieldsRef.style.fontSize='11px';
+        fieldsRef.style.opacity='.85';
+        const summary = h('summary','','📋 Available Fields Reference');
+        summary.style.cursor='pointer';
+        summary.style.fontWeight='600';
+        summary.style.marginBottom='4px';
+        fieldsRef.appendChild(summary);
+        const fieldList = h('div','','');
+        fieldList.style.padding='8px';
+        fieldList.style.background='rgba(0,0,0,.3)';
+        fieldList.style.borderRadius='6px';
+        fieldList.style.lineHeight='1.6';
+        let fieldsHTML = '<div style="font-size:10px;margin-bottom:6px;opacity:.7;">Click "Insert field" dropdown below to add these to your text:</div>';
+        Object.keys(FIELD_RULES).forEach(key => {
+          const rule = FIELD_RULES[key];
+          fieldsHTML += `<div style="margin:4px 0;"><code style="background:rgba(255,255,255,.1);padding:2px 4px;border-radius:3px;">{${key}}</code> - ${rule.description}</div>`;
+        });
+        fieldList.innerHTML = fieldsHTML;
+        fieldsRef.appendChild(fieldList);
+        panel.appendChild(fieldsRef);
+      }
 
       const addBtn = h('button','lfxBtn primary','+ Add Text Box');
       addBtn.type='button';
@@ -12299,6 +12383,30 @@ const outW = inputNum(b2.layout.outline?.width ?? 2.5, '0.1');
         const tIn = inputText(tb.text||'');
         tIn.addEventListener('input', ()=>{ tb.text=tIn.value; replaceItemInSet(it); applyActiveSetToCanvas(); });
         addRow('Box text', tIn);
+        
+        // Add field selector dropdown for easy token insertion
+        if (typeof FIELD_RULES !== 'undefined') {
+          const fieldSelectOptions = [{v:'', t:'(Insert field token...)'}];
+          Object.keys(FIELD_RULES).forEach(key => {
+            fieldSelectOptions.push({v: `{${key}}`, t: FIELD_RULES[key].label});
+          });
+          const fieldSelect = select(fieldSelectOptions, '');
+          fieldSelect.addEventListener('change', ()=>{ 
+            if (fieldSelect.value) {
+              // Insert the field token at cursor position or append
+              const cursorPos = tIn.selectionStart || tIn.value.length;
+              const before = tIn.value.substring(0, cursorPos);
+              const after = tIn.value.substring(cursorPos);
+              tIn.value = before + fieldSelect.value + after;
+              tb.text = tIn.value;
+              replaceItemInSet(it);
+              applyActiveSetToCanvas();
+              fieldSelect.value = ''; // Reset selector
+            }
+          });
+          addRow('Insert field', fieldSelect);
+        }
+
 
         const fam = select([{v:'helvetica',t:'Helvetica'},{v:'inter',t:'Inter'},{v:'mono',t:'Mono'}], tb.fontFamily||'helvetica');
         fam.addEventListener('change', ()=>{ tb.fontFamily=fam.value; replaceItemInSet(it); applyActiveSetToCanvas(); });
