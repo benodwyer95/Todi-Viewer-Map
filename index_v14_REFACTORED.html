@@ -9582,7 +9582,16 @@ async function init(){
     return String(a.id).localeCompare(String(b.id));
   });
   
-  // Sync legacy SOURCES
+  // CRITICAL FIX: Filter out vistas - only keep panoramas for viewer
+  const totalSources = ViewerState.sources.length;
+  ViewerState.sources = ViewerState.sources.filter(s => s.type === 'pano');
+  const vistasFiltered = totalSources - ViewerState.sources.length;
+  
+  if (vistasFiltered > 0) {
+    console.log(`[Data Filter] Loaded ${totalSources} sources → Filtered to ${ViewerState.sources.length} panoramas (excluded ${vistasFiltered} vistas)`);
+  }
+  
+  // Sync legacy SOURCES (now with only panos)
   syncLegacyState();
 
   if (!ViewerState.sources.length){
@@ -9596,9 +9605,11 @@ async function init(){
   // V14: Populate pano and landmark dropdowns after data loads
   if (typeof window.populatePanoSelect === 'function') {
     window.populatePanoSelect();
+    console.log('[Init] Panorama dropdown populated');
   }
   if (typeof window.populateLandmarkDropdown === 'function') {
-    window.populateLandmarkDropdown();
+    const count = window.populateLandmarkDropdown();
+    console.log(`[Init] Landmark dropdown populated with ${count || 0} landmarks`);
   }
 
   // set distance slider default to max in this dataset (≤ 2000m cap)
@@ -10752,9 +10763,11 @@ init().then(()=>animate()).catch(err=>{
         });
         
         console.log(`[Landmark Dropdown] Populated with ${sortedNames.length} unique landmarks`);
+      } else {
+        console.warn('[Landmark Dropdown] Element #lfxLandmarkSelect not found');
       }
       
-      return sortedNames;
+      return sortedNames.length;
     }
     
     // Make functions available globally
@@ -10789,8 +10802,15 @@ init().then(()=>animate()).catch(err=>{
         
         console.log(`[Pano Nav] Previous: ${currentIdx} → ${prevIdx} (${window.SOURCES[prevIdx]?.id})`);
         
+        // Actually switch the panorama
         if (typeof window.setSourceByIndex === 'function') {
           window.setSourceByIndex(prevIdx);
+          console.log(`[Panorama] Switched to index ${prevIdx} (${window.SOURCES[prevIdx]?.id})`);
+        } else if (typeof setSourceByIndex === 'function') {
+          setSourceByIndex(prevIdx);
+          console.log(`[Panorama] Switched to index ${prevIdx} (global function)`);
+        } else {
+          console.error('[Pano Nav] setSourceByIndex function not found');
         }
         
         // Update dropdown selection
@@ -10813,8 +10833,15 @@ init().then(()=>animate()).catch(err=>{
         
         console.log(`[Pano Nav] Next: ${currentIdx} → ${nextIdx} (${window.SOURCES[nextIdx]?.id})`);
         
+        // Actually switch the panorama
         if (typeof window.setSourceByIndex === 'function') {
           window.setSourceByIndex(nextIdx);
+          console.log(`[Panorama] Switched to index ${nextIdx} (${window.SOURCES[nextIdx]?.id})`);
+        } else if (typeof setSourceByIndex === 'function') {
+          setSourceByIndex(nextIdx);
+          console.log(`[Panorama] Switched to index ${nextIdx} (global function)`);
+        } else {
+          console.error('[Pano Nav] setSourceByIndex function not found');
         }
         
         // Update dropdown selection
@@ -11332,6 +11359,44 @@ function updateBuilderMatchCounter(current, totalCurrent, filterConfig) {
 }
 window.updateBuilderMatchCounter = updateBuilderMatchCounter;
 
+// CAMERA PANNING HELPER - Pan camera to a specific candidate
+function panCameraToCandidate(candidate, source) {
+  if (!candidate) {
+    console.warn('[Camera] No candidate to pan to');
+    return false;
+  }
+  
+  try {
+    // Calculate yaw/pitch from candidate data
+    const yawDeg = candidate.baked_yaw_deg || candidate.rel_bear || 0;
+    const pitchDeg = candidate.baked_pitch_deg || 0;
+    
+    const yawRad = THREE.MathUtils.degToRad(yawDeg);
+    const pitchRad = THREE.MathUtils.degToRad(pitchDeg);
+    
+    const candidateName = candidate.dst_lm_name || candidate.dst_name || 'unnamed';
+    console.log(`[Camera] Panning to candidate "${candidateName}": yaw=${yawDeg.toFixed(2)}°, pitch=${pitchDeg.toFixed(2)}°`);
+    
+    // Call camera panning function
+    if (typeof window.setViewYawPitch === 'function') {
+      window.setViewYawPitch(yawRad, pitchRad, true); // smooth=true
+      console.log('[Camera] Panning executed successfully');
+      return true;
+    } else if (typeof setViewYawPitch === 'function') {
+      setViewYawPitch(yawRad, pitchRad, true);
+      console.log('[Camera] Panning executed successfully (global)');
+      return true;
+    } else {
+      console.error('[Camera] setViewYawPitch function not found - camera panning disabled');
+      return false;
+    }
+  } catch (e) {
+    console.error('[Camera] Panning error:', e);
+    return false;
+  }
+}
+window.panCameraToCandidate = panCameraToCandidate;
+
   function focusBestCandidateForItem(it){
     try{
       // Check if data is loading
@@ -11380,6 +11445,23 @@ window.updateBuilderMatchCounter = updateBuilderMatchCounter;
         
         // UPDATE BUILDER COUNTER: Display current position / total matches (multi-pano aware)
         updateBuilderMatchCounter(1, idxs.length, it);
+        
+        // PAN CAMERA TO FIRST MATCH
+        if (idxs.length > 0) {
+          const firstMatchIdx = idxs[0];
+          const firstCandidate = arr[firstMatchIdx];
+          if (firstCandidate) {
+            // Try to get source for proper yaw calculation
+            let src = null;
+            try {
+              src = (typeof window !== 'undefined' && typeof window.currentSource === 'function') 
+                ? window.currentSource() 
+                : (typeof currentSource === 'function' ? currentSource() : null);
+            } catch(e) {}
+            
+            panCameraToCandidate(firstCandidate, src);
+          }
+        }
       }
       
       if (!idxs.length){
