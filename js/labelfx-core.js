@@ -321,9 +321,13 @@ export function focusMatchedCandidate(matchPtr) {
   
   // Show live label preview for this candidate
   if (window.labelPreviewManager && typeof window.getActiveLabelFxItem === 'function') {
-    const activeItem = window.getActiveLabelFxItem();
-    if (activeItem && activeItem.layout) {
-      window.labelPreviewManager.showLabel(candidate, candidateIndex, activeItem.layout);
+    try {
+      const activeItem = window.getActiveLabelFxItem();
+      if (activeItem && candidate) {
+        window.labelPreviewManager.showLabel(candidate, candidateIndex, activeItem);
+      }
+    } catch (e) {
+      console.error('[FocusMatchedCandidate] Error showing label preview:', e);
     }
   }
   

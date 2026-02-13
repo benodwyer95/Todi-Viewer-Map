@@ -11539,8 +11539,8 @@ window.panCameraToCandidate = panCameraToCandidate;
             panCameraToCandidate(firstCandidate, src);
             
             // Show live label preview for the focused candidate
-            if (window.labelPreviewManager && it && it.layout) {
-              window.labelPreviewManager.showLabel(firstCandidate, firstMatchIdx, it.layout);
+            if (window.labelPreviewManager && it) {
+              window.labelPreviewManager.showLabel(firstCandidate, firstMatchIdx, it);
             }
           }
         }

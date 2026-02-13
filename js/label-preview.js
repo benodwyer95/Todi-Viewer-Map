@@ -220,8 +220,22 @@ class LabelPreviewManager {
    * Show label for a candidate
    */
   showLabel(candidate, candidateIndex, labelConfig) {
-    if (!candidate || !labelConfig) {
+    // Validate parameters
+    if (!candidate) {
+      console.warn('[Label Preview] No candidate provided');
       this.hideAll();
+      return;
+    }
+    
+    if (!labelConfig) {
+      console.warn('[Label Preview] No label config provided');
+      this.hideAll();
+      return;
+    }
+    
+    // Check THREE.js availability
+    if (typeof THREE === 'undefined') {
+      console.error('[Label Preview] THREE.js not available');
       return;
     }
     
@@ -259,6 +273,9 @@ class LabelPreviewManager {
       
     } catch (e) {
       console.error('[Label Preview] Error showing label:', e);
+      if (e.stack) {
+        console.error('[Label Preview] Stack trace:', e.stack);
+      }
     }
   }
 
