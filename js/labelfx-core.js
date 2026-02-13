@@ -319,6 +319,14 @@ export function focusMatchedCandidate(matchPtr) {
     window.updatePreviewLabel(candidate);
   }
   
+  // Show live label preview for this candidate
+  if (window.labelPreviewManager && typeof window.getActiveLabelFxItem === 'function') {
+    const activeItem = window.getActiveLabelFxItem();
+    if (activeItem && activeItem.layout) {
+      window.labelPreviewManager.showLabel(candidate, candidateIndex, activeItem.layout);
+    }
+  }
+  
   console.log(`[FocusMatchedCandidate] Focused on candidate ${candidateIndex}:`, candidate.dst_lm_name || candidate.dst_id);
 }
 

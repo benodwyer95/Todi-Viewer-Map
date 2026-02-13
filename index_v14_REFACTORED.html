@@ -1298,6 +1298,11 @@ import {
   initMapIntegration
 } from './js/map-integration.js';
 
+import {
+  LabelRenderer,
+  LabelPreviewManager
+} from './js/label-preview.js';
+
 // Expose imports to window for backward compatibility
 window.ViewerState = ViewerState;
 window.currentSource = currentSource;
@@ -2082,6 +2087,16 @@ sceneOverlay.add(markerGroup);
 
 const labelGroup = new THREE.Group();
 sceneOverlay.add(labelGroup);
+
+// Initialize Label Preview Manager
+let labelPreviewManager = null;
+try {
+  labelPreviewManager = new LabelPreviewManager(sceneOverlay, camera);
+  window.labelPreviewManager = labelPreviewManager;
+  console.log('[Label Preview] Manager initialized successfully');
+} catch (e) {
+  console.error('[Label Preview] Failed to initialize manager:', e);
+}
 
 // --------------------
 // Data - V14: Using ViewerState for centralized state management
@@ -11522,6 +11537,11 @@ window.panCameraToCandidate = panCameraToCandidate;
             } catch(e) {}
             
             panCameraToCandidate(firstCandidate, src);
+            
+            // Show live label preview for the focused candidate
+            if (window.labelPreviewManager && it && it.layout) {
+              window.labelPreviewManager.showLabel(firstCandidate, firstMatchIdx, it.layout);
+            }
           }
         }
       }
