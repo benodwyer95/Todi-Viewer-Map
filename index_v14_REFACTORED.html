@@ -10824,6 +10824,15 @@ init().then(()=>animate()).catch(err=>{
         if (typeof window.setSourceByIndex === 'function') {
           window.setSourceByIndex(prevIdx);
           console.log(`[Panorama] Switched to index ${prevIdx} (${window.SOURCES[prevIdx]?.id})`);
+          
+          // Pan camera to first match in new pano if builder open and has matches
+          setTimeout(() => {
+            const activeItem = (typeof getActiveLabelFxItem === 'function') ? getActiveLabelFxItem() : window.__lfxEditingItem;
+            if (activeItem && typeof window.focusBestCandidateForItem === 'function') {
+              window.focusBestCandidateForItem(activeItem);
+              console.log('[Pano Switch] Panned camera to first match in new panorama');
+            }
+          }, 100);
         } else if (typeof setSourceByIndex === 'function') {
           setSourceByIndex(prevIdx);
           console.log(`[Panorama] Switched to index ${prevIdx} (global function)`);
@@ -10855,6 +10864,15 @@ init().then(()=>animate()).catch(err=>{
         if (typeof window.setSourceByIndex === 'function') {
           window.setSourceByIndex(nextIdx);
           console.log(`[Panorama] Switched to index ${nextIdx} (${window.SOURCES[nextIdx]?.id})`);
+          
+          // Pan camera to first match in new pano if builder open and has matches
+          setTimeout(() => {
+            const activeItem = (typeof getActiveLabelFxItem === 'function') ? getActiveLabelFxItem() : window.__lfxEditingItem;
+            if (activeItem && typeof window.focusBestCandidateForItem === 'function') {
+              window.focusBestCandidateForItem(activeItem);
+              console.log('[Pano Switch] Panned camera to first match in new panorama');
+            }
+          }, 100);
         } else if (typeof setSourceByIndex === 'function') {
           setSourceByIndex(nextIdx);
           console.log(`[Panorama] Switched to index ${nextIdx} (global function)`);
@@ -12519,7 +12537,12 @@ function makeLabelSpriteFromB2(defaultText, candidate, worldSize, config){
           
           // Populate if function exists
           if (typeof window.populateLandmarkDropdown === 'function') {
-            window.populateLandmarkDropdown();
+            try {
+              const count = window.populateLandmarkDropdown(true);
+              console.log(`[Specific Landmark Preset] Populated dropdown with ${count} landmarks`);
+            } catch (e) {
+              console.error('[Specific Landmark Preset] Error populating dropdown:', e);
+            }
           }
           
           addRow('Select landmark(s)', lmSel);

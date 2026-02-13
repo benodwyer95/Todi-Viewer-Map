@@ -288,11 +288,20 @@ export function focusMatchedCandidate(matchPtr) {
   
   // Pan camera (if function exists)
   if (typeof window.setViewYawPitch === 'function') {
-    window.setViewYawPitch(
-      THREE.MathUtils.degToRad(yawDeg),
-      THREE.MathUtils.degToRad(pitchDeg),
-      true // smooth
-    );
+    // Convert degrees to radians - use window.THREE or manual conversion
+    const DEG_TO_RAD = Math.PI / 180;
+    let yawRad, pitchRad;
+    
+    if (window.THREE && window.THREE.MathUtils) {
+      yawRad = window.THREE.MathUtils.degToRad(yawDeg);
+      pitchRad = window.THREE.MathUtils.degToRad(pitchDeg);
+    } else {
+      // Manual conversion if THREE not available in module scope
+      yawRad = yawDeg * DEG_TO_RAD;
+      pitchRad = pitchDeg * DEG_TO_RAD;
+    }
+    
+    window.setViewYawPitch(yawRad, pitchRad, true); // smooth
   }
   
   // Highlight selection
