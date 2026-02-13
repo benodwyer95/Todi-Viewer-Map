@@ -380,23 +380,29 @@ export function initBuilderEventListeners() {
   }
   
   // Candidate navigation
+  // NOTE: Event listeners are already attached in index_v14_REFACTORED.html
+  // to prevent duplicate calls. If cycleCandidateNav is not available,
+  // the HTML file will handle the navigation with fallback logic.
   const candPrevBtn = document.getElementById('lfxCandPrevBtn');
   const candNextBtn = document.getElementById('lfxCandNextBtn');
   
-  if (candPrevBtn) {
+  // Check if listeners already attached (prevents double-click issue)
+  if (candPrevBtn && !candPrevBtn.dataset.listenerAttached) {
     candPrevBtn.addEventListener('click', () => {
       if (typeof window.cycleCandidateNav === 'function') {
         window.cycleCandidateNav(-1);
       }
     });
+    candPrevBtn.dataset.listenerAttached = 'true';
   }
   
-  if (candNextBtn) {
+  if (candNextBtn && !candNextBtn.dataset.listenerAttached) {
     candNextBtn.addEventListener('click', () => {
       if (typeof window.cycleCandidateNav === 'function') {
         window.cycleCandidateNav(1);
       }
     });
+    candNextBtn.dataset.listenerAttached = 'true';
   }
   
   // Panorama navigation

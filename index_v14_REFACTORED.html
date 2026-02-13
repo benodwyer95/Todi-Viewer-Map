@@ -10236,9 +10236,9 @@ init().then(()=>animate()).catch(err=>{
         <button id="lfxPrevPanoBtn" class="lfxBtn" type="button" title="Previous pano">◀ Pano</button>
         <button id="lfxNextPanoBtn" class="lfxBtn" type="button" title="Next pano">Pano ▶</button>
         <div class="lfxSep" aria-hidden="true"></div>
-        <button id="lfxCandPrevBtn" class="lfxBtn" type="button" title="Previous candidate">◀ Cand</button>
+        <button id="lfxCandPrevBtn" class="lfxBtn" type="button" title="Previous candidate" data-listener-attached="true">◀ Cand</button>
         <span id="lfxCandCounter">0 / 0</span>
-        <button id="lfxCandNextBtn" class="lfxBtn" type="button" title="Next candidate">Cand ▶</button>
+        <button id="lfxCandNextBtn" class="lfxBtn" type="button" title="Next candidate" data-listener-attached="true">Cand ▶</button>
         <div class="lfxSep" aria-hidden="true"></div>
         <button id="lfxCloseBtn" class="lfxBtn danger" type="button">Close Builder</button>
       </div>
@@ -10770,7 +10770,18 @@ init().then(()=>animate()).catch(err=>{
       // Populate dropdown
       const sel = document.getElementById('lfxLandmarkSelect');
       if (sel) {
-        sel.innerHTML = '<option value="">Select landmarks...</option>';
+        // Clear and rebuild dropdown
+        sel.innerHTML = '';
+        
+        // Add a disabled placeholder option
+        const placeholder = document.createElement('option');
+        placeholder.value = '';
+        placeholder.textContent = '-- Select landmark(s) --';
+        placeholder.disabled = true;
+        placeholder.selected = true;
+        sel.appendChild(placeholder);
+        
+        // Add all landmark options
         sortedNames.forEach(name => {
           const opt = document.createElement('option');
           opt.value = name;
@@ -10825,14 +10836,12 @@ init().then(()=>animate()).catch(err=>{
           window.setSourceByIndex(prevIdx);
           console.log(`[Panorama] Switched to index ${prevIdx} (${window.SOURCES[prevIdx]?.id})`);
           
-          // Pan camera to first match in new pano if builder open and has matches
-          setTimeout(() => {
-            const activeItem = (typeof getActiveLabelFxItem === 'function') ? getActiveLabelFxItem() : window.__lfxEditingItem;
-            if (activeItem && typeof window.focusBestCandidateForItem === 'function') {
-              window.focusBestCandidateForItem(activeItem);
-              console.log('[Pano Switch] Panned camera to first match in new panorama');
-            }
-          }, 100);
+          // Immediately apply filter and pan camera to first match in new pano
+          const activeItem = (typeof getActiveLabelFxItem === 'function') ? getActiveLabelFxItem() : window.__lfxEditingItem;
+          if (activeItem && typeof window.focusBestCandidateForItem === 'function') {
+            window.focusBestCandidateForItem(activeItem);
+            console.log('[Pano Switch] Applied filter and panned to first match in new panorama');
+          }
         } else if (typeof setSourceByIndex === 'function') {
           setSourceByIndex(prevIdx);
           console.log(`[Panorama] Switched to index ${prevIdx} (global function)`);
@@ -10865,14 +10874,12 @@ init().then(()=>animate()).catch(err=>{
           window.setSourceByIndex(nextIdx);
           console.log(`[Panorama] Switched to index ${nextIdx} (${window.SOURCES[nextIdx]?.id})`);
           
-          // Pan camera to first match in new pano if builder open and has matches
-          setTimeout(() => {
-            const activeItem = (typeof getActiveLabelFxItem === 'function') ? getActiveLabelFxItem() : window.__lfxEditingItem;
-            if (activeItem && typeof window.focusBestCandidateForItem === 'function') {
-              window.focusBestCandidateForItem(activeItem);
-              console.log('[Pano Switch] Panned camera to first match in new panorama');
-            }
-          }, 100);
+          // Immediately apply filter and pan camera to first match in new pano
+          const activeItem = (typeof getActiveLabelFxItem === 'function') ? getActiveLabelFxItem() : window.__lfxEditingItem;
+          if (activeItem && typeof window.focusBestCandidateForItem === 'function') {
+            window.focusBestCandidateForItem(activeItem);
+            console.log('[Pano Switch] Applied filter and panned to first match in new panorama');
+          }
         } else if (typeof setSourceByIndex === 'function') {
           setSourceByIndex(nextIdx);
           console.log(`[Panorama] Switched to index ${nextIdx} (global function)`);
