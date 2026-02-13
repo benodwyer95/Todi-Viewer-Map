@@ -10904,7 +10904,17 @@ function __lfxUpdateHeaderMatchCounts(it, focusedName, focusedIsMatch){
   if (!it) return;
 
   const cur = (typeof currentIndex === 'number') ? currentIndex : 0;
-window.currentIndex = currentIndex;
+  window.currentIndex = currentIndex;
+
+  // Check if data is loading
+  const dataLoading = !Array.isArray(SOURCES) || SOURCES.length === 0;
+  
+  if (dataLoading) {
+    // Data hasn't loaded yet
+    window.__lfxHeaderMatchHtml = `⏳ <b>Waiting for panorama data to load...</b> • Use "🔄 Refresh Matches" button in Filter step after data loads`;
+    if (typeof updateHeaderSub === 'function') updateHeaderSub();
+    return;
+  }
 
   function statusAt(idx){
     const s = (Array.isArray(SOURCES) && SOURCES[idx]) ? SOURCES[idx] : null;
@@ -10928,7 +10938,7 @@ window.currentIndex = currentIndex;
   const n = fmt(next);
 
   const preset = (it?.b2?.filter?.kind==='preset') ? (it?.b2?.filter?.preset||'') : '';
-  const totalCur = (curS && curS.loaded===true && Array.isArray(SOURCES[cur]?.candidates)) ? window.SOURCES[cur].candidates.length : null;
+  const totalCur = (curS && curS.loaded===true && Array.isArray(SOURCES[cur]?.candidates)) ? SOURCES[cur].candidates.length : null;
   const metaTxt = (preset || totalCur!==null) ? ` • preset: <b>${preset||'custom'}</b>${(totalCur!==null)?` • total: <b>${totalCur}</b>`:''}` : '';
 
   const focusTxt = focusedName ? ` • focused: ${focusedName}` : '';
@@ -10966,8 +10976,35 @@ window.currentIndex = currentIndex;
   }
 window.focusCandidateByIndex = focusCandidateByIndex;
 
+// Global function to force refresh LabelFX matches (for debugging or manual refresh)
+window.__lfxForceRefresh = function(){
+  try{
+    const it = window.__lfxEditingItem || null;
+    if (!it){
+      console.warn('[LabelFX] No active item to refresh');
+      return false;
+    }
+    console.log('[LabelFX] Force refresh triggered');
+    focusBestCandidateForItem(it);
+    if (typeof applyActiveSetToCanvas === 'function') applyActiveSetToCanvas();
+    return true;
+  }catch(e){
+    console.error('[LabelFX] Force refresh error:', e);
+    return false;
+  }
+};
+
   function focusBestCandidateForItem(it){
     try{
+      // Check if data is loading
+      const dataLoading = !Array.isArray(SOURCES) || SOURCES.length === 0;
+      
+      if (dataLoading){
+        console.log('[LabelFX] Data not loaded yet, showing loading message');
+        __lfxUpdateHeaderMatchCounts(it, '', null);
+        return;
+      }
+      
       // Try to use the active source candidates; if that isn't available (module scope),
       // fall back to currentMarkers[].userData.cand (which *is* what the scene is using).
       let arr = [];
@@ -10977,17 +11014,20 @@ window.focusCandidateByIndex = focusCandidateByIndex;
         if (src && Array.isArray(src.candidates) && src.candidates.length) arr = src.candidates;
       }catch(e){}
 
-      if ((!arr || !arr.length) && typeof window!=='undefined' && Array.isArray(window.window.currentMarkers) && window.window.currentMarkers.length){
+      if ((!arr || !arr.length) && typeof window!=='undefined' && Array.isArray(window.currentMarkers) && window.currentMarkers.length){
         arr = window.currentMarkers.map(m=>m && m.userData ? (m.userData.cand || null) : null).filter(Boolean);
       }
 
       // Always update header counts for this item (even if there are zero matches)
       if (!arr || !arr.length){
+        console.log('[LabelFX] No candidates available (total=0)');
         __lfxUpdateHeaderMatchCounts(it, '(no candidates loaded)', null);
         return;
       }
 
       const idxs = __lfxFilteredCandidateIndices(it, arr);
+      console.log(`[LabelFX] Filter applied: ${idxs.length} matches out of ${arr.length} total candidates`);
+      
       if (!idxs.length){
         __lfxUpdateHeaderMatchCounts(it, '(0 matches)', false);
         return;
@@ -11007,6 +11047,7 @@ window.focusCandidateByIndex = focusCandidateByIndex;
       const nm = (cand?.dst_lm_name || cand?.dst_name || cand?.dst_name_en || cand?.dst_id || 'Candidate');
       __lfxUpdateHeaderMatchCounts(it, nm, true);
     }catch(e){
+      console.error('[LabelFX] Error in focusBestCandidateForItem:', e);
       try{
         window.__lfxHeaderMatchHtml = `matches: <b>ERR</b> • ${String(e&&e.message||e)}`;
         if (typeof updateHeaderSub === 'function') updateHeaderSub();
@@ -12097,6 +12138,32 @@ function makeLabelSpriteFromB2(defaultText, candidate, worldSize, config){
       const givenNote = h('div','', 'Given: empty / null / "NULL" values are treated as missing.');
       givenNote.style.fontSize='11px'; givenNote.style.opacity='.7'; givenNote.style.marginTop='10px';
       panel.appendChild(givenNote);
+      
+      // Add refresh button at the bottom of filter step
+      const refreshBtn = h('button','lfxBtn primary','🔄 Refresh Matches');
+      refreshBtn.type='button';
+      refreshBtn.style.marginTop='16px';
+      refreshBtn.style.width='100%';
+      refreshBtn.title='Recalculate matches after data loads or filter changes';
+      refreshBtn.addEventListener('click', ()=>{
+        try{
+          console.log('[LabelFX] Manual refresh triggered');
+          focusBestCandidateForItem(it);
+          if (typeof applyActiveSetToCanvas === 'function') applyActiveSetToCanvas();
+        }catch(e){
+          console.error('[LabelFX] Refresh error:', e);
+        }
+      });
+      panel.appendChild(refreshBtn);
+      
+      // Add help text
+      const helpTxt = h('div','','');
+      helpTxt.style.fontSize='11px';
+      helpTxt.style.opacity='0.65';
+      helpTxt.style.marginTop='8px';
+      helpTxt.style.fontStyle='italic';
+      helpTxt.innerHTML = '💡 Tip: If match counter shows "0 / 0" or "Loading...", click Refresh after panorama data loads in the Verifier';
+      panel.appendChild(helpTxt);
 
       // Also mirror for legacy display in deck
       it.filterPreset = (F.kind==='preset') ? `Preset: ${F.preset}` : `Custom: ${(F.custom.rules||[]).length} rule(s)`;
