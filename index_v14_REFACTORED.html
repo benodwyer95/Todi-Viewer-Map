@@ -9592,6 +9592,14 @@ async function init(){
 
   buildSourceDropdown();
   await setSourceByIndex(0);
+  
+  // V14: Populate pano and landmark dropdowns after data loads
+  if (typeof window.populatePanoSelect === 'function') {
+    window.populatePanoSelect();
+  }
+  if (typeof window.populateLandmarkDropdown === 'function') {
+    window.populateLandmarkDropdown();
+  }
 
   // set distance slider default to max in this dataset (≤ 2000m cap)
   const maxD = computeMaxDistanceFromData();
@@ -10709,6 +10717,49 @@ init().then(()=>animate()).catch(err=>{
       });
     }
     
+    // Populate landmark dropdown with all unique landmarks
+    function populateLandmarkDropdown() {
+      // Collect all unique landmark names from all panoramas
+      const landmarkNames = new Set();
+      
+      if (Array.isArray(window.SOURCES)) {
+        window.SOURCES.forEach(src => {
+          if (Array.isArray(src.candidates)) {
+            src.candidates.forEach(cand => {
+              const name = cand.dst_lm_name;
+              if (name && name !== 'NULL' && name.trim()) {
+                landmarkNames.add(name.trim());
+              }
+            });
+          }
+        });
+      }
+      
+      // Sort alphabetically (case-insensitive)
+      const sortedNames = Array.from(landmarkNames).sort((a, b) => 
+        a.toLowerCase().localeCompare(b.toLowerCase())
+      );
+      
+      // Populate dropdown
+      const sel = document.getElementById('lfxLandmarkSelect');
+      if (sel) {
+        sel.innerHTML = '<option value="">Select landmarks...</option>';
+        sortedNames.forEach(name => {
+          const opt = document.createElement('option');
+          opt.value = name;
+          opt.textContent = name;
+          sel.appendChild(opt);
+        });
+        
+        console.log(`[Landmark Dropdown] Populated with ${sortedNames.length} unique landmarks`);
+      }
+      
+      return sortedNames;
+    }
+    
+    // Make functions available globally
+    window.populateLandmarkDropdown = populateLandmarkDropdown;
+    
     // Populate dropdown initially and on data load
     if (Array.isArray(window.SOURCES) && window.SOURCES.length > 0) {
       populatePanoSelect();
@@ -10724,14 +10775,26 @@ init().then(()=>animate()).catch(err=>{
       };
     }
     
-    // Header nav (pano + candidate) - Call prevSource/nextSource which should exist
+    // Header nav (pano + candidate) - Circular navigation with wrap-around
     document.getElementById('lfxPrevPanoBtn')?.addEventListener('click', ()=>{ 
       try { 
-        if (typeof prevSource === 'function') {
-          prevSource();
-        } else if (typeof window.currentIndex !== 'undefined' && typeof window.setSourceByIndex === 'function') {
-          window.setSourceByIndex(Math.max(0, window.currentIndex - 1));
+        if (!Array.isArray(window.SOURCES) || window.SOURCES.length === 0) {
+          console.warn('[Pano Nav] No panoramas loaded');
+          return;
         }
+        
+        const currentIdx = window.currentIndex || 0;
+        // Circular: if at 0, wrap to last index
+        const prevIdx = currentIdx === 0 ? window.SOURCES.length - 1 : currentIdx - 1;
+        
+        console.log(`[Pano Nav] Previous: ${currentIdx} → ${prevIdx} (${window.SOURCES[prevIdx]?.id})`);
+        
+        if (typeof window.setSourceByIndex === 'function') {
+          window.setSourceByIndex(prevIdx);
+        }
+        
+        // Update dropdown selection
+        updatePanoSelect();
       } catch(e) {
         console.error('[Pano Nav] Error:', e);
       }
@@ -10739,11 +10802,23 @@ init().then(()=>animate()).catch(err=>{
     
     document.getElementById('lfxNextPanoBtn')?.addEventListener('click', ()=>{ 
       try { 
-        if (typeof nextSource === 'function') {
-          nextSource();
-        } else if (typeof window.currentIndex !== 'undefined' && typeof window.setSourceByIndex === 'function' && Array.isArray(window.SOURCES)) {
-          window.setSourceByIndex(Math.min(window.SOURCES.length - 1, window.currentIndex + 1));
+        if (!Array.isArray(window.SOURCES) || window.SOURCES.length === 0) {
+          console.warn('[Pano Nav] No panoramas loaded');
+          return;
         }
+        
+        const currentIdx = window.currentIndex || 0;
+        // Circular: if at last index, wrap to 0
+        const nextIdx = currentIdx >= window.SOURCES.length - 1 ? 0 : currentIdx + 1;
+        
+        console.log(`[Pano Nav] Next: ${currentIdx} → ${nextIdx} (${window.SOURCES[nextIdx]?.id})`);
+        
+        if (typeof window.setSourceByIndex === 'function') {
+          window.setSourceByIndex(nextIdx);
+        }
+        
+        // Update dropdown selection
+        updatePanoSelect();
       } catch(e) {
         console.error('[Pano Nav] Error:', e);
       }
@@ -10930,6 +11005,12 @@ document.getElementById('lfxSetSelect')?.addEventListener('change', (e)=>{
     const b2 = it?.b2;
     const F = b2?.filter;
     if (!F) return { mode:'all', combine:'and', rules:[] };
+    
+    // Handle 'all' rules type - no filters apply
+    if (F.kind === 'all') {
+      return { mode:'all', combine:'and', rules:[] };
+    }
+    
     const mode = F.mode || 'includeOnly';
     
     let rules = [];
@@ -12135,7 +12216,7 @@ function makeLabelSpriteFromB2(defaultText, candidate, worldSize, config){
       }
       const fieldKeys = candidateFieldKeys();
 
-      const kindSel = select([{v:'preset',t:'Preset'},{v:'custom',t:'Custom'}], F.kind);
+      const kindSel = select([{v:'preset',t:'Preset'},{v:'custom',t:'Custom'},{v:'all',t:'All Matches (No Filters Apply)'}], F.kind);
       kindSel.addEventListener('change', ()=>{
         F.kind = kindSel.value;
         replaceItemInSet(it);
@@ -12144,7 +12225,7 @@ function makeLabelSpriteFromB2(defaultText, candidate, worldSize, config){
       });
       addRow('Rules type', kindSel);
 
-      const modeSel = select([{v:'all',t:'All (no filter)'},{v:'includeOnly',t:'Include matches'},{v:'exclude',t:'Exclude matches'}], F.mode);
+      const modeSel = select([{v:'includeOnly',t:'Include matches'},{v:'exclude',t:'Exclude matches'}], F.mode);
       modeSel.addEventListener('change', ()=>{
         F.mode = modeSel.value;
         replaceItemInSet(it);
@@ -12307,12 +12388,37 @@ function makeLabelSpriteFromB2(defaultText, candidate, worldSize, config){
             if (seen.has(k)) continue;
             seen.add(k); names.push(s);
           }
+          
+          // Add landmark dropdown (multi-select)
+          const lmSel = h('select','lfxLandmarkSelect');
+          lmSel.id = 'lfxLandmarkSelect';
+          lmSel.multiple = true;
+          lmSel.size = 6;
+          lmSel.style.width = '100%';
+          lmSel.style.marginBottom = '8px';
+          lmSel.addEventListener('change', ()=>{ 
+            // Get selected landmarks
+            const selected = Array.from(lmSel.selectedOptions).map(opt => opt.value);
+            F.params.lmNames = selected.join(', ');
+            lmIn.value = F.params.lmNames;
+            replaceItemInSet(it); 
+            try{ focusBestCandidateForItem(it); }catch(e){} 
+            applyActiveSetToCanvas(); 
+          });
+          
+          // Populate if function exists
+          if (typeof window.populateLandmarkDropdown === 'function') {
+            window.populateLandmarkDropdown();
+          }
+          
+          addRow('Select landmark(s)', lmSel);
+          
           const lmIn = inputText(F.params.lmNames || '');
           lmIn.placeholder = 'Comma-separated dst_lm_name values';
           lmIn.addEventListener('input', ()=>{ F.params.lmNames = lmIn.value; replaceItemInSet(it); try{ focusBestCandidateForItem(it); }catch(e){} applyActiveSetToCanvas(); });
-          addRow('Landmark name(s)', lmIn);
+          addRow('Or type landmark name(s)', lmIn);
 
-          const hint = h('div','', `Tip: start typing a name you see in candidates. Found ${names.length} landmark names in this pano.`);
+          const hint = h('div','', `Tip: Select from dropdown (Ctrl+click for multiple) or type names. Found ${names.length} landmark names in this pano.`);
           hint.style.fontSize='11px'; hint.style.opacity='.75'; hint.style.marginTop='6px';
           panel.appendChild(hint);
         }
