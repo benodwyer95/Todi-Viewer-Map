@@ -5455,6 +5455,11 @@ async function setSourceByIndex(idx){
 function nextSource(){ setSourceByIndex(currentIndex+1); }
 function prevSource(){ setSourceByIndex(currentIndex-1); }
 
+// Expose setSourceByIndex to window for LabelFX navigation
+window.setSourceByIndex = setSourceByIndex;
+window.nextSource = nextSource;
+window.prevSource = prevSource;
+
 // --------------------
 // Mouse reticle + mouse snap placement
 // --------------------
@@ -9607,9 +9612,17 @@ async function init(){
     window.populatePanoSelect();
     console.log('[Init] Panorama dropdown populated');
   }
+  // Note: Landmark dropdown element only exists when LabelFX builder is open
+  // So we don't show warning on init - it will be populated when builder opens
   if (typeof window.populateLandmarkDropdown === 'function') {
-    const count = window.populateLandmarkDropdown();
-    console.log(`[Init] Landmark dropdown populated with ${count || 0} landmarks`);
+    try {
+      const count = window.populateLandmarkDropdown(false); // false = don't show warning
+      if (count > 0) {
+        console.log(`[Init] Landmark data collected: ${count} unique landmarks (dropdown will be populated when builder opens)`);
+      }
+    } catch (e) {
+      // Silent - element doesn't exist yet
+    }
   }
 
   // set distance slider default to max in this dataset (≤ 2000m cap)
@@ -10729,7 +10742,7 @@ init().then(()=>animate()).catch(err=>{
     }
     
     // Populate landmark dropdown with all unique landmarks
-    function populateLandmarkDropdown() {
+    function populateLandmarkDropdown(showWarning = true) {
       // Collect all unique landmark names from all panoramas
       const landmarkNames = new Set();
       
@@ -10763,7 +10776,7 @@ init().then(()=>animate()).catch(err=>{
         });
         
         console.log(`[Landmark Dropdown] Populated with ${sortedNames.length} unique landmarks`);
-      } else {
+      } else if (showWarning) {
         console.warn('[Landmark Dropdown] Element #lfxLandmarkSelect not found');
       }
       
@@ -11296,17 +11309,16 @@ function updateBuilderMatchCounter(current, totalCurrent, filterConfig) {
     let nextMatches = 0;
     
     if (filterConfig && Array.isArray(SOURCES) && typeof currentIndex !== 'undefined') {
-      const prevIndex = currentIndex - 1;
-      const nextIndex = currentIndex + 1;
+      // Use circular navigation for prev/next indices
+      const totalPanos = SOURCES.length;
+      const prevIndex = currentIndex === 0 ? totalPanos - 1 : currentIndex - 1;
+      const nextIndex = currentIndex >= totalPanos - 1 ? 0 : currentIndex + 1;
       
-      if (prevIndex >= 0) {
-        prevMatches = calculateMatchesForPano(prevIndex, filterConfig);
-      }
-      if (nextIndex < SOURCES.length) {
-        nextMatches = calculateMatchesForPano(nextIndex, filterConfig);
-      }
+      // Calculate matches for prev and next panos
+      prevMatches = calculateMatchesForPano(prevIndex, filterConfig);
+      nextMatches = calculateMatchesForPano(nextIndex, filterConfig);
       
-      console.log(`[Multi-Pano Matches] Prev: ${prevMatches}, Current: ${totalCurrent}, Next: ${nextMatches}`);
+      console.log(`[Multi-Pano Matches] Prev: ${prevMatches} (idx ${prevIndex}), Current: ${totalCurrent} (idx ${currentIndex}), Next: ${nextMatches} (idx ${nextIndex})`);
     }
     
     // Update header counter with multi-pano format
@@ -11371,8 +11383,15 @@ function panCameraToCandidate(candidate, source) {
     const yawDeg = candidate.baked_yaw_deg || candidate.rel_bear || 0;
     const pitchDeg = candidate.baked_pitch_deg || 0;
     
-    const yawRad = THREE.MathUtils.degToRad(yawDeg);
-    const pitchRad = THREE.MathUtils.degToRad(pitchDeg);
+    // Convert to radians - use window.THREE since THREE may not be in global scope
+    const THREE_REF = window.THREE || (typeof THREE !== 'undefined' ? THREE : null);
+    if (!THREE_REF) {
+      console.error('[Camera] THREE.js not available - cannot convert degrees to radians');
+      return false;
+    }
+    
+    const yawRad = THREE_REF.MathUtils.degToRad(yawDeg);
+    const pitchRad = THREE_REF.MathUtils.degToRad(pitchDeg);
     
     const candidateName = candidate.dst_lm_name || candidate.dst_name || 'unnamed';
     console.log(`[Camera] Panning to candidate "${candidateName}": yaw=${yawDeg.toFixed(2)}°, pitch=${pitchDeg.toFixed(2)}°`);
