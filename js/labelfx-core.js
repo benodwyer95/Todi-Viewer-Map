@@ -252,6 +252,11 @@ export function cycleCandidateNav(direction) {
     window.updateLabelFxHeader();
   }
   
+  // Update builder match counter UI
+  if (typeof window.updateBuilderMatchCounter === 'function') {
+    window.updateBuilderMatchCounter(runtime.matchPtr + 1, runtime.matchedIndices.length);
+  }
+  
   console.log(`[CycleCandidateNav] Now at match ${runtime.matchPtr + 1} of ${runtime.matchedIndices.length}`);
 }
 

@@ -10994,6 +10994,45 @@ window.__lfxForceRefresh = function(){
   }
 };
 
+/**
+ * Update the builder match counter UI element
+ * @param {number} current - Current match position (1-indexed)
+ * @param {number} total - Total number of matches
+ */
+function updateBuilderMatchCounter(current, total) {
+  try {
+    // Update header counter
+    const counterEl = document.getElementById('lfxCandCounter');
+    if (counterEl) {
+      if (total === 0) {
+        counterEl.textContent = '0 / 0';
+        counterEl.style.opacity = '0.5';
+      } else {
+        counterEl.textContent = `${current} / ${total}`;
+        counterEl.style.opacity = '1';
+      }
+      console.log(`[Builder Counter] Updated to: ${current} / ${total}`);
+    }
+    
+    // Update match count display in filter section
+    const matchCountDiv = document.getElementById('lfxMatchCountDisplay');
+    if (matchCountDiv) {
+      if (total === 0) {
+        matchCountDiv.innerHTML = '⚠ No matches found for current filter';
+        matchCountDiv.style.background = 'rgba(200,100,0,0.15)';
+        matchCountDiv.style.border = '1px solid rgba(200,100,0,0.3)';
+      } else {
+        matchCountDiv.innerHTML = `✓ <b>${total} match${total === 1 ? '' : 'es'}</b> found for this panorama • Currently viewing match <b>${current}</b>`;
+        matchCountDiv.style.background = 'rgba(0,150,0,0.15)';
+        matchCountDiv.style.border = '1px solid rgba(0,200,0,0.3)';
+      }
+    }
+  } catch (e) {
+    console.error('[Builder Counter] Update error:', e);
+  }
+}
+window.updateBuilderMatchCounter = updateBuilderMatchCounter;
+
   function focusBestCandidateForItem(it){
     try{
       // Check if data is loading
@@ -11039,6 +11078,9 @@ window.__lfxForceRefresh = function(){
         };
         window.ViewerState.activeLabelFxItemId = it.id;
         console.log(`[Bridge] Synced ${idxs.length} matches to ViewerState.labelFxRuntime["${it.id}"]`);
+        
+        // UPDATE BUILDER COUNTER: Display current position / total matches
+        updateBuilderMatchCounter(1, idxs.length);
       }
       
       if (!idxs.length){
@@ -12168,6 +12210,20 @@ function makeLabelSpriteFromB2(defaultText, candidate, worldSize, config){
         }
       });
       panel.appendChild(refreshBtn);
+      
+      // Add match count display
+      const matchCountDiv = h('div','lfxMatchCountDisplay','');
+      matchCountDiv.id = 'lfxMatchCountDisplay';
+      matchCountDiv.style.marginTop='12px';
+      matchCountDiv.style.padding='10px';
+      matchCountDiv.style.background='rgba(0,150,0,0.15)';
+      matchCountDiv.style.border='1px solid rgba(0,200,0,0.3)';
+      matchCountDiv.style.borderRadius='4px';
+      matchCountDiv.style.fontSize='13px';
+      matchCountDiv.style.fontWeight='600';
+      matchCountDiv.style.textAlign='center';
+      matchCountDiv.innerHTML = '✓ Ready to filter • Click "Refresh Matches" to see results';
+      panel.appendChild(matchCountDiv);
       
       // Add help text
       const helpTxt = h('div','','');
