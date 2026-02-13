@@ -135,6 +135,10 @@ export class LabelInteractiveManager {
   
   checkLabelIntersection() {
     if (!this.labelPreviewManager || !this.labelPreviewManager.currentSprite) {
+      if (this.isHovering) {
+        this.isHovering = false;
+        this.domElement.style.cursor = 'default';
+      }
       return null;
     }
     
@@ -145,9 +149,21 @@ export class LabelInteractiveManager {
     const intersects = this.raycaster.intersectObject(sprite, false);
     
     if (intersects.length > 0) {
-      console.log('[Label Interactive] Label intersected');
+      // Only log when hover state changes
+      if (!this.isHovering) {
+        console.log('[Label Interactive] Mouse entered label');
+        this.isHovering = true;
+        this.domElement.style.cursor = 'pointer';
+      }
       this.selectedSprite = sprite;
       return sprite;
+    } else {
+      // Only log when leaving hover
+      if (this.isHovering) {
+        console.log('[Label Interactive] Mouse left label');
+        this.isHovering = false;
+        this.domElement.style.cursor = 'default';
+      }
     }
     
     return null;

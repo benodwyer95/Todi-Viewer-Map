@@ -74,8 +74,17 @@ class LabelRenderer {
    * Get background color from label config
    */
   getBackgroundColor(labelConfig) {
+    // Try new format first (from config builder)
+    if (labelConfig && labelConfig.colors && labelConfig.colors.background) {
+      return labelConfig.colors.background;
+    }
+    // Try old format
     if (labelConfig && labelConfig.step6_colours && labelConfig.step6_colours.background) {
       return labelConfig.step6_colours.background;
+    }
+    // Try simple format
+    if (labelConfig && labelConfig.backgroundColor) {
+      return labelConfig.backgroundColor;
     }
     return '#ffffff'; // Default white background
   }
@@ -84,8 +93,17 @@ class LabelRenderer {
    * Get text color from label config
    */
   getTextColor(labelConfig) {
+    // Try new format first (from config builder)
+    if (labelConfig && labelConfig.colors && labelConfig.colors.text) {
+      return labelConfig.colors.text;
+    }
+    // Try old format
     if (labelConfig && labelConfig.step6_colours && labelConfig.step6_colours.text) {
       return labelConfig.step6_colours.text;
+    }
+    // Try simple format
+    if (labelConfig && labelConfig.textColor) {
+      return labelConfig.textColor;
     }
     return '#000000'; // Default black text
   }
@@ -94,6 +112,11 @@ class LabelRenderer {
    * Get stroke color from label config
    */
   getStrokeColor(labelConfig) {
+    // Try new format first
+    if (labelConfig && labelConfig.layout && labelConfig.layout.outline && labelConfig.layout.outline.color) {
+      return labelConfig.layout.outline.color;
+    }
+    // Try old format
     if (labelConfig && labelConfig.step7_stroke && labelConfig.step7_stroke.color) {
       return labelConfig.step7_stroke.color;
     }
@@ -124,28 +147,47 @@ class LabelRenderer {
    * Get text content with field evaluation
    */
   getTextContent(labelConfig, candidate) {
-    if (!labelConfig || !labelConfig.step4_text || !labelConfig.step4_text.columns) {
-      // Default: show candidate name
-      return candidate.dst_lm_name || candidate.dst_name || 'Label';
+    // Try new format first (from config builder)
+    if (labelConfig && labelConfig.text && labelConfig.text.pills && Array.isArray(labelConfig.text.pills)) {
+      const pills = labelConfig.text.pills;
+      if (pills.length > 0) {
+        // Use content from first pill (or combine multiple pills)
+        const texts = pills.map(pill => pill.content || pill.rawContent || '').filter(t => t);
+        if (texts.length > 0) {
+          return texts.join(' ');
+        }
+      }
     }
     
-    const columns = labelConfig.step4_text.columns;
-    const lines = [];
-    
-    // Evaluate each column/row
-    columns.forEach(col => {
-      if (col.rows && Array.isArray(col.rows)) {
-        col.rows.forEach(row => {
-          const text = this.evaluateTextField(row, candidate);
-          if (text) {
-            lines.push(text);
-          }
-        });
+    // Try old format (step4_text.columns)
+    if (labelConfig && labelConfig.step4_text && labelConfig.step4_text.columns) {
+      const columns = labelConfig.step4_text.columns;
+      const lines = [];
+      
+      // Evaluate each column/row
+      columns.forEach(col => {
+        if (col.rows && Array.isArray(col.rows)) {
+          col.rows.forEach(row => {
+            const text = this.evaluateTextField(row, candidate);
+            if (text) {
+              lines.push(text);
+            }
+          });
+        }
+      });
+      
+      if (lines.length > 0) {
+        return lines.join('\n');
       }
-    });
+    }
     
-    return lines.length > 0 ? lines.join('\n') : 
-           (candidate.dst_lm_name || candidate.dst_name || 'Label');
+    // Try textContent property (simple format)
+    if (labelConfig && labelConfig.textContent) {
+      return labelConfig.textContent;
+    }
+    
+    // Default: show candidate name
+    return candidate.dst_lm_name || candidate.dst_name || 'Label';
   }
 
   /**
@@ -414,10 +456,16 @@ class LabelPreviewManager {
    * Update label with new config (called when builder steps change)
    */
   updateLabel(labelConfig) {
-    if (this.currentCandidate && this.currentCandidateIndex !== null) {
-      console.log('[Label Preview] Updating label with new config');
-      this.showLabel(this.currentCandidate, this.currentCandidateIndex, labelConfig);
+    if (!this.currentCandidate || this.currentCandidateIndex === null) {
+      console.warn('[Label Preview] Cannot update label - no current candidate');
+      return;
     }
+    
+    console.log('[Label Preview] Updating label with new config');
+    console.log('[Label Preview] Current candidate:', this.currentCandidateIndex, this.currentCandidate.dst_lm_name || this.currentCandidate.dst_name);
+    
+    // Preserve candidate and update with new config
+    this.showLabel(this.currentCandidate, this.currentCandidateIndex, labelConfig);
   }
   
   /**
