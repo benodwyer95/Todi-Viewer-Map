@@ -234,7 +234,7 @@ class LabelPreviewManager {
     }
     
     // Check THREE.js availability
-    if (typeof THREE === 'undefined') {
+    if (!window.THREE) {
       console.error('[Label Preview] THREE.js not available');
       return;
     }
@@ -247,18 +247,18 @@ class LabelPreviewManager {
       const canvas = this.renderer.render(labelConfig, candidate);
       
       // Create THREE.js sprite
-      const texture = new THREE.CanvasTexture(canvas);
-      texture.colorSpace = THREE.SRGBColorSpace;
+      const texture = new window.THREE.CanvasTexture(canvas);
+      texture.colorSpace = window.THREE.SRGBColorSpace;
       texture.needsUpdate = true;
       
-      const material = new THREE.SpriteMaterial({ 
+      const material = new window.THREE.SpriteMaterial({ 
         map: texture, 
         transparent: true,
         depthTest: false,
         depthWrite: false
       });
       
-      const sprite = new THREE.Sprite(material);
+      const sprite = new window.THREE.Sprite(material);
       sprite.renderOrder = 9998; // Below crosshair but above most things
       
       // Position sprite at candidate location
