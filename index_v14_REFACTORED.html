@@ -11028,6 +11028,19 @@ window.__lfxForceRefresh = function(){
       const idxs = __lfxFilteredCandidateIndices(it, arr);
       console.log(`[LabelFX] Filter applied: ${idxs.length} matches out of ${arr.length} total candidates`);
       
+      // BRIDGE: Sync v13 matches to v14 ViewerState for navigation
+      if (it && it.id) {
+        if (!window.ViewerState) window.ViewerState = {};
+        if (!window.ViewerState.labelFxRuntime) window.ViewerState.labelFxRuntime = {};
+        window.ViewerState.labelFxRuntime[it.id] = {
+          matchedIndices: idxs,
+          matchPtr: 0,
+          previewSprite: null
+        };
+        window.ViewerState.activeLabelFxItemId = it.id;
+        console.log(`[Bridge] Synced ${idxs.length} matches to ViewerState.labelFxRuntime["${it.id}"]`);
+      }
+      
       if (!idxs.length){
         __lfxUpdateHeaderMatchCounts(it, '(0 matches)', false);
         return;
