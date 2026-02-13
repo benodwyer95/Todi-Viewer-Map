@@ -320,15 +320,42 @@ export function focusMatchedCandidate(matchPtr) {
   }
   
   // Show live label preview for this candidate
-  if (window.labelPreviewManager && typeof window.getActiveLabelFxItem === 'function') {
+  console.log('[FocusMatchedCandidate] Attempting to show label preview for candidate', candidateIndex);
+  console.log('[FocusMatchedCandidate] labelPreviewManager exists?', !!window.labelPreviewManager);
+  console.log('[FocusMatchedCandidate] getActiveLabelFxItem exists?', typeof window.getActiveLabelFxItem);
+  
+  if (window.labelPreviewManager) {
     try {
-      const activeItem = window.getActiveLabelFxItem();
-      if (activeItem && candidate) {
-        window.labelPreviewManager.showLabel(candidate, candidateIndex, activeItem);
+      // Try to get activeItem from multiple sources
+      let activeItem = null;
+      
+      if (typeof window.getActiveLabelFxItem === 'function') {
+        activeItem = window.getActiveLabelFxItem();
+        console.log('[FocusMatchedCandidate] Got activeItem from getActiveLabelFxItem:', !!activeItem);
+      }
+      
+      if (!activeItem && window.__lfxEditingItem) {
+        activeItem = window.__lfxEditingItem;
+        console.log('[FocusMatchedCandidate] Got activeItem from __lfxEditingItem:', !!activeItem);
+      }
+      
+      if (!activeItem && window.ViewerState && window.ViewerState.labelFxItems) {
+        const items = Object.values(window.ViewerState.labelFxItems);
+        activeItem = items.find(item => item && item.active);
+        console.log('[FocusMatchedCandidate] Got activeItem from ViewerState:', !!activeItem);
+      }
+      
+      if (candidate) {
+        console.log('[FocusMatchedCandidate] Calling showLabel with activeItem:', !!activeItem);
+        window.labelPreviewManager.showLabel(candidate, candidateIndex, activeItem || {});
+      } else {
+        console.warn('[FocusMatchedCandidate] No candidate to show!');
       }
     } catch (e) {
-      console.error('[FocusMatchedCandidate] Error showing label preview:', e);
+      console.error('[FocusMatchedCandidate] Error showing label preview:', e, e.stack);
     }
+  } else {
+    console.error('[FocusMatchedCandidate] labelPreviewManager not available!');
   }
   
   console.log(`[FocusMatchedCandidate] Focused on candidate ${candidateIndex}:`, candidate.dst_lm_name || candidate.dst_id);

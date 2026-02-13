@@ -220,6 +220,9 @@ class LabelPreviewManager {
    * Show label for a candidate
    */
   showLabel(candidate, candidateIndex, labelConfig) {
+    console.log('[Label Preview] showLabel called with candidate:', candidateIndex, candidate?.dst_lm_name || candidate?.dst_name);
+    console.log('[Label Preview] labelConfig:', labelConfig);
+    
     // Validate parameters
     if (!candidate) {
       console.warn('[Label Preview] No candidate provided');
@@ -227,10 +230,17 @@ class LabelPreviewManager {
       return;
     }
     
-    if (!labelConfig) {
-      console.warn('[Label Preview] No label config provided');
-      this.hideAll();
-      return;
+    // Use default config if none provided
+    if (!labelConfig || (typeof labelConfig === 'object' && Object.keys(labelConfig).length === 0)) {
+      console.log('[Label Preview] Using default label config');
+      labelConfig = {
+        name: 'Default Label',
+        textContent: candidate.dst_lm_name || candidate.dst_name || 'Unnamed',
+        backgroundColor: '#ffffff',
+        textColor: '#000000',
+        fontSize: 24,
+        aspectRatio: 16/9
+      };
     }
     
     // Check THREE.js availability
