@@ -252,9 +252,10 @@ export function cycleCandidateNav(direction) {
     window.updateLabelFxHeader();
   }
   
-  // Update builder match counter UI
+  // Update builder match counter UI (pass item for multi-pano calculation)
   if (typeof window.updateBuilderMatchCounter === 'function') {
-    window.updateBuilderMatchCounter(runtime.matchPtr + 1, runtime.matchedIndices.length);
+    const item = getActiveLabelFxItem();
+    window.updateBuilderMatchCounter(runtime.matchPtr + 1, runtime.matchedIndices.length, item);
   }
   
   console.log(`[CycleCandidateNav] Now at match ${runtime.matchPtr + 1} of ${runtime.matchedIndices.length}`);

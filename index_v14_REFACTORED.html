@@ -10995,37 +10995,101 @@ window.__lfxForceRefresh = function(){
 };
 
 /**
- * Update the builder match counter UI element
- * @param {number} current - Current match position (1-indexed)
- * @param {number} total - Total number of matches
+ * Calculate matches for a specific panorama with the given filter
+ * @param {number} panoIndex - Index of panorama in SOURCES array
+ * @param {Object} filterConfig - Filter configuration from label item
+ * @returns {number} Number of matches for that panorama
  */
-function updateBuilderMatchCounter(current, total) {
+function calculateMatchesForPano(panoIndex, filterConfig) {
   try {
-    // Update header counter
+    if (!Array.isArray(SOURCES) || panoIndex < 0 || panoIndex >= SOURCES.length) {
+      return 0;
+    }
+    const pano = SOURCES[panoIndex];
+    if (!pano || !Array.isArray(pano.candidates)) {
+      return 0;
+    }
+    // Use the same filter logic as focusBestCandidateForItem
+    const matches = __lfxFilteredCandidateIndices(filterConfig, pano.candidates);
+    return matches.length;
+  } catch (e) {
+    console.error(`[Match Calc] Error calculating matches for pano ${panoIndex}:`, e);
+    return 0;
+  }
+}
+window.calculateMatchesForPano = calculateMatchesForPano;
+
+/**
+ * Update the builder match counter with multi-panorama support
+ * @param {number} current - Current match position (1-indexed)
+ * @param {number} totalCurrent - Total matches in current panorama
+ * @param {Object} filterConfig - Filter configuration for calculating prev/next (optional)
+ */
+function updateBuilderMatchCounter(current, totalCurrent, filterConfig) {
+  try {
+    console.log(`[Builder Counter] Called with: current=${current}, totalCurrent=${totalCurrent}, filterConfig=${!!filterConfig}`);
+    
+    // Calculate matches for previous and next panoramas
+    let prevMatches = 0;
+    let nextMatches = 0;
+    
+    if (filterConfig && Array.isArray(SOURCES) && typeof currentIndex !== 'undefined') {
+      const prevIndex = currentIndex - 1;
+      const nextIndex = currentIndex + 1;
+      
+      if (prevIndex >= 0) {
+        prevMatches = calculateMatchesForPano(prevIndex, filterConfig);
+      }
+      if (nextIndex < SOURCES.length) {
+        nextMatches = calculateMatchesForPano(nextIndex, filterConfig);
+      }
+      
+      console.log(`[Multi-Pano Matches] Prev: ${prevMatches}, Current: ${totalCurrent}, Next: ${nextMatches}`);
+    }
+    
+    // Update header counter with multi-pano format
     const counterEl = document.getElementById('lfxCandCounter');
+    console.log(`[Builder Counter] Found counterEl:`, !!counterEl);
+    
     if (counterEl) {
-      if (total === 0) {
+      if (totalCurrent === 0 && prevMatches === 0 && nextMatches === 0) {
         counterEl.textContent = '0 / 0';
         counterEl.style.opacity = '0.5';
       } else {
-        counterEl.textContent = `${current} / ${total}`;
+        // Show format: "prev / current / next" or just "current" if single pano
+        if (filterConfig && (prevMatches > 0 || nextMatches > 0)) {
+          counterEl.textContent = `${prevMatches} / ${totalCurrent} / ${nextMatches}`;
+          counterEl.title = `Previous pano: ${prevMatches} matches | Current pano: ${totalCurrent} matches | Next pano: ${nextMatches} matches`;
+        } else {
+          counterEl.textContent = `${current} / ${totalCurrent}`;
+          counterEl.title = `Match ${current} of ${totalCurrent} in current panorama`;
+        }
         counterEl.style.opacity = '1';
       }
-      console.log(`[Builder Counter] Updated to: ${current} / ${total}`);
+      console.log(`[Builder Counter] Updated counter to: "${counterEl.textContent}"`);
+    } else {
+      console.warn('[Builder Counter] Element #lfxCandCounter not found in DOM!');
     }
     
     // Update match count display in filter section
     const matchCountDiv = document.getElementById('lfxMatchCountDisplay');
     if (matchCountDiv) {
-      if (total === 0) {
-        matchCountDiv.innerHTML = '⚠ No matches found for current filter';
+      if (totalCurrent === 0 && prevMatches === 0 && nextMatches === 0) {
+        matchCountDiv.innerHTML = '⚠ No matches found for current filter across any panorama';
         matchCountDiv.style.background = 'rgba(200,100,0,0.15)';
         matchCountDiv.style.border = '1px solid rgba(200,100,0,0.3)';
       } else {
-        matchCountDiv.innerHTML = `✓ <b>${total} match${total === 1 ? '' : 'es'}</b> found for this panorama • Currently viewing match <b>${current}</b>`;
+        let html = `✓ <b>${totalCurrent} match${totalCurrent === 1 ? '' : 'es'}</b> found in current panorama`;
+        if (filterConfig && (prevMatches > 0 || nextMatches > 0)) {
+          html += ` • Previous pano: <b>${prevMatches}</b> • Next pano: <b>${nextMatches}</b>`;
+        }
+        html += ` • Currently viewing match <b>${current}</b>`;
+        matchCountDiv.innerHTML = html;
         matchCountDiv.style.background = 'rgba(0,150,0,0.15)';
         matchCountDiv.style.border = '1px solid rgba(0,200,0,0.3)';
       }
+    } else {
+      console.warn('[Builder Counter] Element #lfxMatchCountDisplay not found!');
     }
   } catch (e) {
     console.error('[Builder Counter] Update error:', e);
@@ -11079,8 +11143,8 @@ window.updateBuilderMatchCounter = updateBuilderMatchCounter;
         window.ViewerState.activeLabelFxItemId = it.id;
         console.log(`[Bridge] Synced ${idxs.length} matches to ViewerState.labelFxRuntime["${it.id}"]`);
         
-        // UPDATE BUILDER COUNTER: Display current position / total matches
-        updateBuilderMatchCounter(1, idxs.length);
+        // UPDATE BUILDER COUNTER: Display current position / total matches (multi-pano aware)
+        updateBuilderMatchCounter(1, idxs.length, it);
       }
       
       if (!idxs.length){
