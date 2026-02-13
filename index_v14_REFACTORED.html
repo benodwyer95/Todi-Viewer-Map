@@ -10584,7 +10584,11 @@ init().then(()=>animate()).catch(err=>{
 
     // When switching items, keep live view + header in sync with this item's filters
     try{ if (typeof applyActiveSetToCanvas === 'function') applyActiveSetToCanvas(); }catch(e){}
-    try{ focusBestCandidateForItem(it); }catch(e){
+    try{ 
+      focusBestCandidateForItem(it); 
+      console.log('[Card Selection] Applied filter and panned to first candidate');
+    }catch(e){
+      console.warn('[Card Selection] Error applying filter:', e);
       try{
         window.__lfxHeaderMatchHtml = `matches: <b>ERR</b> • ${String(e&&e.message||e)}`;
         if (typeof updateHeaderSub === 'function') updateHeaderSub();
@@ -10836,11 +10840,13 @@ init().then(()=>animate()).catch(err=>{
           window.setSourceByIndex(prevIdx);
           console.log(`[Panorama] Switched to index ${prevIdx} (${window.SOURCES[prevIdx]?.id})`);
           
-          // Immediately apply filter and pan camera to first match in new pano
+          // Immediately apply filter and pan camera to first match in new pano (only if builder is open)
           const activeItem = (typeof getActiveLabelFxItem === 'function') ? getActiveLabelFxItem() : window.__lfxEditingItem;
-          if (activeItem && typeof window.focusBestCandidateForItem === 'function') {
+          if (activeItem && window.__lfxBuilderOpen && typeof window.focusBestCandidateForItem === 'function') {
             window.focusBestCandidateForItem(activeItem);
             console.log('[Pano Switch] Applied filter and panned to first match in new panorama');
+          } else if (!window.__lfxBuilderOpen) {
+            console.log('[Pano Switch] Builder not open - skipping auto-refresh');
           }
         } else if (typeof setSourceByIndex === 'function') {
           setSourceByIndex(prevIdx);
@@ -10874,11 +10880,13 @@ init().then(()=>animate()).catch(err=>{
           window.setSourceByIndex(nextIdx);
           console.log(`[Panorama] Switched to index ${nextIdx} (${window.SOURCES[nextIdx]?.id})`);
           
-          // Immediately apply filter and pan camera to first match in new pano
+          // Immediately apply filter and pan camera to first match in new pano (only if builder is open)
           const activeItem = (typeof getActiveLabelFxItem === 'function') ? getActiveLabelFxItem() : window.__lfxEditingItem;
-          if (activeItem && typeof window.focusBestCandidateForItem === 'function') {
+          if (activeItem && window.__lfxBuilderOpen && typeof window.focusBestCandidateForItem === 'function') {
             window.focusBestCandidateForItem(activeItem);
             console.log('[Pano Switch] Applied filter and panned to first match in new panorama');
+          } else if (!window.__lfxBuilderOpen) {
+            console.log('[Pano Switch] Builder not open - skipping auto-refresh');
           }
         } else if (typeof setSourceByIndex === 'function') {
           setSourceByIndex(nextIdx);
@@ -12542,17 +12550,20 @@ function makeLabelSpriteFromB2(defaultText, candidate, worldSize, config){
             applyActiveSetToCanvas(); 
           });
           
-          // Populate if function exists
-          if (typeof window.populateLandmarkDropdown === 'function') {
-            try {
-              const count = window.populateLandmarkDropdown(true);
-              console.log(`[Specific Landmark Preset] Populated dropdown with ${count} landmarks`);
-            } catch (e) {
-              console.error('[Specific Landmark Preset] Error populating dropdown:', e);
-            }
-          }
-          
+          // Add to DOM FIRST
           addRow('Select landmark(s)', lmSel);
+          
+          // THEN populate after element is in DOM
+          if (typeof window.populateLandmarkDropdown === 'function') {
+            setTimeout(() => {
+              try {
+                const count = window.populateLandmarkDropdown(true);
+                console.log(`[Specific Landmark Preset] Populated dropdown with ${count} landmarks`);
+              } catch (e) {
+                console.error('[Specific Landmark Preset] Error populating dropdown:', e);
+              }
+            }, 10); // Small delay to ensure DOM is updated
+          }
           
           const lmIn = inputText(F.params.lmNames || '');
           lmIn.placeholder = 'Comma-separated dst_lm_name values';
