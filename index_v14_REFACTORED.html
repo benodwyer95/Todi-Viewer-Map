@@ -10263,6 +10263,8 @@ init().then(()=>animate()).catch(err=>{
           <div class="lfxRow" style="margin-top:8px;">
             <button id="lfxAddItemBtn" class="lfxBtn primary" type="button">+ Add Item / Label Card</button>
             <button id="lfxApplyCloseBtn" class="lfxBtn" type="button">Apply & Close</button>
+            <button id="lfxUndoBtn" class="lfxBtn" type="button" disabled title="Undo last change">↶ Undo</button>
+            <button id="lfxRedoBtn" class="lfxBtn" type="button" disabled title="Redo last undone change">↷ Redo</button>
           </div>
         </div>
         <div id="lfxEditorBody"></div>
@@ -10784,7 +10786,9 @@ init().then(()=>animate()).catch(err=>{
     }
     
     // Make functions available globally
+    window.populatePanoSelect = populatePanoSelect;
     window.populateLandmarkDropdown = populateLandmarkDropdown;
+    window.updatePanoSelect = updatePanoSelect;
     
     // Populate dropdown initially and on data load
     if (Array.isArray(window.SOURCES) && window.SOURCES.length > 0) {
@@ -11383,15 +11387,20 @@ function panCameraToCandidate(candidate, source) {
     const yawDeg = candidate.baked_yaw_deg || candidate.rel_bear || 0;
     const pitchDeg = candidate.baked_pitch_deg || 0;
     
-    // Convert to radians - use window.THREE since THREE may not be in global scope
-    const THREE_REF = window.THREE || (typeof THREE !== 'undefined' ? THREE : null);
-    if (!THREE_REF) {
-      console.error('[Camera] THREE.js not available - cannot convert degrees to radians');
-      return false;
-    }
+    // Convert to radians - manual conversion if THREE not available
+    const DEG_TO_RAD = Math.PI / 180;
+    let yawRad, pitchRad;
     
-    const yawRad = THREE_REF.MathUtils.degToRad(yawDeg);
-    const pitchRad = THREE_REF.MathUtils.degToRad(pitchDeg);
+    // Try to use THREE.js if available
+    if (window.THREE && window.THREE.MathUtils) {
+      yawRad = window.THREE.MathUtils.degToRad(yawDeg);
+      pitchRad = window.THREE.MathUtils.degToRad(pitchDeg);
+    } else {
+      // Fallback to manual conversion
+      yawRad = yawDeg * DEG_TO_RAD;
+      pitchRad = pitchDeg * DEG_TO_RAD;
+      console.log('[Camera] Using manual degree-to-radian conversion (THREE.js not in window scope)');
+    }
     
     const candidateName = candidate.dst_lm_name || candidate.dst_name || 'unnamed';
     console.log(`[Camera] Panning to candidate "${candidateName}": yaw=${yawDeg.toFixed(2)}°, pitch=${pitchDeg.toFixed(2)}°`);
