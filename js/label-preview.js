@@ -214,6 +214,9 @@ class LabelPreviewManager {
     this.renderer = new LabelRenderer();
     this.activeSprites = new Map(); // candidateIndex -> sprite
     this.currentCandidate = null;
+    this.currentSprite = null;
+    this.currentCandidateIndex = null;
+    this.currentLabelConfig = null;
   }
 
   /**
@@ -278,6 +281,9 @@ class LabelPreviewManager {
       this.scene.add(sprite);
       this.activeSprites.set(candidateIndex, sprite);
       this.currentCandidate = candidateIndex;
+      this.currentSprite = sprite;
+      this.currentCandidateIndex = candidateIndex;
+      this.currentLabelConfig = labelConfig;
       
       console.log(`[Label Preview] Showing label for candidate ${candidateIndex}: ${candidate.dst_lm_name || candidate.dst_name || 'unnamed'}`);
       
@@ -345,8 +351,75 @@ class LabelPreviewManager {
     });
     this.activeSprites.clear();
     this.currentCandidate = null;
+    this.currentSprite = null;
+    this.currentCandidateIndex = null;
+    this.currentLabelConfig = null;
   }
 
+  /**
+   * Get current label state for undo/redo
+   */
+  getCurrentState() {
+    if (!this.currentSprite || !this.currentCandidate) {
+      return null;
+    }
+    
+    return {
+      candidate: this.currentCandidate,
+      candidateIndex: this.currentCandidateIndex,
+      labelConfig: this.currentLabelConfig,
+      spritePosition: {
+        x: this.currentSprite.position.x,
+        y: this.currentSprite.position.y,
+        z: this.currentSprite.position.z
+      }
+    };
+  }
+  
+  /**
+   * Restore label state for undo/redo
+   */
+  restoreState(state) {
+    if (!state) {
+      console.warn('[Label Preview] No state to restore');
+      return;
+    }
+    
+    console.log('[Label Preview] Restoring state for candidate:', state.candidateIndex);
+    
+    // Restore the label with saved state
+    this.showLabel(state.candidate, state.candidateIndex, state.labelConfig);
+    
+    // Restore sprite position if it was moved
+    if (state.spritePosition && this.currentSprite) {
+      this.currentSprite.position.set(
+        state.spritePosition.x,
+        state.spritePosition.y,
+        state.spritePosition.z
+      );
+    }
+  }
+  
+  /**
+   * Update label position (called from interactive dragging)
+   */
+  updateLabelPosition(position) {
+    if (this.currentSprite) {
+      this.currentSprite.position.copy(position);
+      console.log('[Label Preview] Position updated:', position);
+    }
+  }
+  
+  /**
+   * Update label with new config (called when builder steps change)
+   */
+  updateLabel(labelConfig) {
+    if (this.currentCandidate && this.currentCandidateIndex !== null) {
+      console.log('[Label Preview] Updating label with new config');
+      this.showLabel(this.currentCandidate, this.currentCandidateIndex, labelConfig);
+    }
+  }
+  
   /**
    * Clean up resources
    */

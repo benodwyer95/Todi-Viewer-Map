@@ -1303,6 +1303,9 @@ import {
   LabelPreviewManager
 } from './js/label-preview.js';
 
+import { LabelInteractiveManager } from './js/label-interactive.js';
+import { LabelHistory } from './js/label-history.js';
+
 // Expose imports to window for backward compatibility
 window.ViewerState = ViewerState;
 window.currentSource = currentSource;
@@ -2091,12 +2094,28 @@ sceneOverlay.add(labelGroup);
 
 // Initialize Label Preview Manager
 let labelPreviewManager = null;
+let labelInteractive = null;
+let labelHistory = null;
+
 try {
   labelPreviewManager = new LabelPreviewManager(sceneOverlay, camera);
   window.labelPreviewManager = labelPreviewManager;
   console.log('[Label Preview] Manager initialized successfully');
+  
+  // Initialize Interactive Manager
+  labelInteractive = new LabelInteractiveManager(camera, renderer.domElement);
+  labelInteractive.setLabelPreviewManager(labelPreviewManager);
+  window.labelInteractive = labelInteractive;
+  console.log('[Label Interactive] Manager initialized successfully');
+  
+  // Initialize History Manager
+  labelHistory = new LabelHistory(50); // Max 50 undo steps
+  labelHistory.setLabelPreviewManager(labelPreviewManager);
+  labelInteractive.setLabelHistory(labelHistory);
+  window.labelHistory = labelHistory;
+  console.log('[Label History] Manager initialized successfully');
 } catch (e) {
-  console.error('[Label Preview] Failed to initialize manager:', e);
+  console.error('[Label Systems] Failed to initialize:', e);
 }
 
 // --------------------
@@ -13412,6 +13431,91 @@ const outW = inputNum(b2.layout.outline?.width ?? 2.5, '0.1');
     wrap.appendChild(nav);
     wrap.appendChild(panel);
     body.appendChild(wrap);
+    
+    // Wire up undo/redo buttons
+    setupUndoRedoButtons();
+    
+    // Set up change listeners for live label updates
+    setupLabelUpdateListeners(it, panel);
+  }
+  
+  // Setup undo/redo button listeners
+  function setupUndoRedoButtons() {
+    const undoBtn = document.getElementById('lfxUndoBtn');
+    const redoBtn = document.getElementById('lfxRedoBtn');
+    
+    if (undoBtn && !undoBtn.dataset.listenerAttached) {
+      undoBtn.addEventListener('click', () => {
+        if (window.labelHistory) {
+          const success = window.labelHistory.undo();
+          if (success) {
+            console.log('[Label History] Undo performed');
+          }
+        }
+      });
+      undoBtn.dataset.listenerAttached = 'true';
+    }
+    
+    if (redoBtn && !redoBtn.dataset.listenerAttached) {
+      redoBtn.addEventListener('click', () => {
+        if (window.labelHistory) {
+          const success = window.labelHistory.redo();
+          if (success) {
+            console.log('[Label History] Redo performed');
+          }
+        }
+      });
+      redoBtn.dataset.listenerAttached = 'true';
+    }
+  }
+  
+  // Setup listeners to update label preview when builder changes
+  function setupLabelUpdateListeners(item, panel) {
+    if (!window.labelPreviewManager || !window.labelHistory) {
+      return;
+    }
+    
+    // Find all inputs, selects, and color controls in the panel
+    const inputs = panel.querySelectorAll('input:not([type="checkbox"]), select, textarea');
+    const checkboxes = panel.querySelectorAll('input[type="checkbox"]');
+    const colorControls = panel.querySelectorAll('.color-swatch-wrapper');
+    
+    // Debounce function to avoid too many updates
+    let updateTimeout = null;
+    function debouncedUpdate() {
+      clearTimeout(updateTimeout);
+      updateTimeout = setTimeout(() => {
+        // Capture state before update
+        window.labelHistory.captureState('Builder change');
+        
+        // Trigger label update with current item config
+        if (window.labelPreviewManager && item) {
+          window.labelPreviewManager.updateLabel(item);
+        }
+      }, 300); // 300ms debounce
+    }
+    
+    // Add change listeners to inputs
+    inputs.forEach(input => {
+      input.addEventListener('input', debouncedUpdate);
+      input.addEventListener('change', debouncedUpdate);
+    });
+    
+    // Add change listeners to checkboxes
+    checkboxes.forEach(checkbox => {
+      checkbox.addEventListener('change', debouncedUpdate);
+    });
+    
+    // Add listeners to color controls (they have custom events)
+    colorControls.forEach(control => {
+      const hexInput = control.querySelector('.color-swatch-hex-input');
+      if (hexInput) {
+        hexInput.addEventListener('input', debouncedUpdate);
+        hexInput.addEventListener('change', debouncedUpdate);
+      }
+    });
+    
+    console.log('[Label Update] Listeners attached to', inputs.length, 'inputs,', checkboxes.length, 'checkboxes,', colorControls.length, 'color controls');
   }
 
   // Override existing editor router to use Builder2 editor
