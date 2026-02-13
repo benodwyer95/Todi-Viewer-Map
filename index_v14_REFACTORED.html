@@ -2187,6 +2187,10 @@ function setViewYawPitch(targetYaw, targetPitch, smooth=true){
   yawTo = targetYaw;
   pitchTo = tp;
 }
+
+// EXPOSE TO WINDOW for LabelFX camera panning
+window.setViewYawPitch = setViewYawPitch;
+
 function updateCamera(){
   if (animating){
     const t = (performance.now() - t0) / dur;
@@ -10226,9 +10230,6 @@ init().then(()=>animate()).catch(err=>{
         <div class="sub" id="lfxHeaderInfo">No active label</div>
       </div>
       <div class="lfxRow">
-        <button id="lfxUndoBtn" class="lfxBtn" type="button" disabled>↶ Undo</button>
-        <button id="lfxRedoBtn" class="lfxBtn" type="button" disabled>↷ Redo</button>
-        <div class="lfxSep" aria-hidden="true"></div>
         <select id="lfxPanoSelect" class="lfxPanoSelect" title="Select panorama">
           <option value="">Select Pano...</option>
         </select>
@@ -10779,7 +10780,7 @@ init().then(()=>animate()).catch(err=>{
         
         console.log(`[Landmark Dropdown] Populated with ${sortedNames.length} unique landmarks`);
       } else if (showWarning) {
-        console.warn('[Landmark Dropdown] Element #lfxLandmarkSelect not found');
+        console.warn('[Landmark Dropdown] Element #lfxLandmarkSelect not found - will populate when preset selected');
       }
       
       return sortedNames.length;
