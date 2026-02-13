@@ -10840,13 +10840,13 @@ init().then(()=>animate()).catch(err=>{
           window.setSourceByIndex(prevIdx);
           console.log(`[Panorama] Switched to index ${prevIdx} (${window.SOURCES[prevIdx]?.id})`);
           
-          // Immediately apply filter and pan camera to first match in new pano (only if builder is open)
+          // Immediately apply filter and pan camera to first match in new pano
           const activeItem = (typeof getActiveLabelFxItem === 'function') ? getActiveLabelFxItem() : window.__lfxEditingItem;
-          if (activeItem && window.__lfxBuilderOpen && typeof window.focusBestCandidateForItem === 'function') {
+          if (activeItem && typeof window.focusBestCandidateForItem === 'function') {
             window.focusBestCandidateForItem(activeItem);
             console.log('[Pano Switch] Applied filter and panned to first match in new panorama');
-          } else if (!window.__lfxBuilderOpen) {
-            console.log('[Pano Switch] Builder not open - skipping auto-refresh');
+          } else if (!activeItem) {
+            console.log('[Pano Switch] No active item - skipping auto-refresh');
           }
         } else if (typeof setSourceByIndex === 'function') {
           setSourceByIndex(prevIdx);
@@ -10880,13 +10880,13 @@ init().then(()=>animate()).catch(err=>{
           window.setSourceByIndex(nextIdx);
           console.log(`[Panorama] Switched to index ${nextIdx} (${window.SOURCES[nextIdx]?.id})`);
           
-          // Immediately apply filter and pan camera to first match in new pano (only if builder is open)
+          // Immediately apply filter and pan camera to first match in new pano
           const activeItem = (typeof getActiveLabelFxItem === 'function') ? getActiveLabelFxItem() : window.__lfxEditingItem;
-          if (activeItem && window.__lfxBuilderOpen && typeof window.focusBestCandidateForItem === 'function') {
+          if (activeItem && typeof window.focusBestCandidateForItem === 'function') {
             window.focusBestCandidateForItem(activeItem);
             console.log('[Pano Switch] Applied filter and panned to first match in new panorama');
-          } else if (!window.__lfxBuilderOpen) {
-            console.log('[Pano Switch] Builder not open - skipping auto-refresh');
+          } else if (!activeItem) {
+            console.log('[Pano Switch] No active item - skipping auto-refresh');
           }
         } else if (typeof setSourceByIndex === 'function') {
           setSourceByIndex(nextIdx);
