@@ -1330,6 +1330,327 @@ window.updateUndoRedoButtons = updateUndoRedoButtons;
 
 console.log('[V14] Modules loaded successfully');
 
+// ========================================
+// UNIFIED LABELFX SYSTEM - Centralized State & Render Pipeline
+// ========================================
+
+/**
+ * LabelFXState - Centralized state management for the unified label system
+ * Single source of truth for all label rendering
+ */
+const LabelFXState = {
+  activeSetId: null,
+  activeItemId: null,
+  activeCandidateId: null,
+  activePanoId: null,
+  
+  setState(updates) {
+    console.log('[LabelFX State] Updating state:', updates);
+    Object.assign(this, updates);
+    this.notifySubscribers();
+  },
+  
+  getState() {
+    return {
+      activeSetId: this.activeSetId,
+      activeItemId: this.activeItemId,
+      activeCandidateId: this.activeCandidateId,
+      activePanoId: this.activePanoId
+    };
+  },
+  
+  subscribers: [],
+  
+  subscribe(callback) {
+    this.subscribers.push(callback);
+    // Return unsubscribe function
+    return () => {
+      const index = this.subscribers.indexOf(callback);
+      if (index > -1) this.subscribers.splice(index, 1);
+    };
+  },
+  
+  notifySubscribers() {
+    console.log('[LabelFX State] Notifying', this.subscribers.length, 'subscribers');
+    this.subscribers.forEach(cb => {
+      try {
+        cb(this);
+      } catch (error) {
+        console.error('[LabelFX State] Subscriber error:', error);
+      }
+    });
+  }
+};
+
+// Expose to window for global access
+window.LabelFXState = LabelFXState;
+
+/**
+ * resolveCandidatesForItem - ONLY place filters are evaluated
+ * @param {Object} item - Label item with filters
+ * @param {Array} candidates - All available candidates
+ * @param {String} panoId - Current panorama ID
+ * @returns {Array} Filtered candidates
+ */
+function resolveCandidatesForItem(item, candidates, panoId) {
+  console.log('[LabelFX] Resolving candidates for item:', item.id);
+  
+  if (!item || !candidates) {
+    console.warn('[LabelFX] Invalid item or candidates');
+    return [];
+  }
+  
+  const filters = item.filters || item.b2 || {};
+  
+  // Apply Step 2 filters
+  let filtered = candidates.filter(candidate => {
+    // Type filter (Landmark, Amenity, etc.)
+    if (filters.candidateTypes && filters.candidateTypes.length > 0) {
+      if (!filters.candidateTypes.includes(candidate.type)) {
+        return false;
+      }
+    }
+    
+    // Preset filter
+    if (filters.preset) {
+      // Apply preset logic
+      if (filters.preset === 'landmarksOnly' && candidate.type !== 'Landmark') {
+        return false;
+      }
+      if (filters.preset === 'amenitiesOnly' && candidate.type !== 'Amenity') {
+        return false;
+      }
+      if (filters.preset === 'leisureOnly' && candidate.type !== 'Leisure') {
+        return false;
+      }
+    }
+    
+    // Visibility filter
+    if (filters.visibility) {
+      // Apply visibility logic based on candidate.visible
+      if (filters.visibility === 'onlyVisible' && !candidate.visible) {
+        return false;
+      }
+      if (filters.visibility === 'onlyHidden' && candidate.visible) {
+        return false;
+      }
+    }
+    
+    // Distance filter
+    if (filters.distance && filters.distance.enabled) {
+      const dist = candidate.dist_m || 0;
+      if (filters.distance.min !== undefined && dist < filters.distance.min) {
+        return false;
+      }
+      if (filters.distance.max !== undefined && dist > filters.distance.max) {
+        return false;
+      }
+    }
+    
+    return true;
+  });
+  
+  console.log('[LabelFX] Filtered', filtered.length, 'candidates from', candidates.length);
+  return filtered;
+}
+
+// Expose to window
+window.resolveCandidatesForItem = resolveCandidatesForItem;
+
+/**
+ * commitBuilderPatch - Unified render pipeline
+ * All builder changes flow through this function
+ * @param {Object} patch - Changes to apply to builderConfig
+ */
+function commitBuilderPatch(patch) {
+  console.log('[LabelFX] Committing builder patch:', patch);
+  
+  try {
+    // Get current active item
+    const item = window.getActiveLabelFxItem?.();
+    if (!item) {
+      console.warn('[LabelFX] No active item to patch');
+      return;
+    }
+    
+    // Merge patch into builderConfig
+    if (!item.builderConfig) {
+      item.builderConfig = {};
+    }
+    Object.assign(item.builderConfig, patch);
+    
+    console.log('[LabelFX] Patched builderConfig:', item.builderConfig);
+    
+    // Emit state change event
+    LabelFXState.notifySubscribers();
+    
+    // Trigger renders
+    renderLiveSample();
+    renderPanoPreview();
+    
+  } catch (error) {
+    console.error('[LabelFX] Error in commitBuilderPatch:', error);
+  }
+}
+
+// Expose to window
+window.commitBuilderPatch = commitBuilderPatch;
+
+/**
+ * renderLiveSample - Render the always-visible Live Sample panel
+ */
+function renderLiveSample() {
+  console.log('[LabelFX] Rendering Live Sample');
+  
+  try {
+    // Get active item and candidate
+    const item = window.getActiveLabelFxItem?.();
+    const candidateId = LabelFXState.activeCandidateId;
+    
+    if (!item) {
+      console.log('[LabelFX] No active item for Live Sample');
+      return;
+    }
+    
+    // Get candidate data
+    const candidate = candidateId ? window.allCandidates?.find(c => c.id === candidateId) : null;
+    
+    // Use label-preview manager if available
+    if (window.labelPreviewManager) {
+      if (candidate) {
+        window.labelPreviewManager.updateLabel(item.builderConfig);
+      }
+    }
+    
+    // Update Live Sample panel if it exists
+    const previewPanel = document.getElementById('lfxLivePreview');
+    if (previewPanel) {
+      const candidateNameSpan = document.getElementById('lfxPreviewCandidateName');
+      if (candidateNameSpan && candidate) {
+        candidateNameSpan.textContent = candidate.dst_lm_name || candidate.dst_name || 'Unnamed';
+      }
+    }
+    
+    console.log('[LabelFX] Live Sample rendered');
+    
+  } catch (error) {
+    console.error('[LabelFX] Error in renderLiveSample:', error);
+  }
+}
+
+// Expose to window
+window.renderLiveSample = renderLiveSample;
+
+/**
+ * renderPanoPreview - Render label in 3D panorama view
+ */
+function renderPanoPreview() {
+  console.log('[LabelFX] Rendering Pano Preview');
+  
+  try {
+    // Get active item and candidate
+    const item = window.getActiveLabelFxItem?.();
+    const candidateId = LabelFXState.activeCandidateId;
+    
+    if (!item || !candidateId) {
+      console.log('[LabelFX] No active item or candidate for Pano Preview');
+      return;
+    }
+    
+    // Get candidate data
+    const candidate = window.allCandidates?.find(c => c.id === candidateId);
+    if (!candidate) {
+      console.warn('[LabelFX] Candidate not found:', candidateId);
+      return;
+    }
+    
+    // Use label-preview manager to render in 3D
+    if (window.labelPreviewManager && window.labelPreviewManager.showLabel) {
+      window.labelPreviewManager.showLabel(candidate, candidateId, item.builderConfig);
+    }
+    
+    console.log('[LabelFX] Pano Preview rendered');
+    
+  } catch (error) {
+    console.error('[LabelFX] Error in renderPanoPreview:', error);
+  }
+}
+
+// Expose to window
+window.renderPanoPreview = renderPanoPreview;
+
+/**
+ * initializeLabelFXBuilder - Ensure stable state on builder open
+ */
+function initializeLabelFXBuilder() {
+  console.log('[LabelFX] Initializing builder with stable state');
+  
+  try {
+    // Get or create active set
+    const sets = window.ViewerState?.labelFxSets || {};
+    const setIds = Object.keys(sets);
+    
+    let activeSetId = LabelFXState.activeSetId;
+    if (!activeSetId || !sets[activeSetId]) {
+      // Use first set or create default
+      if (setIds.length > 0) {
+        activeSetId = setIds[0];
+      } else {
+        console.warn('[LabelFX] No sets found - builder may need to create one');
+        return;
+      }
+    }
+    
+    const activeSet = sets[activeSetId];
+    
+    // Get or create active item
+    let activeItemId = LabelFXState.activeItemId;
+    if (!activeItemId || !activeSet.items?.find(i => i.id === activeItemId)) {
+      // Use first item
+      if (activeSet.items && activeSet.items.length > 0) {
+        activeItemId = activeSet.items[0].id;
+      } else {
+        console.warn('[LabelFX] No items in active set');
+        return;
+      }
+    }
+    
+    const activeItem = activeSet.items.find(i => i.id === activeItemId);
+    
+    // Update state
+    LabelFXState.setState({
+      activeSetId: activeSetId,
+      activeItemId: activeItemId,
+      activePanoId: window.currentSource?.id
+    });
+    
+    // Compute filtered candidates
+    const allCandidates = window.allCandidates || [];
+    const filtered = resolveCandidatesForItem(activeItem, allCandidates, window.currentSource?.id);
+    
+    // Select first candidate if available
+    if (filtered.length > 0 && !LabelFXState.activeCandidateId) {
+      LabelFXState.setState({
+        activeCandidateId: filtered[0].id
+      });
+    }
+    
+    // Render immediately
+    renderLiveSample();
+    renderPanoPreview();
+    
+    console.log('[LabelFX] Builder initialized successfully');
+    
+  } catch (error) {
+    console.error('[LabelFX] Error initializing builder:', error);
+  }
+}
+
+// Expose to window
+window.initializeLabelFXBuilder = initializeLabelFXBuilder;
+
+console.log('[LabelFX] Unified system initialized');
+
 // --------------------
 // Dual dock bootstrap: mount UIs into left/right docks
 // --------------------
