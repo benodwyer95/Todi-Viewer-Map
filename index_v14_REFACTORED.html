@@ -13862,8 +13862,13 @@ const outW = inputNum(b2.layout.outline?.width ?? 2.5, '0.1');
         // Capture state before update
         window.labelHistory.captureState('Builder change');
         
-        // Trigger label update with current item config
-        if (window.labelPreviewManager && item) {
+        // Use unified pipeline for updates (Phase 4)
+        if (window.commitBuilderPatch && item) {
+          // Build config from current item state
+          const config = window.buildLabelConfig ? window.buildLabelConfig() : item;
+          window.commitBuilderPatch(config);
+        } else if (window.labelPreviewManager && item) {
+          // Fallback to direct update if unified system not available
           window.labelPreviewManager.updateLabel(item);
         }
       }, 300); // 300ms debounce
