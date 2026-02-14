@@ -322,9 +322,11 @@ class LabelPreviewManager {
       // Add to scene
       this.scene.add(sprite);
       this.activeSprites.set(candidateIndex, sprite);
-      this.currentCandidate = candidateIndex;
+      
+      // Store candidate OBJECT (not index!) and related data
+      this.currentCandidate = candidate;  // Store the actual candidate object
+      this.currentCandidateIndex = candidateIndex;  // Store the index number
       this.currentSprite = sprite;
-      this.currentCandidateIndex = candidateIndex;
       this.currentLabelConfig = labelConfig;
       
       console.log(`[Label Preview] Showing label for candidate ${candidateIndex}: ${candidate.dst_lm_name || candidate.dst_name || 'unnamed'}`);
@@ -368,14 +370,16 @@ class LabelPreviewManager {
    * Update label with new configuration
    */
   updateLabel(labelConfig) {
-    if (this.currentCandidate !== null && this.activeSprites.has(this.currentCandidate)) {
-      // Get current candidate data
-      const source = window.currentSource ? window.currentSource() : null;
-      if (source && source.candidates && source.candidates[this.currentCandidate]) {
-        const candidate = source.candidates[this.currentCandidate];
-        this.showLabel(candidate, this.currentCandidate, labelConfig);
-      }
+    if (!this.currentCandidate || this.currentCandidateIndex === null) {
+      console.warn('[Label Preview] Cannot update label - no current candidate stored');
+      return;
     }
+    
+    console.log('[Label Preview] Updating label with new config');
+    console.log('[Label Preview] Current candidate:', this.currentCandidateIndex, this.currentCandidate.dst_lm_name || this.currentCandidate.dst_name || 'unnamed');
+    
+    // Use the stored candidate object and index
+    this.showLabel(this.currentCandidate, this.currentCandidateIndex, labelConfig);
   }
 
   /**
@@ -447,25 +451,8 @@ class LabelPreviewManager {
    */
   updateLabelPosition(position) {
     if (this.currentSprite) {
-      this.currentSprite.position.copy(position);
-      console.log('[Label Preview] Position updated:', position);
+      this.currentSprite.position.set(position.x, position.y, position.z);
     }
-  }
-  
-  /**
-   * Update label with new config (called when builder steps change)
-   */
-  updateLabel(labelConfig) {
-    if (!this.currentCandidate || this.currentCandidateIndex === null) {
-      console.warn('[Label Preview] Cannot update label - no current candidate');
-      return;
-    }
-    
-    console.log('[Label Preview] Updating label with new config');
-    console.log('[Label Preview] Current candidate:', this.currentCandidateIndex, this.currentCandidate.dst_lm_name || this.currentCandidate.dst_name);
-    
-    // Preserve candidate and update with new config
-    this.showLabel(this.currentCandidate, this.currentCandidateIndex, labelConfig);
   }
   
   /**
