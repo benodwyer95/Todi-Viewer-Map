@@ -10639,6 +10639,45 @@ init().then(()=>animate()).catch(err=>{
           </div>
         </div>
         <div id="lfxEditorBody"></div>
+        
+        <!-- ALWAYS-VISIBLE LIVE SAMPLE PANEL -->
+        <div id="lfxLivePreviewPanel" style="
+          position: sticky;
+          bottom: 0;
+          background: rgba(255,255,255,0.98);
+          border-top: 2px solid #2196F3;
+          border-radius: 8px 8px 0 0;
+          padding: 15px;
+          margin-top: 20px;
+          box-shadow: 0 -4px 8px rgba(0,0,0,0.1);
+        ">
+          <div style="margin-bottom: 10px;">
+            <h4 style="margin: 0 0 5px 0; color: #2196F3; font-size: 14px; font-weight: 600;">
+              🔴 LIVE PREVIEW
+            </h4>
+            <div style="font-size: 11px; color: #666;">
+              Candidate: <strong><span id="lfxPreviewCandidateName" style="color: #333;">Loading...</span></strong>
+            </div>
+          </div>
+          <div id="lfxPreviewCanvasContainer" style="
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            min-height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          ">
+            <canvas id="lfxPreviewCanvas" style="max-width: 100%; height: auto; display: block;"></canvas>
+            <div id="lfxPreviewPlaceholder" style="color: #999; font-size: 12px;">
+              Preview will appear here
+            </div>
+          </div>
+          <div style="margin-top: 8px; font-size: 10px; color: #666; text-align: center;">
+            ✨ Updates instantly as you edit any step
+          </div>
+        </div>
       </div>
     </div>
 
