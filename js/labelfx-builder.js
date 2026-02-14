@@ -55,6 +55,11 @@ export function openLabelFxBuilder() {
     }
   }
   
+  // Initialize unified LabelFX system
+  if (typeof window.initializeLabelFXBuilder === 'function') {
+    window.initializeLabelFXBuilder();
+  }
+  
   // Initialize undo/redo stack
   saveHistorySnapshot();
   
